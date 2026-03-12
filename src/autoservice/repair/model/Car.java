@@ -5,7 +5,6 @@ public class Car {
     private String brand;
     private String model;
     private int doors;
-    private int tires;
     private String engineType;
     private double engineSize;
     private Transmission transmission;  // your Transmission class
@@ -15,7 +14,6 @@ public class Car {
         this.brand = brand;
         this.model = model;
         this.doors = doors;
-        this.tires = tires;
         this.engineType = engineType;
         this.engineSize = engineSize;
         this.transmission = transmission;
@@ -31,10 +29,6 @@ public class Car {
 
     public int getDoors() {
         return doors;
-    }
-
-    public int getTires() {
-        return tires;
     }
 
     public String getEngineType() {
@@ -61,9 +55,6 @@ public class Car {
         this.doors = doors;
     }
 
-    public void setTires(int tires) {
-        this.tires = tires;
-    }
 
     public void setEngineType(String engineType) {
         this.engineType = engineType;
