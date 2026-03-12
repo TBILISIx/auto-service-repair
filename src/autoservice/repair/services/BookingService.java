@@ -65,7 +65,7 @@ public class BookingService {
             Car car = repairOrder.getCar();
             System.out.println("Engine Type         : " + car.getEngineType());
             System.out.println("Engine Size         : " + car.getEngineSize() + "L");
-            System.out.println("Doors / Tires: " + car.getDoors() + " / " + car.getTires());
+            System.out.println("Doors " + car.getDoors());
             System.out.println("Transmission        : " + car.getTransmission().getType()
                     + " | " + car.getTransmission().getGears() + " gears");
         } else if (repairOrder.getMotorcycle() != null) {
