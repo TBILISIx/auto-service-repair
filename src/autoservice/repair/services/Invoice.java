@@ -11,23 +11,18 @@ public class Invoice {
     private final Customer customer;
     private final RepairOrder repairOrder;
     private final LocalDate issueDate;
-    private BigDecimal discountPercent;
     private Payment payment;
 
-    public Invoice(Customer customer, RepairOrder repairOrder, BigDecimal discountPercent) {
+    public Invoice(Customer customer, RepairOrder repairOrder) {
         this.customer = customer;
         this.repairOrder = repairOrder;
         this.issueDate = LocalDate.now();
-        this.discountPercent = discountPercent;
         this.payment = null;
     }
 
     public BigDecimal calculateTotal() {
         BigDecimal basePrice = repairOrder.getService().getPrice();
-        BigDecimal discountAmount = basePrice
-                .multiply(discountPercent)
-                .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
-        return basePrice.subtract(discountAmount);
+        return basePrice.subtract(basePrice);
     }
 
     public void addPayment(Payment payment) {
@@ -48,7 +43,6 @@ public class Invoice {
                 + " " + repairOrder.getVehicleModel());
         System.out.println("Service      : " + repairOrder.getService().getServiceName());
         System.out.println("Base Price   : " + repairOrder.getService().getPrice() + " GEL");
-        System.out.println("Discount     : " + discountPercent + "%");
         System.out.println("Total Due    : " + calculateTotal() + " GEL");
         if (payment != null) {
             System.out.println("Payment      : " + payment.getMethod()
@@ -68,14 +62,6 @@ public class Invoice {
 
     public LocalDate getIssueDate() {
         return issueDate;
-    }
-
-    public BigDecimal getDiscountPercent() {
-        return discountPercent;
-    }
-
-    public void setDiscountPercent(BigDecimal discountPercent) {
-        this.discountPercent = discountPercent;
     }
 
     public Payment getPayment() {
