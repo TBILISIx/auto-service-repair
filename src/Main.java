@@ -19,9 +19,9 @@ class Main {
         Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"));
 
         // --- Customers ---
-        Customer customer1 = new Customer("Giorgi", 25, "525-99-93-77", insurance1);
-        Customer customer2 = new Customer("Mariam", 30, "599-11-22-33", insurance2);
-        Customer customer3 = new Customer("David", 40, "577-44-55-66", insurance3);
+        Customer customer1 = new Customer("Giorgi", 25, "525-99-93-77", insurance1,"ForGitHomework1@gmail.com");
+        Customer customer2 = new Customer("Mariam", 30, "599-11-22-33", insurance2,"ForGitHomework2@gmail.com");
+        Customer customer3 = new Customer("David", 40, "577-44-55-66", insurance3,"ForGitHomework3@gmail.com");
 
         // --- Mechanics ---
         Mechanic mechanic1 = new Mechanic("Nika", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));

@@ -10,14 +10,16 @@ public class Customer {
     private int loyaltyPoints;
     private LocalDate registrationDate;
     private Insurance insurance;
+    private String email;
 
-    public Customer(String name, int age, String phone, Insurance insurance) {
+    public Customer(String name, int age, String phone, Insurance insurance,String email) {
         this.name = name;
         this.age = age;
         this.phone = phone;
         this.loyaltyPoints = 0;
         this.registrationDate = LocalDate.now();
         this.insurance = insurance;
+        this.email = email;
     }
 
     // Add loyalty points
@@ -50,6 +52,10 @@ public class Customer {
 
     public Insurance getInsurance() {
         return insurance;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     // Setters
