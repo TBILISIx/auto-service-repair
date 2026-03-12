@@ -1,3 +1,6 @@
+# Hello, This is Read me file for Auto Service Project
+
+------------------------------------------------------------------------
 # Auto Service Repair -- Java Project
 
 This is a simple Java console program that simulates a small car repair
