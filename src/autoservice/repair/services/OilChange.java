@@ -8,4 +8,16 @@ public class OilChange extends Service {
 
         super("Oil Change", price);
     }
+
+    @Override
+    public int getDurationMinutes() {
+
+        return 20;
+    }
+
+    @Override
+    public String getServiceDescription() {
+        return "Changing vehicle oil";
+    }
 }
+

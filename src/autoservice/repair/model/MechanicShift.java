@@ -1,5 +1,7 @@
 package autoservice.repair.model;
 
+import autoservice.repair.services.Service;
+
 import java.time.LocalDate;
 
 public class MechanicShift {
@@ -8,7 +10,8 @@ public class MechanicShift {
     private final LocalDate shiftDate;
     private final int startHour;
     private final int endHour;
-    private int assignedOrders;
+    private final Service[] assignedServices;
+    private int assignedCount;
 
     public MechanicShift(Mechanic mechanic, LocalDate shiftDate, int startHour, int endHour) {
         if (startHour < 0 || endHour > 24 || startHour >= endHour) {
@@ -18,24 +21,34 @@ public class MechanicShift {
         this.shiftDate = shiftDate;
         this.startHour = startHour;
         this.endHour = endHour;
-        this.assignedOrders = 0;
+        this.assignedServices = new Service[(endHour - startHour) * 60]; // upper limit of minutes if service took 1 minute
+        this.assignedCount = 0;
     }
 
-    public int getShiftDurationHours() {
-        return endHour - startHour;
+    public int getShiftDurationMinutes() {
+        return (endHour - startHour) * 60;
     }
 
-    public boolean canTakeMoreOrders() {
-        int maxOrders = getShiftDurationHours() / 2;
-        return assignedOrders < maxOrders;
-    }
-
-    public void assignOrder() {
-        if (!canTakeMoreOrders()) {
-            throw new IllegalStateException("Mechanic " + mechanic.getName()
-                    + " cannot take more orders on " + shiftDate);
+    public int getRemainingMinutesBeforeShiftEnd() {
+        int bookedOrders = 0;
+        for (int i = 0; i < assignedCount; i++) {
+            bookedOrders += assignedServices[i].getDurationMinutes();
         }
-        assignedOrders++;
+        return (endHour - startHour) * 60 - bookedOrders;
+    }
+
+    public boolean canTakeService(Service service) {
+        return service.getDurationMinutes() <= getRemainingMinutesBeforeShiftEnd();
+    }
+
+    public void assignService(Service service) {
+        if (!canTakeService(service)) {
+            throw new IllegalStateException("Mechanic " + mechanic.getName()
+                    + " has no time for " + service.getServiceName()
+                    + " on " + shiftDate + " needs " + service.getDurationMinutes()
+                    + " minutes, has" + getRemainingMinutesBeforeShiftEnd() + " minutes left.");
+        }
+        assignedServices[assignedCount++] = service;
     }
 
     public Mechanic getMechanic() {
@@ -54,8 +67,9 @@ public class MechanicShift {
         return endHour;
     }
 
-    public int getAssignedOrders() {
-        return assignedOrders;
-    }
+    public int getAssignedCount() {return assignedCount;}
+
+    public Service[] getAssignedServices() {return assignedServices;}
+
 
 }

@@ -87,7 +87,11 @@ public class BookingService {
         System.out.println("Price               : " + repairOrder.getService().getPrice() + " GEL");
         System.out.println("------------------------------------------------------------------------------");
 
-        int pointsEarned = repairOrder.getService().getPrice().intValue();
+        // Calculating addloyaltypoints parameter it will be 10%
+        int pointsEarned = repairOrder.getService().getPrice().intValue()
+                - ((repairOrder.getService().getPrice().intValue() / 100) * 90);
+
+
         repairOrder.getCustomer().addLoyaltyPoints(pointsEarned);
         System.out.println("Loyalty points awarded: +" + pointsEarned
                 + " | Total: " + repairOrder.getCustomer().getLoyaltyPoints());
