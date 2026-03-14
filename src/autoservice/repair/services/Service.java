@@ -2,10 +2,10 @@ package autoservice.repair.services;
 
 import java.math.BigDecimal;
 
-public class Service {
+public abstract class Service {
 
-    private final String serviceName;
-    private BigDecimal price;
+    protected String serviceName;
+    protected BigDecimal price;
 
     public Service(String serviceName, BigDecimal price) {
         this.serviceName = serviceName;
@@ -23,4 +23,8 @@ public class Service {
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
+
+    public abstract int getDurationMinutes();
+    public abstract String getServiceDescription();
+
 }

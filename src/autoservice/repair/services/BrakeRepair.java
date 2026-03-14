@@ -10,5 +10,17 @@ public class BrakeRepair extends Service {
 
     }
 
+    @Override
+    public int getDurationMinutes() {
+
+        return 90;
+    }
+
+    @Override
+    public String getServiceDescription() {
+        return "Inspecting and Repairing vehicle brakes";
+    }
 }
+
+
 

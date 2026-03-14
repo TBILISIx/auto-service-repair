@@ -19,30 +19,30 @@ class Main {
         Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"));
 
         // --- Customers ---
-        Customer customer1 = new Customer("Giorgi", 25, "525-99-93-77", insurance1,"ForGitHomework1@gmail.com");
-        Customer customer2 = new Customer("Mariam", 30, "599-11-22-33", insurance2,"ForGitHomework2@gmail.com");
-        Customer customer3 = new Customer("David", 40, "577-44-55-66", insurance3,"ForGitHomework3@gmail.com");
+        Customer customer1 = new Customer("Giorgi", 25, "525-99-93-77", insurance1, "ForGitHomework1@gmail.com");
+        Customer customer2 = new Customer("Mariam", 30, "599-11-22-33", insurance2, "ForGitHomework2@gmail.com");
+        Customer customer3 = new Customer("David", 40, "577-44-55-66", insurance3, "ForGitHomework3@gmail.com");
 
         // --- Mechanics ---
         Mechanic mechanic1 = new Mechanic("Nika", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));
         Mechanic mechanic2 = new Mechanic("Luka", "577 22 33 44", "Brake & Suspension", 5, new BigDecimal("18.00"));
 
+        // --- Services ---
+        Service oilChange = new OilChange(new BigDecimal("50.00"));
+        Service tireChange = new TireChange(new BigDecimal("100.00"));
+        Service brakeRepair = new BrakeRepair(new BigDecimal("200.00"));
+
         // --- MechanicShifts ---
         MechanicShift shift1 = new MechanicShift(mechanic1, LocalDate.now(), 8, 18);
         MechanicShift shift2 = new MechanicShift(mechanic2, LocalDate.now(), 9, 17);
 
-        shift1.assignOrder();
-        shift2.assignOrder();
+        shift1.assignService(oilChange);
+        shift2.assignService(brakeRepair);
 
         // --- Vehicles ---
         Car car = new Car("Toyota", "Camry", 4, 4, "Hybrid", 2.5, carTransmission);
         Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", 450, "Sport");
         Truck truck = new Truck("Volvo", "FH16", 2, 10, 16.1, 25.0, true, truckTransmission);
-
-        // --- Services ---
-        Service oilChange = new Service("Oil Change", new BigDecimal("50.00"));
-        Service tireChange = new Service("Tire Change", new BigDecimal("100.00"));
-        Service brakeRepair = new Service("Brake Repair", new BigDecimal("200.00"));
 
         // --- Spare Parts ---
         SparePart oilFilter = new SparePart("Oil Filter", "OF-4521", new BigDecimal("12.50"), 10);

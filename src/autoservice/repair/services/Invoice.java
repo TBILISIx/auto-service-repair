@@ -4,6 +4,7 @@ import autoservice.repair.model.Customer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 
 public class Invoice {
@@ -47,6 +48,9 @@ public class Invoice {
         System.out.println("Vehicle      : " + repairOrder.getVehicleBrand()
                 + " " + repairOrder.getVehicleModel());
         System.out.println("Service      : " + repairOrder.getService().getServiceName());
+        System.out.println("*****");
+        System.out.println("Service Description: " + repairOrder.getService().getServiceDescription());
+        System.out.println("*****");
         System.out.println("Base Price   : " + repairOrder.getService().getPrice() + " GEL");
         System.out.println("Discount     : " + discountPercent + "%");
         System.out.println("Total Due    : " + calculateTotal() + " GEL");
