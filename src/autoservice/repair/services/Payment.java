@@ -1,16 +1,18 @@
 package autoservice.repair.services;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public class Payment {
+public class Payment extends Document {
 
     private final BigDecimal amount;
     private final String method;   // CASH / CARD / TRANSFER
     private final LocalDateTime paymentDate;
     private boolean confirmed;
 
-    public Payment(BigDecimal amount, String method) {
+    public Payment(int id, BigDecimal amount, String method) {
+        super(id);
         this.amount = amount;
         this.method = method;
         this.paymentDate = LocalDateTime.now();

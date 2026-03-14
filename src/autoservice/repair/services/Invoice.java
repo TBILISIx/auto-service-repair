@@ -7,18 +7,17 @@ import java.math.RoundingMode;
 import java.sql.SQLOutput;
 import java.time.LocalDate;
 
-public class Invoice {
+public class Invoice extends Document{
 
     private final Customer customer;
     private final RepairOrder repairOrder;
-    private final LocalDate issueDate;
     private BigDecimal discountPercent;
     private Payment payment;
 
-    public Invoice(Customer customer, RepairOrder repairOrder, BigDecimal discountPercent) {
+    public Invoice(int id, Customer customer, RepairOrder repairOrder, BigDecimal discountPercent) {
+        super(id);
         this.customer = customer;
         this.repairOrder = repairOrder;
-        this.issueDate = LocalDate.now();
         this.discountPercent = discountPercent;
         this.payment = null;
     }
@@ -38,7 +37,7 @@ public class Invoice {
 
     public void generate() {
         System.out.println("=== INVOICE ===");
-        System.out.println("Issue Date   : " + issueDate);
+        System.out.println("Issue Date   : " + getDate());
         System.out.println("Customer     : " + customer.getName());
         System.out.println("Insurance    : " + customer.getInsurance().getProvider()
                 + " | Policy: " + customer.getInsurance().getPolicyNumber()
@@ -71,7 +70,7 @@ public class Invoice {
     }
 
     public LocalDate getIssueDate() {
-        return issueDate;
+        return getDate();
     }
 
     public BigDecimal getDiscountPercent() {

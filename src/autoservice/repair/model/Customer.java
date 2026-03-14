@@ -2,20 +2,18 @@ package autoservice.repair.model;
 
 import java.time.LocalDate;
 
-public class Customer {
+public class Customer extends Person {
 
-    private String name;
-    private String phone;
     private int age;
     private int loyaltyPoints;
-    private LocalDate registrationDate;
+    private final LocalDate registrationDate;
     private Insurance insurance;
-    private String email;
+    private final String email;
 
-    public Customer(String name, int age, String phone, Insurance insurance,String email) {
-        this.name = name;
+    public Customer(String name, int age, String phone, Insurance insurance, String email) {
+        super(name, phone);
         this.age = age;
-        this.phone = phone;
+
         this.loyaltyPoints = 0;
         this.registrationDate = LocalDate.now();
         this.insurance = insurance;
@@ -30,13 +28,6 @@ public class Customer {
     }
 
     // Getters
-    public String getName() {
-        return name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
 
     public int getAge() {
         return age;
@@ -59,13 +50,6 @@ public class Customer {
     }
 
     // Setters
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
 
     public void setAge(int age) {
         this.age = age;

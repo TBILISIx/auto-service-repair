@@ -97,8 +97,8 @@ public class BookingService {
                 + " | Total: " + repairOrder.getCustomer().getLoyaltyPoints());
         System.out.println("------------------------------------------------------------------------------");
 
-        Invoice invoice = new Invoice(repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
-        Payment payment = new Payment(invoice.calculateTotal(), "CARD");
+        Invoice invoice = new Invoice(1,repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
+        Payment payment = new Payment(1,invoice.calculateTotal(), "CARD");
         invoice.addPayment(payment);
         invoice.generate();
 

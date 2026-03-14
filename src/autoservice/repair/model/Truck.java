@@ -1,9 +1,7 @@
 package autoservice.repair.model;
 
-public class Truck {
+public class Truck extends Vehicle {
 
-    private final String brand;
-    private final String model;
     private final int doors;
     private final int tires;
     private final double engineSize;
@@ -13,22 +11,13 @@ public class Truck {
 
     public Truck(String brand, String model, int doors, int tires, double engineSize,
                  double payloadCapacityTons, boolean hasSleepingCabin, Transmission transmission) {
-        this.brand = brand;
-        this.model = model;
+        super(brand, model);
         this.doors = doors;
         this.tires = tires;
         this.engineSize = engineSize;
         this.payloadCapacityTons = payloadCapacityTons;
         this.hasSleepingCabin = hasSleepingCabin;
         this.transmission = transmission;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public String getModel() {
-        return model;
     }
 
     public int getDoors() {

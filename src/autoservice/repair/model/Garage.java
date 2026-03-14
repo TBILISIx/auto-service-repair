@@ -2,7 +2,6 @@ package autoservice.repair.model;
 
 import autoservice.repair.services.Appointment;
 import autoservice.repair.services.RepairOrder;
-import autoservice.repair.services.SparePart;
 
 public class Garage {
 

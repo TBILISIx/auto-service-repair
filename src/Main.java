@@ -59,8 +59,8 @@ class Main {
         RepairOrder repairOrder3 = new RepairOrder(customer3, mechanic1, truck, tireChange, LocalDateTime.now());
 
         // --- Appointments ---
-        Appointment appointment1 = new Appointment(customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
-        Appointment appointment2 = new Appointment(customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
+        Appointment appointment1 = new Appointment(1,customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
+        Appointment appointment2 = new Appointment(2,customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
 
         appointment1.start();
         appointment1.complete();
