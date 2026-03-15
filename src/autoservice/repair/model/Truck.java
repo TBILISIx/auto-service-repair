@@ -1,5 +1,7 @@
 package autoservice.repair.model;
 
+import java.util.Objects;
+
 public class Truck extends Vehicle {
 
     private final int doors;
@@ -9,9 +11,9 @@ public class Truck extends Vehicle {
     private final boolean hasSleepingCabin;
     private final Transmission transmission;
 
-    public Truck(String brand, String model, int doors, int tires, double engineSize,
+    public Truck(String brand, String model, String vin, String licensePlate, int doors, int tires, double engineSize,
                  double payloadCapacityTons, boolean hasSleepingCabin, Transmission transmission) {
-        super(brand, model);
+        super(brand, model, vin, licensePlate);
         this.doors = doors;
         this.tires = tires;
         this.engineSize = engineSize;
@@ -44,4 +46,33 @@ public class Truck extends Vehicle {
         return transmission;
     }
 
+    @Override
+    public String toString() {
+        return "Truck{" +
+                "brand='" + getBrand() + '\'' +
+                ", model='" + getModel() + '\'' +
+                ", vin='" + getVin() + '\'' +
+                ", licensePlate='" + getLicensePlate() + '\'' +
+                ", doors=" + doors +
+                ", tires=" + tires +
+                ", engineSize=" + engineSize +
+                ", payloadCapacityTons=" + payloadCapacityTons +
+                ", hasSleepingCabin=" + hasSleepingCabin +
+                ", transmission=" + transmission +
+                '}';
+    }
+
 }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (!(o instanceof Truck)) return false;
+//        Truck truck = (Truck) o;
+//        return Objects.equals(getVin(), truck.getVin());
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(getVin());
+//    }

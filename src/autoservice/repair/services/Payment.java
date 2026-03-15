@@ -1,7 +1,6 @@
 package autoservice.repair.services;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class Payment extends Document {
@@ -38,6 +37,17 @@ public class Payment extends Document {
 
     public boolean isConfirmed() {
         return confirmed;
+    }
+
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "id=" + getId() +
+                ", amount=" + amount + " GEL" +
+                ", method='" + method + '\'' +
+                ", paymentDate=" + paymentDate +
+                ", confirmed=" + confirmed +
+                '}';
     }
 
 }

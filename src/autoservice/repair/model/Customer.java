@@ -10,8 +10,8 @@ public class Customer extends Person {
     private Insurance insurance;
     private final String email;
 
-    public Customer(String name, int age, String phone, Insurance insurance, String email) {
-        super(name, phone);
+    public Customer(String name, String idNumber, String phone, int age, Insurance insurance, String email) {
+        super(name, idNumber, phone);
         this.age = age;
 
         this.loyaltyPoints = 0;
@@ -28,7 +28,6 @@ public class Customer extends Person {
     }
 
     // Getters
-
     public int getAge() {
         return age;
     }
@@ -50,7 +49,6 @@ public class Customer extends Person {
     }
 
     // Setters
-
     public void setAge(int age) {
         this.age = age;
     }
@@ -59,4 +57,17 @@ public class Customer extends Person {
         this.insurance = insurance;
     }
 
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "name='" + getName() + '\'' +
+                ", idNumber='" + getIdNumber() + '\'' +
+                ", phone='" + getPhone() + '\'' +
+                ", age=" + age +
+                ", loyaltyPoints=" + loyaltyPoints +
+                ", registrationDate=" + registrationDate +
+                ", insurance=" + insurance +
+                ", email='" + email + '\'' +
+                '}';
+    }
 }

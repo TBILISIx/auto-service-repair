@@ -1,6 +1,7 @@
 package autoservice.repair.services;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public abstract class Document {
 
@@ -19,4 +20,26 @@ public abstract class Document {
     public LocalDate getDate() {
         return date;
     }
+
+    @Override
+    public String toString() {
+        return "Document{" +
+                "id=" + id +
+                ", date=" + date +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Document)) return false;
+        Document document = (Document) o;
+        return id == document.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
 }
