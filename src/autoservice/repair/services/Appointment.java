@@ -113,4 +113,16 @@ public class Appointment extends Document{
         return status;
     }
 
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "id=" + getId() +
+                ", customer=" + customer.getName() +
+                ", mechanic=" + mechanic.getName() +
+                ", vehicle=" + getVehicleDescription() +
+                ", scheduledTime=" + getFormattedScheduledTime() +
+                ", status='" + status + '\'' +
+                '}';
+    }
+
 }
