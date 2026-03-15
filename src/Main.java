@@ -19,13 +19,13 @@ class Main {
         Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"));
 
         // --- Customers ---
-        Customer customer1 = new Customer("Giorgi", 25, "525-99-93-77", insurance1, "ForGitHomework1@gmail.com");
-        Customer customer2 = new Customer("Mariam", 30, "599-11-22-33", insurance2, "ForGitHomework2@gmail.com");
-        Customer customer3 = new Customer("David", 40, "577-44-55-66", insurance3, "ForGitHomework3@gmail.com");
+        Customer customer1 = new Customer("Giorgi", "19207150012", "525-99-93-77", 25, insurance1, "ForGitHomework1@gmail.com");
+        Customer customer2 = new Customer("Mariam", "28803220039", "599-11-22-33", 30, insurance2, "ForGitHomework2@gmail.com");
+        Customer customer3 = new Customer("David", "30111050047", "577-44-55-66", 40, insurance3, "ForGitHomework3@gmail.com");
 
         // --- Mechanics ---
-        Mechanic mechanic1 = new Mechanic("Nika", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));
-        Mechanic mechanic2 = new Mechanic("Luka", "577 22 33 44", "Brake & Suspension", 5, new BigDecimal("18.00"));
+        Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));
+        Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 5, new BigDecimal("18.00"));
 
         // --- Services ---
 
@@ -43,9 +43,9 @@ class Main {
         shift2.assignService(brakeRepair);
 
         // --- Vehicles ---
-        Car car = new Car("Toyota", "Camry", 4, 4, "Hybrid", 2.5, carTransmission);
-        Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", 450, "Sport");
-        Truck truck = new Truck("Volvo", "FH16", 2, 10, 16.1, 25.0, true, truckTransmission);
+        Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 4, 4, "Hybrid", 2.5, carTransmission);
+        Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", "JKAZXK8J0MA000001", "GE-417", 450, "Sport");
+        Truck truck = new Truck("Volvo", "FH16", "GE-804-TR", "VF6FJ2C0XLN000001", 2, 10, 16.1, 25.0, true, truckTransmission);
 
         // --- Spare Parts ---
         SparePart oilFilter = new SparePart("Oil Filter", "OF-4521", new BigDecimal("12.50"), 10);
@@ -62,8 +62,8 @@ class Main {
         RepairOrder repairOrder3 = new RepairOrder(customer3, mechanic1, truck, tireChange, LocalDateTime.now());
 
         // --- Appointments ---
-        Appointment appointment1 = new Appointment(1,customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
-        Appointment appointment2 = new Appointment(2,customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
+        Appointment appointment1 = new Appointment(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
+        Appointment appointment2 = new Appointment(2, customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
 
         appointment1.start();
         appointment1.complete();
@@ -74,20 +74,7 @@ class Main {
         System.out.println("------------------------------------------------------------------------------");
 
         // --- Garage: root object — fully populated ---
-        Garage garage = new Garage(
-                "AutoFix Tbilisi",
-                "Vake District, 14 Chavchavadze Ave",
-                5,
-                new Mechanic[]{mechanic1, mechanic2},
-                new MechanicShift[]{shift1, shift2},
-                new Customer[]{customer1, customer2, customer3},
-                new Car[]{car},
-                new Motorcycle[]{motorcycle},
-                new Truck[]{truck},
-                new SparePart[]{oilFilter, brakeDisc, tirePatch},
-                new Appointment[]{appointment1, appointment2},
-                new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3}
-        );
+        Garage garage = new Garage("AutoFix Tbilisi", "Vake District, 14 Chavchavadze Ave", 5, new Mechanic[]{mechanic1, mechanic2}, new MechanicShift[]{shift1, shift2}, new Customer[]{customer1, customer2, customer3}, new Car[]{car}, new Motorcycle[]{motorcycle}, new Truck[]{truck}, new SparePart[]{oilFilter, brakeDisc, tirePatch}, new Appointment[]{appointment1, appointment2}, new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
 
         // --- BookingService uses Garage as root ---
         BookingService bookingService = new BookingService(garage);

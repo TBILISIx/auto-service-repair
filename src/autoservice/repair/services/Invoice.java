@@ -4,10 +4,9 @@ import autoservice.repair.model.Customer;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.SQLOutput;
 import java.time.LocalDate;
 
-public class Invoice extends Document{
+public class Invoice extends Document {
 
     private final Customer customer;
     private final RepairOrder repairOrder;
@@ -83,6 +82,18 @@ public class Invoice extends Document{
 
     public Payment getPayment() {
         return payment;
+    }
+
+    @Override
+    public String toString() {
+        return "Invoice{" +
+                "id=" + getId() +
+                ", issueDate=" + getDate() +
+                ", customer=" + customer +
+                ", repairOrder=" + repairOrder +
+                ", discountPercent=" + discountPercent + "%" +
+                ", payment=" + payment +
+                '}';
     }
 
 }
