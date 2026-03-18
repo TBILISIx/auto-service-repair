@@ -8,7 +8,7 @@ public class Insurance {
     private final String provider;
     private final String policyNumber;
     private final LocalDate expiryDate;
-    private BigDecimal monthlyPremium;
+    private final BigDecimal monthlyPremium;
 
     public Insurance(String provider, String policyNumber, LocalDate expiryDate, BigDecimal monthlyPremium) {
         this.provider = provider;

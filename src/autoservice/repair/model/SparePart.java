@@ -2,7 +2,7 @@ package autoservice.repair.model;
 
 import java.math.BigDecimal;
 
-public class SparePart extends Product {
+public class SparePart extends Product implements Sellable {
 
     private Integer quantity;
 
@@ -36,6 +36,13 @@ public class SparePart extends Product {
 
     public void setQuantity(Integer quantity) {
         this.quantity = quantity;
+    }
+
+    @Override
+    public BigDecimal getSellingPrice() {
+
+        return getUnitPrice();
+
     }
 
 }

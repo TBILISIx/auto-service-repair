@@ -36,30 +36,41 @@ public class Invoice extends Document {
 
     public void generate() {
         System.out.println("=== INVOICE ===");
-        System.out.println("Issue Date   : " + getDate());
-        System.out.println("Customer     : " + customer.getName());
-        System.out.println("Insurance    : " + customer.getInsurance().getProvider()
-                + " | Policy: " + customer.getInsurance().getPolicyNumber()
-                + " | Expired: " + customer.getInsurance().isExpired());
-        System.out.println("Registration Date: " + customer.getRegistrationDate());
-        System.out.println("Expiry Date: " + customer.getInsurance().getExpiryDate());
-        System.out.println("Vehicle      : " + repairOrder.getVehicleBrand()
-                + " " + repairOrder.getVehicleModel());
-        System.out.println("Service      : " + repairOrder.getService().getServiceName());
-        System.out.println("*****");
-        System.out.println("Service Description: " + repairOrder.getService().getServiceDescription());
-        System.out.println("*****");
-        System.out.println("Base Price   : " + repairOrder.getService().getPrice() + " GEL");
-        System.out.println("Discount     : " + discountPercent + "%");
-        System.out.println("Total Due    : " + calculateTotal() + " GEL");
+
+        // Invoice Info
+        System.out.println("Issue Date           : " + getDate());
+
+        // Customer Info
+        System.out.println("Customer             : " + customer.getName());
+        System.out.println("Registration Date    : " + customer.getRegistrationDate());
+        System.out.println("Insurance Provider   : " + customer.getInsurance().getProvider());
+        System.out.println("Policy Number        : " + customer.getInsurance().getPolicyNumber());
+        System.out.println("Policy Expired       : " + customer.getInsurance().isExpired());
+        System.out.println("Policy Expiry Date   : " + customer.getInsurance().getExpiryDate());
+        System.out.println("------------------------------------------------------------------------------");
+
+        // Vehicle Info
+        System.out.println("Vehicle              : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
+        System.out.println("Service              : " + repairOrder.getService().getServiceName());
+        System.out.println("Service Description  : " + repairOrder.getService().getServiceDescription());
+        System.out.println("------------------------------------------------------------------------------");
+
+        // Pricing Info
+        System.out.println("Base Price           : " + repairOrder.getService().getPrice() + " GEL");
+        System.out.println("Discount             : " + discountPercent + "%");
+        System.out.println("Total Due            : " + calculateTotal() + " GEL");
+
+        // Payment Info
         if (payment != null) {
-            System.out.println("Payment      : " + payment.getMethod()
-                    + " | " + payment.getAmount() + " GEL"
-                    + " | Confirmed: " + payment.isConfirmed());
+            System.out.println("Payment Method       : " + payment.getMethod());
+            System.out.println("Payment Amount       : " + payment.getAmount() + " GEL");
+            System.out.println("Payment Confirmed    : " + payment.isConfirmed());
         }
+
         System.out.println("===============");
     }
 
+    // Getters and Setters
     public Customer getCustomer() {
         return customer;
     }
@@ -95,5 +106,4 @@ public class Invoice extends Document {
                 ", payment=" + payment +
                 '}';
     }
-
 }
