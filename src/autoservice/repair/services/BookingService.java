@@ -101,8 +101,8 @@ public class BookingService {
         System.out.println("------------------------------------------------------------------------------");
 
         // Invoice & Payment
-        Invoice invoice = new Invoice(1, repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
-        Payment payment = new Payment(1, invoice.calculateTotal(), "CARD");
+        Invoice invoice = new Invoice(totalOrders, repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
+        Payment payment = new Payment(totalOrders, invoice.calculateTotal(), "CARD");
         invoice.addPayment(payment);
         invoice.generate();
 

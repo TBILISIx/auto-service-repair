@@ -70,7 +70,7 @@ public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspe
     @Override
     public void performInspection() {
         System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Inspection report for car: " + getBrand() + " " + getModel());
+        System.out.println("Inspection report for motorcycle: " + getBrand() + " " + getModel());
         System.out.println("------------------------------------------------------------------------------");
         System.out.println("- Ridden: " + (ridden ? "Yes" : "No"));
         System.out.println("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
