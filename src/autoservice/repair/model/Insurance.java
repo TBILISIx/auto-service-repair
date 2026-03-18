@@ -17,7 +17,7 @@ public class Insurance {
         this.monthlyPremium = monthlyPremium;
     }
 
-    public boolean isExpired() {
+    public Boolean isExpired() {
         return LocalDate.now().isAfter(expiryDate);
     }
 

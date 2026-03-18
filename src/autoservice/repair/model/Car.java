@@ -1,24 +1,22 @@
 package autoservice.repair.model;
 
-import java.util.Objects;
-
 public class Car extends Vehicle {
 
-    private int doors;
+    private Integer doors;
     private String engineType;
-    private double engineSize;
+    private Double engineSize;
     private Transmission transmission;  // your Transmission class
 
-    public Car(String brand, String model,String vin, String licensePlate, int doors, int tires, String engineType,
-               double engineSize, Transmission transmission) {
-        super(brand, model,vin,licensePlate);
+    public Car(String brand, String model, String vin, String licensePlate, Integer doors, String engineType,
+               Double engineSize, Transmission transmission) {
+        super(brand, model, vin, licensePlate);
         this.doors = doors;
         this.engineType = engineType;
         this.engineSize = engineSize;
         this.transmission = transmission;
     }
 
-    public int getDoors() {
+    public Integer getDoors() {
         return doors;
     }
 
@@ -26,7 +24,7 @@ public class Car extends Vehicle {
         return engineType;
     }
 
-    public double getEngineSize() {
+    public Double getEngineSize() {
         return engineSize;
     }
 
@@ -34,7 +32,7 @@ public class Car extends Vehicle {
         return transmission;
     }
 
-    public void setDoors(int doors) {
+    public void setDoors(Integer doors) {
         this.doors = doors;
     }
 
@@ -42,7 +40,7 @@ public class Car extends Vehicle {
         this.engineType = engineType;
     }
 
-    public void setEngineSize(double engineSize) {
+    public void setEngineSize(Double engineSize) {
         this.engineSize = engineSize;
     }
 
@@ -68,7 +66,7 @@ public class Car extends Vehicle {
 
 // if in future I add more than Vin use these methods if not subclasses inherit from vehicle vin equals hash override.
 //    @Override
-//    public boolean equals(Object o) {
+//    public Boolean equals(Object o) {
 //        if (this == o) return true; // same object
 //        if (!(o instanceof Car)) return false; // not the same type
 //        Car car = (Car) o;

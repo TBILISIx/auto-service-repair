@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 
 public class SparePart extends Product {
 
-    private int quantity;
+    private Integer quantity;
 
-    public SparePart(String partName, String partNumber, BigDecimal unitPrice, int quantity) {
+    public SparePart(String partName, String partNumber, BigDecimal unitPrice, Integer quantity) {
         super(partName, partNumber, unitPrice);
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative for part: " + partName);
@@ -19,7 +19,7 @@ public class SparePart extends Product {
         return getUnitPrice().multiply(new BigDecimal(quantity));
     }
 
-    public boolean isInStock() {
+    public Boolean isInStock() {
         return quantity > 0;
     }
 
@@ -30,11 +30,11 @@ public class SparePart extends Product {
         quantity--;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 

@@ -9,7 +9,7 @@ public class TireChange extends Service {
     }
 
     @Override
-    public int getDurationMinutes() {
+    public Integer getDurationMinutes() {
 
         return 60;
     }

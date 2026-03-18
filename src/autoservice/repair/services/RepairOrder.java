@@ -28,7 +28,7 @@ public class RepairOrder {
     }
 
     public RepairOrder(Customer customer, Mechanic mechanic, Motorcycle motorcycle, Service service, LocalDateTime orderDate) {
-        int age = customer.getAge();
+        Integer age = customer.getAge();
         if (age < 16 && motorcycle.getEngineCapacity() > 50) {
             throw new IllegalArgumentException("According to Georgian law customers under 16 cannot drive motorcycles above 50cc.");
         }

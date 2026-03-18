@@ -7,8 +7,8 @@ public class Garage {
 
     private final String name;
     private final String address;
-    private final int totalBays;
-    private int occupiedBays;
+    private final Integer totalBays;
+    private Integer occupiedBays;
     private final Mechanic[] mechanics;
     private final MechanicShift[] shifts;
 
@@ -20,7 +20,7 @@ public class Garage {
     private final Appointment[] appointments;
     private final RepairOrder[] repairOrders;
 
-    public Garage(String name, String address, int totalBays,
+    public Garage(String name, String address, Integer totalBays,
                   Mechanic[] mechanics, MechanicShift[] shifts,
                   Customer[] customers,
                   Car[] cars, Motorcycle[] motorcycles, Truck[] trucks,
@@ -41,7 +41,7 @@ public class Garage {
         this.repairOrders = repairOrders;
     }
 
-    public boolean hasFreeBay() {
+    public Boolean hasFreeBay() {
         return totalBays > occupiedBays;
     }
 
@@ -58,7 +58,7 @@ public class Garage {
         }
     }
 
-    public int getFreeBays() {
+    public Integer getFreeBays() {
         return totalBays - occupiedBays;
     }
 
@@ -70,11 +70,11 @@ public class Garage {
         return address;
     }
 
-    public int getTotalBays() {
+    public Integer getTotalBays() {
         return totalBays;
     }
 
-    public int getOccupiedBays() {
+    public Integer getOccupiedBays() {
         return occupiedBays;
     }
 

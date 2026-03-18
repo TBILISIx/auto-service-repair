@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 
 public class BookingService {
 
-    private static int totalOrders;
+    private static Integer totalOrders;
     private final Garage garage;
 
     static {
@@ -24,7 +24,7 @@ public class BookingService {
         this.garage = garage;
     }
 
-    public static int getTotalOrders() {
+    public static Integer getTotalOrders() {
         return totalOrders;
     }
 
@@ -88,17 +88,16 @@ public class BookingService {
         System.out.println("------------------------------------------------------------------------------");
 
         // Calculating addloyaltypoints parameter it will be 10%
-        int pointsEarned = repairOrder.getService().getPrice().intValue()
+        Integer pointsEarned = repairOrder.getService().getPrice().intValue()
                 - ((repairOrder.getService().getPrice().intValue() / 100) * 90);
-
 
         repairOrder.getCustomer().addLoyaltyPoints(pointsEarned);
         System.out.println("Loyalty points awarded: +" + pointsEarned
                 + " | Total: " + repairOrder.getCustomer().getLoyaltyPoints());
         System.out.println("------------------------------------------------------------------------------");
 
-        Invoice invoice = new Invoice(1,repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
-        Payment payment = new Payment(1,invoice.calculateTotal(), "CARD");
+        Invoice invoice = new Invoice(1, repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
+        Payment payment = new Payment(1, invoice.calculateTotal(), "CARD");
         invoice.addPayment(payment);
         invoice.generate();
 

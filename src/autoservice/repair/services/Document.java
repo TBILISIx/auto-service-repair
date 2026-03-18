@@ -5,15 +5,15 @@ import java.util.Objects;
 
 public abstract class Document {
 
-    private final int id;
+    private final Integer id;
     private final LocalDate date;
 
-    public Document(int id) {
+    public Document(Integer id) {
         this.id = id;
         this.date = LocalDate.now();
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -34,7 +34,7 @@ public abstract class Document {
         if (this == o) return true;
         if (!(o instanceof Document)) return false;
         Document document = (Document) o;
-        return id == document.id;
+        return Objects.equals(id, document.id);
     }
 
     @Override
