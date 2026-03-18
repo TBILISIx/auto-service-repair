@@ -8,9 +8,7 @@ public class RepairOrder {
 
     private final Customer customer;
     private final Mechanic mechanic;
-    private final Car car;
-    private final Motorcycle motorcycle;
-    private final Truck truck;
+    private final Vehicle vehicle;
     private final Service service;
     private final LocalDateTime orderDate;
 
@@ -20,9 +18,7 @@ public class RepairOrder {
         }
         this.customer = customer;
         this.mechanic = mechanic;
-        this.car = car;
-        this.motorcycle = null;
-        this.truck = null;
+        this.vehicle = car;
         this.service = service;
         this.orderDate = orderDate;
     }
@@ -37,9 +33,7 @@ public class RepairOrder {
         }
         this.customer = customer;
         this.mechanic = mechanic;
-        this.car = null;
-        this.motorcycle = motorcycle;
-        this.truck = null;
+        this.vehicle = motorcycle;
         this.service = service;
         this.orderDate = orderDate;
     }
@@ -50,49 +44,38 @@ public class RepairOrder {
         }
         this.customer = customer;
         this.mechanic = mechanic;
-        this.car = null;
-        this.motorcycle = null;
-        this.truck = truck;
+        this.vehicle = truck;
         this.service = service;
         this.orderDate = orderDate;
     }
 
     public String getVehicleBrand() {
-        if (car != null) return car.getBrand();
-        if (motorcycle != null) return motorcycle.getBrand();
-        return truck.getBrand();
+        return vehicle.getBrand();
     }
-
     public String getVehicleModel() {
-        if (car != null) return car.getModel();
-        if (motorcycle != null) return motorcycle.getModel();
-        return truck.getModel();
+        return vehicle.getModel();
     }
 
     public Customer getCustomer() {
         return customer;
     }
-
     public Mechanic getMechanic() {
         return mechanic;
     }
 
     public Car getCar() {
-        return car;
+        return (vehicle instanceof Car) ? (Car) vehicle : null;
     }
-
     public Motorcycle getMotorcycle() {
-        return motorcycle;
+        return (vehicle instanceof Motorcycle) ? (Motorcycle) vehicle : null;
     }
-
     public Truck getTruck() {
-        return truck;
+        return (vehicle instanceof Truck) ? (Truck) vehicle : null;
     }
 
     public Service getService() {
         return service;
     }
-
     public LocalDateTime getOrderDate() {
         return orderDate;
     }

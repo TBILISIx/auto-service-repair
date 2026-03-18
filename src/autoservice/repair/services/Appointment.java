@@ -1,6 +1,8 @@
 package autoservice.repair.services;
 
-import autoservice.repair.model.*;
+import autoservice.repair.model.Customer;
+import autoservice.repair.model.Mechanic;
+import autoservice.repair.model.Vehicle;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -9,51 +11,23 @@ public class Appointment extends Document {
 
     private final Customer customer;
     private final Mechanic mechanic;
-    private final Car car;
-    private final Motorcycle motorcycle;
-    private final Truck truck;
+    private final Vehicle vehicle;
     private final LocalDateTime scheduledTime;
     private String status; // SCHEDULED, IN_PROGRESS, DONE, CANCELLED
 
     // Constructors
-    public Appointment(Integer id, Customer customer, Mechanic mechanic, Car car, LocalDateTime scheduledTime) {
+    public Appointment(Integer id, Customer customer, Mechanic mechanic, Vehicle vehicle, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
         this.mechanic = mechanic;
-        this.car = car;
-        this.motorcycle = null;
-        this.truck = null;
-        this.scheduledTime = scheduledTime;
-        this.status = "SCHEDULED";
-    }
-
-    public Appointment(Integer id, Customer customer, Mechanic mechanic, Motorcycle motorcycle, LocalDateTime scheduledTime) {
-        super(id);
-        this.customer = customer;
-        this.mechanic = mechanic;
-        this.car = null;
-        this.motorcycle = motorcycle;
-        this.truck = null;
-        this.scheduledTime = scheduledTime;
-        this.status = "SCHEDULED";
-    }
-
-    public Appointment(Integer id, Customer customer, Mechanic mechanic, Truck truck, LocalDateTime scheduledTime) {
-        super(id);
-        this.customer = customer;
-        this.mechanic = mechanic;
-        this.car = null;
-        this.motorcycle = null;
-        this.truck = truck;
+        this.vehicle = vehicle;
         this.scheduledTime = scheduledTime;
         this.status = "SCHEDULED";
     }
 
     // Vehicle Description
     public String getVehicleDescription() {
-        if (car != null) return car.getBrand() + " " + car.getModel();
-        if (motorcycle != null) return motorcycle.getBrand() + " " + motorcycle.getModel();
-        return truck.getBrand() + " " + truck.getModel();
+        return vehicle.getBrand() + " " + vehicle.getModel();
     }
 
     // Appointment Actions
@@ -106,13 +80,21 @@ public class Appointment extends Document {
     }
 
     // Getters
-    public Customer getCustomer() { return customer; }
-    public Mechanic getMechanic() { return mechanic; }
-    public Car getCar() { return car; }
-    public Motorcycle getMotorcycle() { return motorcycle; }
-    public Truck getTruck() { return truck; }
-    public LocalDateTime getScheduledTime() { return scheduledTime; }
-    public String getStatus() { return status; }
+    public Customer getCustomer() {
+        return customer;
+    }
+    public Mechanic getMechanic() {
+        return mechanic;
+    }
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+    public LocalDateTime getScheduledTime() {
+        return scheduledTime;
+    }
+    public String getStatus() {
+        return status;
+    }
 
     @Override
     public String toString() {
