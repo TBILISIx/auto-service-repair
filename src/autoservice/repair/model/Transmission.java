@@ -1,6 +1,6 @@
 package autoservice.repair.model;
 
-public class Transmission {
+public final class Transmission {
 
     private final String type;   // Automatic / Manual / Semi-Automatic
     private final int gears;
