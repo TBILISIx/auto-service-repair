@@ -13,7 +13,7 @@ public abstract class Document {
         this.date = LocalDate.now();
     }
 
-    public Integer getId() {
+    public final Integer getId() {
         return id;
     }
 
