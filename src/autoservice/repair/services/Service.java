@@ -24,7 +24,8 @@ public abstract class Service {
         this.price = price;
     }
 
-    public abstract int getDurationMinutes();
+    public abstract Integer getDurationMinutes();
+
     public abstract String getServiceDescription();
 
 }

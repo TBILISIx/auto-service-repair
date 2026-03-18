@@ -4,13 +4,13 @@ import java.time.LocalDate;
 
 public class Customer extends Person {
 
-    private int age;
-    private int loyaltyPoints;
+    private Integer age;
+    private Integer loyaltyPoints;
     private final LocalDate registrationDate;
     private Insurance insurance;
     private final String email;
 
-    public Customer(String name, String idNumber, String phone, int age, Insurance insurance, String email) {
+    public Customer(String name, String idNumber, String phone, Integer age, Insurance insurance, String email) {
         super(name, idNumber, phone);
         this.age = age;
 
@@ -21,18 +21,18 @@ public class Customer extends Person {
     }
 
     // Add loyalty points
-    public void addLoyaltyPoints(int points) {
+    public void addLoyaltyPoints(Integer points) {
         if (points > 0) {
             this.loyaltyPoints += points;
         }
     }
 
     // Getters
-    public int getAge() {
+    public Integer getAge() {
         return age;
     }
 
-    public int getLoyaltyPoints() {
+    public Integer getLoyaltyPoints() {
         return loyaltyPoints;
     }
 
@@ -49,7 +49,7 @@ public class Customer extends Person {
     }
 
     // Setters
-    public void setAge(int age) {
+    public void setAge(Integer age) {
         this.age = age;
     }
 

@@ -1,19 +1,17 @@
 package autoservice.repair.model;
 
-import java.util.Objects;
-
 public class Motorcycle extends Vehicle {
 
-    private final int engineCapacity;  // in cc
+    private final Integer engineCapacity;  // in cc
     private final String bikeType;     // Sport / Cruiser / Off-road / Scooter
 
-    public Motorcycle(String brand, String model, String vin, String licensePlate, int engineCapacity, String bikeType) {
+    public Motorcycle(String brand, String model, String vin, String licensePlate, Integer engineCapacity, String bikeType) {
         super(brand, model, vin, licensePlate);
         this.engineCapacity = engineCapacity;
         this.bikeType = bikeType;
     }
 
-    public int getEngineCapacity() {
+    public Integer getEngineCapacity() {
         return engineCapacity;
     }
 
@@ -35,9 +33,8 @@ public class Motorcycle extends Vehicle {
 
 }
 
-
 //    @Override
-//    public boolean equals(Object o) {
+//    public Boolean equals(Object o) {
 //        if (this == o) return true;
 //        if (!(o instanceof Motorcycle)) return false;
 //        Motorcycle motorcycle = (Motorcycle) o;

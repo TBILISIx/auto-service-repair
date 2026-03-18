@@ -43,7 +43,7 @@ class Main {
         shift2.assignService(brakeRepair);
 
         // --- Vehicles ---
-        Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 4, 4, "Hybrid", 2.5, carTransmission);
+        Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 4, "Hybrid", 2.5, carTransmission);
         Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", "JKAZXK8J0MA000001", "GE-417", 450, "Sport");
         Truck truck = new Truck("Volvo", "FH16", "GE-804-TR", "VF6FJ2C0XLN000001", 2, 10, 16.1, 25.0, true, truckTransmission);
 

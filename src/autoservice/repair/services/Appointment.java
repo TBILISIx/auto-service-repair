@@ -5,7 +5,7 @@ import autoservice.repair.model.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Appointment extends Document{
+public class Appointment extends Document {
 
     private final Customer customer;
     private final Mechanic mechanic;
@@ -15,7 +15,7 @@ public class Appointment extends Document{
     private final LocalDateTime scheduledTime;
     private String status; // SCHEDULED, IN_PROGRESS, DONE, CANCELLED
 
-    public Appointment(int id,Customer customer, Mechanic mechanic, Car car, LocalDateTime scheduledTime) {
+    public Appointment(Integer id, Customer customer, Mechanic mechanic, Car car, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
         this.mechanic = mechanic;
@@ -26,7 +26,7 @@ public class Appointment extends Document{
         this.status = "SCHEDULED";
     }
 
-    public Appointment(int id, Customer customer, Mechanic mechanic, Motorcycle motorcycle, LocalDateTime scheduledTime) {
+    public Appointment(Integer id, Customer customer, Mechanic mechanic, Motorcycle motorcycle, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
         this.mechanic = mechanic;
@@ -37,7 +37,7 @@ public class Appointment extends Document{
         this.status = "SCHEDULED";
     }
 
-    public Appointment(int id, Customer customer, Mechanic mechanic, Truck truck, LocalDateTime scheduledTime) {
+    public Appointment(Integer id, Customer customer, Mechanic mechanic, Truck truck, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
         this.mechanic = mechanic;
@@ -51,6 +51,7 @@ public class Appointment extends Document{
     public String getVehicleDescription() {
         if (car != null) return car.getBrand() + " " + car.getModel();
         if (motorcycle != null) return motorcycle.getBrand() + " " + motorcycle.getModel();
+        assert truck != null;
         return truck.getBrand() + " " + truck.getModel();
     }
 

@@ -8,9 +8,9 @@ public class Payment extends Document {
     private final BigDecimal amount;
     private final String method;   // CASH / CARD / TRANSFER
     private final LocalDateTime paymentDate;
-    private boolean confirmed;
+    private Boolean confirmed;
 
-    public Payment(int id, BigDecimal amount, String method) {
+    public Payment(Integer id, BigDecimal amount, String method) {
         super(id);
         this.amount = amount;
         this.method = method;
@@ -35,7 +35,7 @@ public class Payment extends Document {
         return paymentDate;
     }
 
-    public boolean isConfirmed() {
+    public Boolean isConfirmed() {
         return confirmed;
     }
 

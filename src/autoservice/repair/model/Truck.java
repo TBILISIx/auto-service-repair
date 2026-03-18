@@ -1,18 +1,16 @@
 package autoservice.repair.model;
 
-import java.util.Objects;
-
 public class Truck extends Vehicle {
 
-    private final int doors;
-    private final int tires;
-    private final double engineSize;
-    private final double payloadCapacityTons;
-    private final boolean hasSleepingCabin;
+    private final Integer doors;
+    private final Integer tires;
+    private final Double engineSize;
+    private final Double payloadCapacityTons;
+    private final Boolean hasSleepingCabin;
     private final Transmission transmission;
 
-    public Truck(String brand, String model, String vin, String licensePlate, int doors, int tires, double engineSize,
-                 double payloadCapacityTons, boolean hasSleepingCabin, Transmission transmission) {
+    public Truck(String brand, String model, String vin, String licensePlate, Integer doors, Integer tires, Double engineSize,
+                 Double payloadCapacityTons, Boolean hasSleepingCabin, Transmission transmission) {
         super(brand, model, vin, licensePlate);
         this.doors = doors;
         this.tires = tires;
@@ -22,23 +20,23 @@ public class Truck extends Vehicle {
         this.transmission = transmission;
     }
 
-    public int getDoors() {
+    public Integer getDoors() {
         return doors;
     }
 
-    public int getTires() {
+    public Integer getTires() {
         return tires;
     }
 
-    public double getEngineSize() {
+    public Double getEngineSize() {
         return engineSize;
     }
 
-    public double getPayloadCapacityTons() {
+    public Double getPayloadCapacityTons() {
         return payloadCapacityTons;
     }
 
-    public boolean hasSleepingCabin() {
+    public Boolean hasSleepingCabin() {
         return hasSleepingCabin;
     }
 
@@ -65,7 +63,7 @@ public class Truck extends Vehicle {
 }
 
 //    @Override
-//    public boolean equals(Object o) {
+//    public Boolean equals(Object o) {
 //        if (this == o) return true;
 //        if (!(o instanceof Truck)) return false;
 //        Truck truck = (Truck) o;

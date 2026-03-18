@@ -8,12 +8,12 @@ public class MechanicShift {
 
     private final Mechanic mechanic;
     private final LocalDate shiftDate;
-    private final int startHour;
-    private final int endHour;
+    private final Integer startHour;
+    private final Integer endHour;
     private final Service[] assignedServices;
-    private int assignedCount;
+    private Integer assignedCount;
 
-    public MechanicShift(Mechanic mechanic, LocalDate shiftDate, int startHour, int endHour) {
+    public MechanicShift(Mechanic mechanic, LocalDate shiftDate, Integer startHour, Integer endHour) {
         if (startHour < 0 || endHour > 24 || startHour >= endHour) {
             throw new IllegalArgumentException("Invalid shift hours: " + startHour + " - " + endHour);
         }
@@ -25,19 +25,19 @@ public class MechanicShift {
         this.assignedCount = 0;
     }
 
-    public int getShiftDurationMinutes() {
+    public Integer getShiftDurationMinutes() {
         return (endHour - startHour) * 60;
     }
 
-    public int getRemainingMinutesBeforeShiftEnd() {
-        int bookedOrders = 0;
-        for (int i = 0; i < assignedCount; i++) {
+    public Integer getRemainingMinutesBeforeShiftEnd() {
+        Integer bookedOrders = 0;
+        for (Integer i = 0; i < assignedCount; i++) {
             bookedOrders += assignedServices[i].getDurationMinutes();
         }
         return (endHour - startHour) * 60 - bookedOrders;
     }
 
-    public boolean canTakeService(Service service) {
+    public Boolean canTakeService(Service service) {
         return service.getDurationMinutes() <= getRemainingMinutesBeforeShiftEnd();
     }
 
@@ -59,17 +59,20 @@ public class MechanicShift {
         return shiftDate;
     }
 
-    public int getStartHour() {
+    public Integer getStartHour() {
         return startHour;
     }
 
-    public int getEndHour() {
+    public Integer getEndHour() {
         return endHour;
     }
 
-    public int getAssignedCount() {return assignedCount;}
+    public Integer getAssignedCount() {
+        return assignedCount;
+    }
 
-    public Service[] getAssignedServices() {return assignedServices;}
-
+    public Service[] getAssignedServices() {
+        return assignedServices;
+    }
 
 }

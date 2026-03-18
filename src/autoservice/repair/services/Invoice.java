@@ -13,7 +13,7 @@ public class Invoice extends Document {
     private BigDecimal discountPercent;
     private Payment payment;
 
-    public Invoice(int id, Customer customer, RepairOrder repairOrder, BigDecimal discountPercent) {
+    public Invoice(Integer id, Customer customer, RepairOrder repairOrder, BigDecimal discountPercent) {
         super(id);
         this.customer = customer;
         this.repairOrder = repairOrder;
