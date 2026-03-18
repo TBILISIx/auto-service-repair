@@ -15,6 +15,7 @@ public class Appointment extends Document {
     private final LocalDateTime scheduledTime;
     private String status; // SCHEDULED, IN_PROGRESS, DONE, CANCELLED
 
+    // Constructors
     public Appointment(Integer id, Customer customer, Mechanic mechanic, Car car, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
@@ -48,21 +49,28 @@ public class Appointment extends Document {
         this.status = "SCHEDULED";
     }
 
+    // Vehicle Description
     public String getVehicleDescription() {
         if (car != null) return car.getBrand() + " " + car.getModel();
         if (motorcycle != null) return motorcycle.getBrand() + " " + motorcycle.getModel();
-        assert truck != null;
         return truck.getBrand() + " " + truck.getModel();
     }
 
+    // Appointment Actions
     public void start() {
         if (!status.equals("SCHEDULED")) {
             throw new IllegalStateException("Appointment can only be started if SCHEDULED. Current: " + status);
         }
         this.status = "IN_PROGRESS";
-        System.out.println("Appointment started for " + customer.getName()
-                + " | Vehicle: " + getVehicleDescription()
-                + " | Mechanic: " + mechanic.getName());
+
+        System.out.println("------------------------------------------------------------------------------");
+        System.out.println("\n=== APPOINTMENT STARTED ===");
+        System.out.println("Customer        : " + customer.getName());
+        System.out.println("Vehicle         : " + getVehicleDescription());
+        System.out.println("Mechanic        : " + mechanic.getName());
+        System.out.println("Scheduled Time  : " + getFormattedScheduledTime());
+        System.out.println("Status          : " + status);
+        System.out.println("============================");
     }
 
     public void complete() {
@@ -70,7 +78,12 @@ public class Appointment extends Document {
             throw new IllegalStateException("Appointment can only be completed if IN_PROGRESS. Current: " + status);
         }
         this.status = "DONE";
-        System.out.println("Appointment completed for " + customer.getName());
+
+        System.out.println("=== APPOINTMENT COMPLETED ===");
+        System.out.println("Customer : " + customer.getName());
+        System.out.println("Vehicle  : " + getVehicleDescription());
+        System.out.println("Status   : " + status);
+        System.out.println("=============================");
     }
 
     public void cancel() {
@@ -78,41 +91,28 @@ public class Appointment extends Document {
             throw new IllegalStateException("Cannot cancel an already completed appointment.");
         }
         this.status = "CANCELLED";
-        System.out.println("Appointment cancelled for " + customer.getName());
+
+        System.out.println("=== APPOINTMENT CANCELLED ===");
+        System.out.println("Customer : " + customer.getName());
+        System.out.println("Vehicle  : " + getVehicleDescription());
+        System.out.println("Status   : " + status);
+        System.out.println("==============================");
     }
 
+    // Formatting Scheduled Time
     public String getFormattedScheduledTime() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         return scheduledTime.format(formatter);
     }
 
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public Mechanic getMechanic() {
-        return mechanic;
-    }
-
-    public Car getCar() {
-        return car;
-    }
-
-    public Motorcycle getMotorcycle() {
-        return motorcycle;
-    }
-
-    public Truck getTruck() {
-        return truck;
-    }
-
-    public LocalDateTime getScheduledTime() {
-        return scheduledTime;
-    }
-
-    public String getStatus() {
-        return status;
-    }
+    // Getters
+    public Customer getCustomer() { return customer; }
+    public Mechanic getMechanic() { return mechanic; }
+    public Car getCar() { return car; }
+    public Motorcycle getMotorcycle() { return motorcycle; }
+    public Truck getTruck() { return truck; }
+    public LocalDateTime getScheduledTime() { return scheduledTime; }
+    public String getStatus() { return status; }
 
     @Override
     public String toString() {
@@ -125,5 +125,4 @@ public class Appointment extends Document {
                 ", status='" + status + '\'' +
                 '}';
     }
-
 }

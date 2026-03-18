@@ -17,7 +17,7 @@ public class BookingService {
         totalOrders = 0;
         System.out.println("------------------------------------------------------------------------------");
         System.out.println("Auto Repair System Started");
-        System.out.println("------------------------------------------------------------------------------");
+
     }
 
     public BookingService(Garage garage) {
@@ -48,17 +48,23 @@ public class BookingService {
         System.out.println("Total Orders        : " + totalOrders);
         System.out.println("Free Bays Remaining : " + garage.getFreeBays());
         System.out.println("------------------------------------------------------------------------------");
+
+        // Mechanic Info
         System.out.println("Mechanic Name       : " + repairOrder.getMechanic().getName());
         System.out.println("Specialization      : " + repairOrder.getMechanic().getSpecialization());
-        System.out.println("Experience          :" + repairOrder.getMechanic().getYearsOfExperience() + " years");
+        System.out.println("Experience          : " + repairOrder.getMechanic().getYearsOfExperience() + " years");
         System.out.println("Mechanic Phone      : " + repairOrder.getMechanic().getPhone());
         System.out.println("Hourly Rate         : " + repairOrder.getMechanic().getHourlyRate() + " GEL/h");
         System.out.println("------------------------------------------------------------------------------");
+
+        // Customer Info
         System.out.println("Customer Name       : " + repairOrder.getCustomer().getName());
         System.out.println("Customer Age        : " + repairOrder.getCustomer().getAge());
         System.out.println("Customer Phone      : " + repairOrder.getCustomer().getPhone());
         System.out.println("Loyalty Points      : " + repairOrder.getCustomer().getLoyaltyPoints());
         System.out.println("------------------------------------------------------------------------------");
+
+        // Vehicle Info
         System.out.println("Vehicle             : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
 
         if (repairOrder.getCar() != null) {
@@ -71,38 +77,37 @@ public class BookingService {
             Motorcycle moto = repairOrder.getMotorcycle();
             System.out.println("Engine Capacity     : " + moto.getEngineCapacity() + " cc");
             System.out.println("Bike Type           : " + moto.getBikeType());
-
         } else if (repairOrder.getTruck() != null) {
             Truck truck = repairOrder.getTruck();
             System.out.println("Engine Size         : " + truck.getEngineSize() + "L");
             System.out.println("Doors & Tires       : " + truck.getDoors() + " / " + truck.getTires());
             System.out.println("Payload Capacity    : " + truck.getPayloadCapacityTons() + " tons");
-            System.out.println("Sleeping Cabin      : " + truck.hasSleepingCabin());
+            System.out.println("Sleeping Cabin      : " + (truck.hasSleepingCabin() ? "Yes" : "No"));
             System.out.println("Transmission        : " + truck.getTransmission().getType()
                     + " | " + truck.getTransmission().getGears() + " gears");
         }
-
         System.out.println("------------------------------------------------------------------------------");
+
+        // Service Info
         System.out.println("Service             : " + repairOrder.getService().getServiceName());
         System.out.println("Price               : " + repairOrder.getService().getPrice() + " GEL");
         System.out.println("------------------------------------------------------------------------------");
 
-        // Calculating addloyaltypoints parameter it will be 10%
-        Integer pointsEarned = repairOrder.getService().getPrice().intValue()
-                - ((repairOrder.getService().getPrice().intValue() / 100) * 90);
-
+        // Loyalty Points: 10% of service price
+        int pointsEarned = repairOrder.getService().getPrice().intValue() / 10;
         repairOrder.getCustomer().addLoyaltyPoints(pointsEarned);
         System.out.println("Loyalty points awarded: +" + pointsEarned
                 + " | Total: " + repairOrder.getCustomer().getLoyaltyPoints());
         System.out.println("------------------------------------------------------------------------------");
 
+        // Invoice & Payment
         Invoice invoice = new Invoice(1, repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
         Payment payment = new Payment(1, invoice.calculateTotal(), "CARD");
         invoice.addPayment(payment);
         invoice.generate();
 
+        // Free up the bay
         garage.freeBay();
-
     }
 
 }

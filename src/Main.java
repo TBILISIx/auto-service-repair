@@ -28,9 +28,6 @@ class Main {
         Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 5, new BigDecimal("18.00"));
 
         // --- Services ---
-
-        /* Super Abstract Class holding diff child objects, service references many forms */
-
         Service oilChange = new OilChange(new BigDecimal("50.00"));
         Service tireChange = new TireChange(new BigDecimal("100.00"));
         Service brakeRepair = new BrakeRepair(new BigDecimal("200.00"));
@@ -43,9 +40,25 @@ class Main {
         shift2.assignService(brakeRepair);
 
         // --- Vehicles ---
-        Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 4, "Hybrid", 2.5, carTransmission);
-        Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", "JKAZXK8J0MA000001", "GE-417", 450, "Sport");
-        Truck truck = new Truck("Volvo", "FH16", "GE-804-TR", "VF6FJ2C0XLN000001", 2, 10, 16.1, 25.0, true, truckTransmission);
+        Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 2027, 4, "Hybrid", 2.5, carTransmission);
+        Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", 2017, "JKAZXK8J0MA000001", "GE-417", 450, "Sport");
+        Truck truck = new Truck("Volvo", "FH16", "GE-804-TR", 2019, "VF6FJ2C0XLN000001", 2, 10, 16.1, 25.0, true, truckTransmission);
+
+        // --- Interface Polymorphism examples ---
+
+        // --- Using methods (polymorphism via parameter) --- (Drivable; Maintainable; Inspectable)
+
+        testDrive(car);
+        testDrive(truck);
+        testRide(motorcycle);
+
+        performMaintenance(car);
+        performMaintenance(truck);
+        performMaintenance(motorcycle);
+
+        performInspection(car);
+        performInspection(truck);
+        performInspection(motorcycle);
 
         // --- Spare Parts ---
         SparePart oilFilter = new SparePart("Oil Filter", "OF-4521", new BigDecimal("12.50"), 10);
@@ -55,6 +68,11 @@ class Main {
         oilFilter.useOne();
         brakeDisc.useOne();
         tirePatch.useOne();
+
+        // -- Polymorphism --> same method different objects as parameters (Sellable)
+        getSellingPrice("Oil filter", oilFilter);
+        getSellingPrice("Brake disk", brakeDisc);
+        getSellingPrice("Tire patch", tirePatch);
 
         // --- Repair Orders ---
         RepairOrder repairOrder1 = new RepairOrder(customer1, mechanic1, car, oilChange, LocalDateTime.now());
@@ -85,6 +103,24 @@ class Main {
 
         System.out.println("Total orders processed: " + BookingService.getTotalOrders());
         System.out.println("Garage: " + garage.getName() + " | Free bays: " + garage.getFreeBays());
+    }
+
+    // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)
+
+    public static void testDrive(Drivable vehicle) {
+        vehicle.drive();
+    }
+    public static void testRide(Rideable vehicle) {
+        vehicle.ride();
+    }
+    public static void performMaintenance(Maintainable vehicle) {
+        vehicle.performMaintenance();
+    }
+    public static void performInspection(Inspectable vehicle) {
+        vehicle.performInspection();
+    }
+    public static void getSellingPrice(String name, Sellable sparePart) {
+        System.out.println(name + " selling price: " + sparePart.getSellingPrice());
     }
 
 }

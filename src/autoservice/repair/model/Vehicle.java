@@ -6,12 +6,14 @@ public abstract class Vehicle {
 
     private final String brand;
     private final String model;
+    private final Integer year;
     private final String vin;
     private final String licensePlate;
 
-    public Vehicle(String brand, String model, String vin, String licensePlate) {
+    public Vehicle(String brand, String model, Integer year, String vin, String licensePlate) {
         this.brand = brand;
         this.model = model;
+        this.year = year;
         this.vin = vin;
         this.licensePlate = licensePlate;
     }
@@ -26,6 +28,10 @@ public abstract class Vehicle {
 
     public String getModel() {
         return model;
+    }
+
+    public Integer getYear() {
+        return year;
     }
 
     public String getLicensePlate() {
