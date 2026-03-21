@@ -1,5 +1,6 @@
 package autoservice.repair.services;
 
+import autoservice.repair.exceptions.AgeException;
 import autoservice.repair.model.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ public class RepairOrder {
 
     public RepairOrder(Customer customer, Mechanic mechanic, Car car, Service service, LocalDateTime orderDate) {
         if (customer.getAge() < 18) {
-            throw new IllegalArgumentException("According to Georgian law underage (-18) customers cannot drive cars!");
+            throw new AgeException("According to Georgian law underage (-18) customers cannot drive cars!");
         }
         this.customer = customer;
         this.mechanic = mechanic;
@@ -26,10 +27,10 @@ public class RepairOrder {
     public RepairOrder(Customer customer, Mechanic mechanic, Motorcycle motorcycle, Service service, LocalDateTime orderDate) {
         Integer age = customer.getAge();
         if (age < 16 && motorcycle.getEngineCapacity() > 50) {
-            throw new IllegalArgumentException("According to Georgian law customers under 16 cannot drive motorcycles above 50cc.");
+            throw new AgeException("According to Georgian law customers under 16 cannot drive motorcycles above 50cc.");
         }
         if (age == 17 && motorcycle.getEngineCapacity() > 125) {
-            throw new IllegalArgumentException("According to Georgian law customers of age 17 cannot drive motorcycles above 125cc.");
+            throw new AgeException("According to Georgian law customers of age 17 cannot drive motorcycles above 125cc.");
         }
         this.customer = customer;
         this.mechanic = mechanic;
@@ -40,7 +41,7 @@ public class RepairOrder {
 
     public RepairOrder(Customer customer, Mechanic mechanic, Truck truck, Service service, LocalDateTime orderDate) {
         if (customer.getAge() < 18) {
-            throw new IllegalArgumentException("According to Georgian law customers under 18 cannot drive trucks.");
+            throw new AgeException("According to Georgian law customers under 18 cannot drive trucks.");
         }
         this.customer = customer;
         this.mechanic = mechanic;

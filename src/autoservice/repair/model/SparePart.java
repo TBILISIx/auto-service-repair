@@ -1,5 +1,8 @@
 package autoservice.repair.model;
 
+import autoservice.repair.exceptions.InvalidArgumentException;
+import autoservice.repair.exceptions.OutOfStockException;
+
 import java.math.BigDecimal;
 
 public class SparePart extends Product implements Sellable {
@@ -9,7 +12,7 @@ public class SparePart extends Product implements Sellable {
     public SparePart(String partName, String partNumber, BigDecimal unitPrice, Integer quantity) {
         super(partName, partNumber, unitPrice);
         if (quantity < 0) {
-            throw new IllegalArgumentException("Quantity cannot be negative for part: " + partName);
+            throw new InvalidArgumentException("Quantity cannot be negative for part: " + partName);
         }
 
         this.quantity = quantity;
@@ -25,7 +28,7 @@ public class SparePart extends Product implements Sellable {
 
     public void useOne() {
         if (!isInStock()) {
-            throw new IllegalStateException("Part out of stock: " + getProductName());
+            throw new OutOfStockException("Part out of stock: " + getProductName());
         }
         quantity--;
     }

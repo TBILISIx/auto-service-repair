@@ -1,5 +1,6 @@
 package autoservice.repair.model;
 
+import autoservice.repair.exceptions.GarageBookingException;
 import autoservice.repair.services.Appointment;
 import autoservice.repair.services.RepairOrder;
 
@@ -47,7 +48,7 @@ public class Garage {
 
     public void occupyBay() {
         if (!hasFreeBay()) {
-            throw new IllegalStateException("No free bays available in garage: " + name);
+            throw new GarageBookingException("No free bays available in garage: " + name);
         }
         occupiedBays++;
     }

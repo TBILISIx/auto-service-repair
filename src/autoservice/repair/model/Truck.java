@@ -61,7 +61,7 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
         System.out.println("Payload Capacity: " + getPayloadCapacityTons() + " tons");
         System.out.println("Transmission: " + getTransmission());
         System.out.println("Sleeping Cabin: " + (hasSleepingCabin() ? "Yes" : "No"));
-        this.driven=true;
+        this.driven = true;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
         System.out.println("- Inspect brakes and tires.");
         System.out.println("- Check transmission fluid.");
         System.out.println("- Inspect suspension and load-bearing parts.");
-        this.maintenanceDone=true;
+        this.maintenanceDone = true;
     }
 
     @Override
