@@ -33,7 +33,7 @@ public class MechanicShift {
 
     public Integer getRemainingMinutesBeforeShiftEnd() {
         Integer bookedOrders = 0;
-        for (Integer i = 0; i < assignedCount; i++) {
+        for (int i = 0; i < assignedCount; i++) {
             bookedOrders += assignedServices[i].getDurationMinutes();
         }
         return getShiftDurationMinutes() - bookedOrders;
