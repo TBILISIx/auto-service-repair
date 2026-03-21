@@ -9,7 +9,7 @@ import autoservice.repair.model.Truck;
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 
-public class BookingService {
+public class BookingService implements AutoCloseable {
 
     private static Integer totalOrders;
     private final Garage garage;
@@ -18,7 +18,6 @@ public class BookingService {
         totalOrders = 0;
         System.out.println("------------------------------------------------------------------------------");
         System.out.println("Auto Repair System Started");
-
     }
 
     public BookingService(Garage garage) {
@@ -50,7 +49,6 @@ public class BookingService {
             System.out.println("Free Bays Remaining : " + garage.getFreeBays());
             System.out.println("------------------------------------------------------------------------------");
 
-            // Mechanic Info
             System.out.println("Mechanic Name       : " + repairOrder.getMechanic().getName());
             System.out.println("Specialization      : " + repairOrder.getMechanic().getSpecialization());
             System.out.println("Experience          : " + repairOrder.getMechanic().getYearsOfExperience() + " years");
@@ -58,14 +56,12 @@ public class BookingService {
             System.out.println("Hourly Rate         : " + repairOrder.getMechanic().getHourlyRate() + " GEL/h");
             System.out.println("------------------------------------------------------------------------------");
 
-            // Customer Info
             System.out.println("Customer Name       : " + repairOrder.getCustomer().getName());
             System.out.println("Customer Age        : " + repairOrder.getCustomer().getAge());
             System.out.println("Customer Phone      : " + repairOrder.getCustomer().getPhone());
             System.out.println("Loyalty Points      : " + repairOrder.getCustomer().getLoyaltyPoints());
             System.out.println("------------------------------------------------------------------------------");
 
-            // Vehicle Info
             System.out.println("Vehicle             : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
 
             if (repairOrder.getCar() != null) {
@@ -87,27 +83,35 @@ public class BookingService {
             }
             System.out.println("------------------------------------------------------------------------------");
 
-            // Service Info
             System.out.println("Service             : " + repairOrder.getService().getServiceName());
             System.out.println("Price               : " + repairOrder.getService().getPrice() + " GEL");
             System.out.println("------------------------------------------------------------------------------");
 
-            // Loyalty Points: 10% of service price
             int pointsEarned = repairOrder.getService().getPrice().intValue() / 10;
             repairOrder.getCustomer().addLoyaltyPoints(pointsEarned);
             System.out.println("Loyalty points awarded: +" + pointsEarned + " | Total: " + repairOrder.getCustomer().getLoyaltyPoints());
             System.out.println("------------------------------------------------------------------------------");
 
-            // Invoice & Payment
             Invoice invoice = new Invoice(totalOrders, repairOrder.getCustomer(), repairOrder, new BigDecimal("10"));
             Payment payment = new Payment(totalOrders, invoice.calculateTotal(), "CARD");
             invoice.addPayment(payment);
             invoice.generate();
         }
 
-            // Free up the bay
-            garage.freeBay(repairOrders.length);
+    }
+
+    @Override
+    public void close() {
+        int occupied = garage.getOccupiedBays();
+        if (occupied > 0) {
+            garage.freeBay(occupied);
+            System.out.println("------------------------------------------------------------------------------");
+            System.out.println("BookingService closed. Released " + occupied + " occupied bay(s) in: " + garage.getName());
+            System.out.println("------------------------------------------------------------------------------");
+        } else {
+            System.out.println("------------------------------------------------------------------------------");
+            System.out.println("BookingService closed. All bays were already free in: " + garage.getName());
+            System.out.println("------------------------------------------------------------------------------");
         }
-
-
+    }
 }
