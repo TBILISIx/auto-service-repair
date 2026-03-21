@@ -1,3 +1,4 @@
+import autoservice.repair.exceptions.GarageBookingException;
 import autoservice.repair.model.*;
 import autoservice.repair.services.*;
 
@@ -97,9 +98,11 @@ class Main {
         // --- BookingService uses Garage as root ---
         BookingService bookingService = new BookingService(garage);
 
-        bookingService.createOrder(repairOrder1); // OilChange
-        bookingService.createOrder(repairOrder2); // BrakeRepair
-        bookingService.createOrder(repairOrder3); // TireChange
+        try {
+            bookingService.createOrder(new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3}); // OilChange ; BrakeRepair ; TireChange
+        } catch (GarageBookingException e) {
+            System.out.println("Garage booking error: " + e.getMessage());
+        }
 
         System.out.println("Total orders processed: " + BookingService.getTotalOrders());
         System.out.println("Garage: " + garage.getName() + " | Free bays: " + garage.getFreeBays());
