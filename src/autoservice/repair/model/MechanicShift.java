@@ -1,5 +1,7 @@
 package autoservice.repair.model;
 
+import autoservice.repair.exceptions.InsufficientResourceException;
+import autoservice.repair.exceptions.InvalidArgumentException;
 import autoservice.repair.services.Service;
 
 import java.time.LocalDate;
@@ -15,7 +17,7 @@ public class MechanicShift {
 
     public MechanicShift(Mechanic mechanic, LocalDate shiftDate, Integer startHour, Integer endHour) {
         if (startHour < 0 || endHour > 24 || startHour >= endHour) {
-            throw new IllegalArgumentException("Invalid shift hours: " + startHour + " - " + endHour);
+            throw new InvalidArgumentException("Invalid shift hours: " + startHour + " - " + endHour);
         }
         this.mechanic = mechanic;
         this.shiftDate = shiftDate;
@@ -34,7 +36,7 @@ public class MechanicShift {
         for (Integer i = 0; i < assignedCount; i++) {
             bookedOrders += assignedServices[i].getDurationMinutes();
         }
-        return (endHour - startHour) * 60 - bookedOrders;
+        return getShiftDurationMinutes() - bookedOrders;
     }
 
     public Boolean canTakeService(Service service) {
@@ -43,7 +45,7 @@ public class MechanicShift {
 
     public void assignService(Service service) {
         if (!canTakeService(service)) {
-            throw new IllegalStateException("Mechanic " + mechanic.getName()
+            throw new InsufficientResourceException("Mechanic " + mechanic.getName()
                     + " has no time for " + service.getServiceName()
                     + " on " + shiftDate + " needs " + service.getDurationMinutes()
                     + " minutes, has" + getRemainingMinutesBeforeShiftEnd() + " minutes left.");

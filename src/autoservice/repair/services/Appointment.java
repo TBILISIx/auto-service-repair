@@ -1,5 +1,6 @@
 package autoservice.repair.services;
 
+import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.model.Customer;
 import autoservice.repair.model.Mechanic;
 import autoservice.repair.model.Vehicle;
@@ -33,7 +34,7 @@ public class Appointment extends Document {
     // Appointment Actions
     public void start() {
         if (!status.equals("SCHEDULED")) {
-            throw new IllegalStateException("Appointment can only be started if SCHEDULED. Current: " + status);
+            throw new AppointmentStatusException("Appointment can only be started if SCHEDULED. Current: " + status);
         }
         this.status = "IN_PROGRESS";
 
@@ -49,7 +50,7 @@ public class Appointment extends Document {
 
     public void complete() {
         if (!status.equals("IN_PROGRESS")) {
-            throw new IllegalStateException("Appointment can only be completed if IN_PROGRESS. Current: " + status);
+            throw new AppointmentStatusException("Appointment can only be completed if IN_PROGRESS. Current: " + status);
         }
         this.status = "DONE";
 
@@ -62,7 +63,7 @@ public class Appointment extends Document {
 
     public void cancel() {
         if (status.equals("DONE")) {
-            throw new IllegalStateException("Cannot cancel an already completed appointment.");
+            throw new AppointmentStatusException("Cannot cancel an already completed appointment.");
         }
         this.status = "CANCELLED";
 
