@@ -93,13 +93,12 @@ class Main {
         System.out.println("------------------------------------------------------------------------------");
 
         // --- Garage: root object — fully populated ---
-        Garage garage = new Garage("AutoFix Tbilisi", "Vake District, 14 Chavchavadze Ave", 5, new Mechanic[]{mechanic1, mechanic2}, new MechanicShift[]{shift1, shift2}, new Customer[]{customer1, customer2, customer3}, new Car[]{car}, new Motorcycle[]{motorcycle}, new Truck[]{truck}, new SparePart[]{oilFilter, brakeDisc, tirePatch}, new Appointment[]{appointment1, appointment2}, new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
+        Garage garage = new Garage("AutoFix Tbilisi", "Vake District, 14 Chavchavadze Ave", 1, new Mechanic[]{mechanic1, mechanic2}, new MechanicShift[]{shift1, shift2}, new Customer[]{customer1, customer2, customer3}, new Car[]{car}, new Motorcycle[]{motorcycle}, new Truck[]{truck}, new SparePart[]{oilFilter, brakeDisc, tirePatch}, new Appointment[]{appointment1, appointment2}, new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
 
         // --- BookingService uses Garage as root ---
-        BookingService bookingService = new BookingService(garage);
 
-        try {
-            bookingService.createOrder(new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3}); // OilChange ; BrakeRepair ; TireChange
+        try (BookingService bookingService = new BookingService(garage)) {
+            bookingService.createOrder(new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
         } catch (GarageBookingException e) {
             System.out.println("Garage booking error: " + e.getMessage());
         }
