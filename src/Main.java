@@ -1,3 +1,4 @@
+import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.exceptions.GarageBookingException;
 import autoservice.repair.model.*;
 import autoservice.repair.services.*;
@@ -84,16 +85,22 @@ class Main {
         Appointment appointment1 = new Appointment(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
         Appointment appointment2 = new Appointment(2, customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
 
-        appointment1.start();
-        appointment1.complete();
-        appointment2.start();
-
-        System.out.println("Appointment 1 status: " + appointment1.getStatus());
-        System.out.println("Appointment 2 status: " + appointment2.getStatus());
-        System.out.println("------------------------------------------------------------------------------");
+        try {
+            appointment1.start();
+//            appointment1.start(); To throw exception
+            appointment1.complete();
+            appointment2.start();
+        } catch (AppointmentStatusException e) {
+            System.out.println("Appointment error: " + e.getMessage());
+        } finally {
+            System.out.println("Appointment processing finished");
+            System.out.println("Appointment 1 status: " + appointment1.getStatus());
+            System.out.println("Appointment 2 status: " + appointment2.getStatus());
+            System.out.println("------------------------------------------------------------------------------");
+        }
 
         // --- Garage: root object — fully populated ---
-        Garage garage = new Garage("AutoFix Tbilisi", "Vake District, 14 Chavchavadze Ave", 1, new Mechanic[]{mechanic1, mechanic2}, new MechanicShift[]{shift1, shift2}, new Customer[]{customer1, customer2, customer3}, new Car[]{car}, new Motorcycle[]{motorcycle}, new Truck[]{truck}, new SparePart[]{oilFilter, brakeDisc, tirePatch}, new Appointment[]{appointment1, appointment2}, new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
+        Garage garage = new Garage("AutoFix Tbilisi", "Vake District, 14 Chavchavadze Ave", 5, new Mechanic[]{mechanic1, mechanic2}, new MechanicShift[]{shift1, shift2}, new Customer[]{customer1, customer2, customer3}, new Car[]{car}, new Motorcycle[]{motorcycle}, new Truck[]{truck}, new SparePart[]{oilFilter, brakeDisc, tirePatch}, new Appointment[]{appointment1, appointment2}, new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
 
         // --- BookingService uses Garage as root ---
 
