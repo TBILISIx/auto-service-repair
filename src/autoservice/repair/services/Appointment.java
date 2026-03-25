@@ -108,4 +108,5 @@ public class Appointment extends Document {
                 ", status='" + status + '\'' +
                 '}';
     }
+
 }
