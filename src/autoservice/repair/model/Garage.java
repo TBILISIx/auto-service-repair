@@ -97,4 +97,34 @@ public class Garage {
         return repairOrders;
     }
 
+
+
+    public boolean hasMechanic(Mechanic mechanic) {
+        return mechanics.contains(mechanic);      // contains
+    }
+    public void removeMechanic(Mechanic mechanic) {
+        mechanics.remove(mechanic);               // remove
+    }
+
+    public boolean hasCustomers() {
+        return !customers.isEmpty();              // isEmpty
+    }
+    public void removeCustomer(Customer customer) {
+        customers.remove(customer);               // remove (Set)
+    }
+
+    public Integer getTotalVehicles() {
+        return vehicles.size();                   // size
+    }
+    public void removeVehicle(Vehicle vehicle) {
+        vehicles.remove(vehicle);                 // remove (List)
+    }
+
+    public void addSparePart(SparePart sparePart) {
+        spareParts.put(sparePart.getProductNumber(), sparePart);
+    } // add sparePart with .put
+    public SparePart getSparePartByNumber(String productNumber) {
+        return spareParts.get(productNumber); // get (Map)
+    }
+
 }

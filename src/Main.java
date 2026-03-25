@@ -45,7 +45,7 @@ class Main {
         // --- Vehicles ---
         Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 2027, 4, "Hybrid", 2.5, carTransmission);
         Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", 2017, "JKAZXK8J0MA000001", "GE-417", 450, "Sport");
-        Truck truck = new Truck("Volvo", "FH16", "GE-804-TR", 2019, "VF6FJ2C0XLN000001", 2, 10, 16.1, 25.0, true, truckTransmission);
+        Truck truck = new Truck("Volvo", "FH16", "VF6FJ2C0XLN000001", 2019, "GE-804-TR", 2, 10, 16.1, 25.0, true, truckTransmission);
 
         // --- Interface Polymorphism examples ---
 
@@ -134,6 +134,68 @@ class Main {
 
         System.out.println("Total orders processed: " + BookingService.getTotalOrders());
         System.out.println("Garage: " + garage.getName() + " | Free bays: " + garage.getFreeBays());
+
+        // --- Collection method demonstrations ---
+
+        System.out.println("------------------------------------------------------------------------------");
+
+        // Iteration through List (mechanics) + remove + contains
+
+        System.out.println("\nAll mechanics:");
+        for (Mechanic mechanic : garage.getMechanics()) {
+            System.out.println("- " + mechanic.getName()
+                    + " | " + mechanic.getSpecialization()
+                    + " | " + mechanic.getYearsOfExperience());
+        }
+        /* remove */
+        System.out.println("\nMechanics before remove: " + garage.getMechanics().size());
+        garage.removeMechanic(mechanic2);
+        System.out.println("Mechanics after remove: " + garage.getMechanics().size());
+        /* contains */
+        System.out.println("Has mechanic Nika: " + garage.hasMechanic(mechanic1));
+
+        // Iteration through Set (customers) + remove + isEmpty
+
+        System.out.println("\nAll customers:");
+        for (Customer customer : garage.getCustomers()) {
+            System.out.println("- " + customer.getName()
+                    + " | " + customer.getPhone()
+                    + " | " + customer.getEmail());
+        }
+        /* remove */
+        System.out.println("\nCustomers before remove: " + garage.getCustomers().size());
+        garage.removeCustomer(customer3);
+        System.out.println("Customers after remove: " + garage.getCustomers().size());
+        /* isEmpty ? */
+        System.out.println("Has customers: " + garage.hasCustomers());
+
+        // Iterate through Map (spareParts) + put (add a sparePart) + get (sparePart with key-->value pair)
+        System.out.println("\nAll spare parts:");
+        for (Map.Entry<String, SparePart> entry : garage.getSpareParts().entrySet()) {
+            System.out.println("- " + entry.getKey()
+                    + " | " + entry.getValue().getProductName()
+                    + " | quantity: " + entry.getValue().getQuantity());
+        }
+        /* put */
+        System.out.println("\nSpare parts before put: " + garage.getSpareParts().size());
+        SparePart sparkPlug = new SparePart("Spark Plug", "SP-1122", new BigDecimal("8.00"), 15);
+        garage.addSparePart(sparkPlug);
+        System.out.println("Spare parts after put: " + garage.getSpareParts().size());
+        /* get */
+        System.out.println("Spare part lookup: " + garage.getSparePartByNumber("OF-4521").getProductName());
+
+        // Iteration through List (vehicles) + remove
+        System.out.println("\nAll vehicles: ");
+        for (Vehicle vehicle : garage.getVehicles()) {
+            System.out.println("- " + vehicle.getBrand()
+                    + " | " + vehicle.getModel()
+                    + " | " + vehicle.getYear()
+                    + " | " + vehicle.getVin());
+        }
+        System.out.println("\n Total vehicles before remove: " + garage.getTotalVehicles());
+        garage.removeVehicle(truck);
+        System.out.println("Vehicles after remove: " + garage.getTotalVehicles());
+
     }
 
     // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)
