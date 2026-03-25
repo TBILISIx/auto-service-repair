@@ -9,11 +9,11 @@ import java.time.LocalDate;
 public class Invoice extends Document {
 
     private final Customer customer;
-    private final RepairOrder repairOrder;
+    private final RepairOrder<?> repairOrder;
     private BigDecimal discountPercent;
     private Payment payment;
 
-    public Invoice(Integer id, Customer customer, RepairOrder repairOrder, BigDecimal discountPercent) {
+    public Invoice(Integer id, Customer customer, RepairOrder<?> repairOrder, BigDecimal discountPercent) {
         super(id);
         this.customer = customer;
         this.repairOrder = repairOrder;
@@ -75,7 +75,7 @@ public class Invoice extends Document {
         return customer;
     }
 
-    public RepairOrder getRepairOrder() {
+    public RepairOrder<?> getRepairOrder() {
         return repairOrder;
     }
 

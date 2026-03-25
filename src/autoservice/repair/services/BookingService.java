@@ -1,10 +1,7 @@
 package autoservice.repair.services;
 
 import autoservice.repair.exceptions.GarageBookingException;
-import autoservice.repair.model.Car;
-import autoservice.repair.model.Garage;
-import autoservice.repair.model.Motorcycle;
-import autoservice.repair.model.Truck;
+import autoservice.repair.model.*;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
@@ -33,8 +30,8 @@ public class BookingService implements AutoCloseable {
         return garage;
     }
 
-    public void createOrder(List<RepairOrder> repairOrders) throws GarageBookingException {
-        for (RepairOrder repairOrder : repairOrders) {
+    public void createOrder(List<RepairOrder<?>> repairOrders) throws GarageBookingException {
+        for (RepairOrder<?> repairOrder : repairOrders) {
             if (!garage.hasFreeBay()) {
                 throw new GarageBookingException("No free bays available in garage: " + garage.getName());
             }
@@ -65,17 +62,18 @@ public class BookingService implements AutoCloseable {
 
             System.out.println("Vehicle             : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
 
-            if (repairOrder.getCar() != null) {
-                Car car = repairOrder.getCar();
+            Vehicle vehicle = repairOrder.getVehicle();
+            if (vehicle instanceof Car) {
+                Car car = (Car) vehicle;
                 System.out.println("Engine Type         : " + car.getEngineType());
                 System.out.println("Engine Size         : " + car.getEngineSize() + "L");
                 System.out.println("Transmission        : " + car.getTransmission().getType() + " | " + car.getTransmission().getGears() + " gears");
-            } else if (repairOrder.getMotorcycle() != null) {
-                Motorcycle moto = repairOrder.getMotorcycle();
+            } else if (vehicle instanceof Motorcycle) {
+                Motorcycle moto = (Motorcycle) vehicle;
                 System.out.println("Engine Capacity     : " + moto.getEngineCapacity() + " cc");
                 System.out.println("Bike Type           : " + moto.getBikeType());
-            } else if (repairOrder.getTruck() != null) {
-                Truck truck = repairOrder.getTruck();
+            } else if (vehicle instanceof Truck) {
+                Truck truck = (Truck) vehicle;
                 System.out.println("Engine Size         : " + truck.getEngineSize() + "L");
                 System.out.println("Doors & Tires       : " + truck.getDoors() + " / " + truck.getTires());
                 System.out.println("Payload Capacity    : " + truck.getPayloadCapacityTons() + " tons");
@@ -98,7 +96,6 @@ public class BookingService implements AutoCloseable {
             invoice.addPayment(payment);
             invoice.generate();
         }
-
     }
 
     @Override
@@ -115,4 +112,5 @@ public class BookingService implements AutoCloseable {
             System.out.println("------------------------------------------------------------------------------");
         }
     }
+
 }
