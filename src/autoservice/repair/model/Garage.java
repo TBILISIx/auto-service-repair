@@ -3,109 +3,97 @@ package autoservice.repair.model;
 import autoservice.repair.services.Appointment;
 import autoservice.repair.services.RepairOrder;
 
+import java.util.*;
+
 public class Garage {
 
     private final String name;
     private final String address;
     private final Integer totalBays;
     private Integer occupiedBays;
-    private final Mechanic[] mechanics;
-    private final MechanicShift[] shifts;
+    private final List<Mechanic> mechanics;
+    private final List<MechanicShift> shifts;
 
-    private final Customer[] customers;
-    private final Car[] cars;
-    private final Motorcycle[] motorcycles;
-    private final Truck[] trucks;
-    private final SparePart[] spareParts;
-    private final Appointment[] appointments;
-    private final RepairOrder[] repairOrders;
+    private final Set<Customer> customers;
+    private final List<Vehicle> vehicles;
+    private final Map<String, SparePart> spareParts;
+    private final List<Appointment> appointments;
+    private final List<RepairOrder> repairOrders;
 
-    public Garage(String name, String address, Integer totalBays,
-                  Mechanic[] mechanics, MechanicShift[] shifts,
-                  Customer[] customers,
-                  Car[] cars, Motorcycle[] motorcycles, Truck[] trucks,
-                  SparePart[] spareParts,
-                  Appointment[] appointments, RepairOrder[] repairOrders) {
+    public Garage(String name, String address, Integer totalBays, List<Mechanic> mechanics, List<MechanicShift> shifts, Set<Customer> customers, List<Vehicle> vehicles, Map<String, SparePart> spareParts, List<Appointment> appointments, List<RepairOrder> repairOrders) {
+
         this.name = name;
         this.address = address;
         this.totalBays = totalBays;
         this.occupiedBays = 0;
-        this.mechanics = mechanics;
-        this.shifts = shifts;
-        this.customers = customers;
-        this.cars = cars;
-        this.motorcycles = motorcycles;
-        this.trucks = trucks;
-        this.spareParts = spareParts;
-        this.appointments = appointments;
-        this.repairOrders = repairOrders;
+        this.mechanics = new ArrayList<>(mechanics);
+        this.shifts = new ArrayList<>(shifts);
+        this.customers = new HashSet<>(customers);
+        this.vehicles = new ArrayList<>(vehicles);
+        this.spareParts = new HashMap<>(spareParts);
+        this.appointments = new ArrayList<>(appointments);
+        this.repairOrders = new ArrayList<>(repairOrders);
     }
 
     public Boolean hasFreeBay() {
+
         return totalBays > occupiedBays;
     }
-
     public void occupyBay() {
+
         occupiedBays++;
     }
-
     public void freeBay(int freeUpNumber) {
+
         occupiedBays -= freeUpNumber;
     }
 
     public Integer getFreeBays() {
+
         return totalBays - occupiedBays;
     }
-
     public String getName() {
+
         return name;
     }
-
     public String getAddress() {
+
         return address;
     }
-
     public Integer getTotalBays() {
+
         return totalBays;
     }
-
     public Integer getOccupiedBays() {
+
         return occupiedBays;
     }
+    public List<Mechanic> getMechanics() {
 
-    public Mechanic[] getMechanics() {
         return mechanics;
     }
+    public List<MechanicShift> getShifts() {
 
-    public MechanicShift[] getShifts() {
         return shifts;
     }
+    public Set<Customer> getCustomers() {
 
-    public Customer[] getCustomers() {
         return customers;
     }
+    public List<Vehicle> getVehicles() {
 
-    public Car[] getCars() {
-        return cars;
+        return vehicles;
     }
+    public Map<String, SparePart> getSpareParts() {
 
-    public Motorcycle[] getMotorcycles() {
-        return motorcycles;
-    }
-
-    public Truck[] getTrucks() {
-        return trucks;
-    }
-
-    public SparePart[] getSpareParts() {
         return spareParts;
     }
+    public List<Appointment> getAppointments() {
 
-    public Appointment[] getAppointments() {
         return appointments;
     }
+    public List<RepairOrder> getRepairOrders() {
 
-    public RepairOrder[] getRepairOrders() {
         return repairOrders;
     }
 

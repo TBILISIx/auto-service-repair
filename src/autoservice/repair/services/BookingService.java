@@ -8,6 +8,7 @@ import autoservice.repair.model.Truck;
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class BookingService implements AutoCloseable {
 
@@ -32,7 +33,7 @@ public class BookingService implements AutoCloseable {
         return garage;
     }
 
-    public void createOrder(RepairOrder[] repairOrders) throws GarageBookingException {
+    public void createOrder(List<RepairOrder> repairOrders) throws GarageBookingException {
         for (RepairOrder repairOrder : repairOrders) {
             if (!garage.hasFreeBay()) {
                 throw new GarageBookingException("No free bays available in garage: " + garage.getName());

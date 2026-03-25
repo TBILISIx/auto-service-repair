@@ -9,10 +9,10 @@ public class SparePart extends Product implements Sellable {
 
     private Integer quantity;
 
-    public SparePart(String partName, String partNumber, BigDecimal unitPrice, Integer quantity) {
-        super(partName, partNumber, unitPrice);
+    public SparePart(String productName, String productNumber, BigDecimal unitPrice, Integer quantity) {
+        super(productName, productNumber, unitPrice);
         if (quantity < 0) {
-            throw new InvalidArgumentException("Quantity cannot be negative for part: " + partName);
+            throw new InvalidArgumentException("Quantity cannot be negative for part: " + productName);
         }
 
         this.quantity = quantity;
