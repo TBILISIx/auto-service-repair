@@ -135,11 +135,13 @@ class Main {
         System.out.println("Total orders processed: " + BookingService.getTotalOrders());
         System.out.println("Garage: " + garage.getName() + " | Free bays: " + garage.getFreeBays());
 
+        /* ********************************************************************************************* */
+
         // --- Collection method demonstrations ---
 
         System.out.println("------------------------------------------------------------------------------");
 
-        // Iteration through List (mechanics) + remove + contains
+        // Iteration through List (mechanics) + print first element + remove + contains
 
         System.out.println("\nAll mechanics:");
         for (Mechanic mechanic : garage.getMechanics()) {
@@ -147,14 +149,17 @@ class Main {
                     + " | " + mechanic.getSpecialization()
                     + " | " + mechanic.getYearsOfExperience());
         }
+        /* List - with index */
+        Mechanic firstMechanic = garage.getMechanics().get(0);
+        System.out.println("\n- First mechanic: " + firstMechanic.getName());
         /* remove */
-        System.out.println("\nMechanics before remove: " + garage.getMechanics().size());
+        System.out.println("\n- Mechanics before remove: " + garage.getMechanics().size());
         garage.removeMechanic(mechanic2);
-        System.out.println("Mechanics after remove: " + garage.getMechanics().size());
+        System.out.println("- Mechanics after remove: " + garage.getMechanics().size());
         /* contains */
-        System.out.println("Has mechanic Nika: " + garage.hasMechanic(mechanic1));
+        System.out.println("- Has mechanic Nika: " + garage.hasMechanic(mechanic1));
 
-        // Iteration through Set (customers) + remove + isEmpty
+        // Iteration through Set (customers) + print first element + remove + isEmpty
 
         System.out.println("\nAll customers:");
         for (Customer customer : garage.getCustomers()) {
@@ -162,29 +167,39 @@ class Main {
                     + " | " + customer.getPhone()
                     + " | " + customer.getEmail());
         }
+        /* Set — iterator (Sets have no index) */
+        Customer firstCustomer = garage.getCustomers().iterator().next();
+        System.out.println("\n- First customer: " + firstCustomer.getName());
         /* remove */
-        System.out.println("\nCustomers before remove: " + garage.getCustomers().size());
+        System.out.println("\n- Customers before remove: " + garage.getCustomers().size());
         garage.removeCustomer(customer3);
-        System.out.println("Customers after remove: " + garage.getCustomers().size());
+        System.out.println("- Customers after remove: " + garage.getCustomers().size());
         /* isEmpty ? */
-        System.out.println("Has customers: " + garage.hasCustomers());
+        System.out.println("- Has customers: " + garage.hasCustomers());
 
         // Iterate through Map (spareParts) + put (add a sparePart) + get (sparePart with key-->value pair)
+
         System.out.println("\nAll spare parts:");
         for (Map.Entry<String, SparePart> entry : garage.getSpareParts().entrySet()) {
             System.out.println("- " + entry.getKey()
                     + " | " + entry.getValue().getProductName()
                     + " | quantity: " + entry.getValue().getQuantity());
         }
+        /* Map — first entry via entrySet iterator */
+        SparePart firstPart = garage.getSpareParts().entrySet().iterator().next().getValue();
+        System.out.println("\n- First spare part: " + firstPart.getProductName());
         /* put */
-        System.out.println("\nSpare parts before put: " + garage.getSpareParts().size());
+        System.out.println("\n- Spare parts before put: " + garage.getSpareParts().size());
         SparePart sparkPlug = new SparePart("Spark Plug", "SP-1122", new BigDecimal("8.00"), 15);
         garage.addSparePart(sparkPlug);
-        System.out.println("Spare parts after put: " + garage.getSpareParts().size());
+        System.out.println("- Spare parts after put: " + garage.getSpareParts().size());
         /* get */
-        System.out.println("Spare part lookup: " + garage.getSparePartByNumber("OF-4521").getProductName());
+        System.out.println("- Spare part lookup: " + garage.getSparePartByNumber("OF-4521").getProductName());
 
-        // Iteration through List (vehicles) + remove
+        // Iteration through List (vehicles) + print first element + remove
+        Vehicle firstVehicle = garage.getVehicles().get(0);
+        System.out.println("\n- First vehicle: " + firstVehicle.getBrand()
+                + " " + firstVehicle.getModel());
         System.out.println("\nAll vehicles: ");
         for (Vehicle vehicle : garage.getVehicles()) {
             System.out.println("- " + vehicle.getBrand()
@@ -192,9 +207,9 @@ class Main {
                     + " | " + vehicle.getYear()
                     + " | " + vehicle.getVin());
         }
-        System.out.println("\n Total vehicles before remove: " + garage.getTotalVehicles());
+        System.out.println("\n- Total vehicles before remove: " + garage.getTotalVehicles());
         garage.removeVehicle(truck);
-        System.out.println("Vehicles after remove: " + garage.getTotalVehicles());
+        System.out.println("- Vehicles after remove: " + garage.getTotalVehicles());
 
     }
 
