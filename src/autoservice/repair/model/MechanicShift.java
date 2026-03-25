@@ -5,6 +5,9 @@ import autoservice.repair.exceptions.InvalidArgumentException;
 import autoservice.repair.services.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class MechanicShift {
 
@@ -12,8 +15,7 @@ public class MechanicShift {
     private final LocalDate shiftDate;
     private final Integer startHour;
     private final Integer endHour;
-    private final Service[] assignedServices;
-    private Integer assignedCount;
+    private final List<Service> assignedServices;
 
     public MechanicShift(Mechanic mechanic, LocalDate shiftDate, Integer startHour, Integer endHour) {
         if (startHour < 0 || endHour > 24 || startHour >= endHour) {
@@ -23,8 +25,7 @@ public class MechanicShift {
         this.shiftDate = shiftDate;
         this.startHour = startHour;
         this.endHour = endHour;
-        this.assignedServices = new Service[(endHour - startHour) * 60]; // upper limit of minutes if service took 1 minute
-        this.assignedCount = 0;
+        this.assignedServices = new ArrayList<>(); // dynamic list
     }
 
     public Integer getShiftDurationMinutes() {
@@ -32,11 +33,11 @@ public class MechanicShift {
     }
 
     public Integer getRemainingMinutesBeforeShiftEnd() {
-        Integer bookedOrders = 0;
-        for (int i = 0; i < assignedCount; i++) {
-            bookedOrders += assignedServices[i].getDurationMinutes();
+        int bookedMinutes = 0;
+        for (Service service : assignedServices) {
+            bookedMinutes += service.getDurationMinutes();
         }
-        return getShiftDurationMinutes() - bookedOrders;
+        return getShiftDurationMinutes() - bookedMinutes;
     }
 
     public Boolean canTakeService(Service service) {
@@ -48,9 +49,9 @@ public class MechanicShift {
             throw new InsufficientResourceException("Mechanic " + mechanic.getName()
                     + " has no time for " + service.getServiceName()
                     + " on " + shiftDate + " needs " + service.getDurationMinutes()
-                    + " minutes, has" + getRemainingMinutesBeforeShiftEnd() + " minutes left.");
+                    + " minutes, has " + getRemainingMinutesBeforeShiftEnd() + " minutes left.");
         }
-        assignedServices[assignedCount++] = service;
+        assignedServices.add(service);
     }
 
     public Mechanic getMechanic() {
@@ -69,12 +70,8 @@ public class MechanicShift {
         return endHour;
     }
 
-    public Integer getAssignedCount() {
-        return assignedCount;
-    }
-
-    public Service[] getAssignedServices() {
-        return assignedServices;
+    public List<Service> getAssignedServices() {
+        return Collections.unmodifiableList(assignedServices);
     }
 
 }
