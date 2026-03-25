@@ -21,6 +21,10 @@ public class RepairOrder <T extends Vehicle & ValidAge> {
         this.orderDate = orderDate;
     }
 
+    public T getVehicle() {
+        return vehicle;
+    }
+
     public String getVehicleBrand() {
         return vehicle.getBrand();
     }
@@ -34,17 +38,6 @@ public class RepairOrder <T extends Vehicle & ValidAge> {
     public Mechanic getMechanic() {
         return mechanic;
     }
-
-    public Car getCar() {
-        return (vehicle instanceof Car) ? (Car) vehicle : null;
-    }
-    public Motorcycle getMotorcycle() {
-        return (vehicle instanceof Motorcycle) ? (Motorcycle) vehicle : null;
-    }
-    public Truck getTruck() {
-        return (vehicle instanceof Truck) ? (Truck) vehicle : null;
-    }
-
     public Service getService() {
         return service;
     }

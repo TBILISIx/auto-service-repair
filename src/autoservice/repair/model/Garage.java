@@ -18,9 +18,9 @@ public class Garage {
     private final List<Vehicle> vehicles;
     private final Map<String, SparePart> spareParts;
     private final List<Appointment> appointments;
-    private final List<RepairOrder> repairOrders;
+    private final List<RepairOrder<?>> repairOrders;
 
-    public Garage(String name, String address, Integer totalBays, List<Mechanic> mechanics, List<MechanicShift> shifts, Set<Customer> customers, List<Vehicle> vehicles, Map<String, SparePart> spareParts, List<Appointment> appointments, List<RepairOrder> repairOrders) {
+    public Garage(String name, String address, Integer totalBays, List<Mechanic> mechanics, List<MechanicShift> shifts, Set<Customer> customers, List<Vehicle> vehicles, Map<String, SparePart> spareParts, List<Appointment> appointments, List<RepairOrder<?>> repairOrders) {
 
         this.name = name;
         this.address = address;
@@ -92,12 +92,10 @@ public class Garage {
 
         return appointments;
     }
-    public List<RepairOrder> getRepairOrders() {
+    public List<RepairOrder<?>> getRepairOrders() {
 
         return repairOrders;
     }
-
-
 
     public boolean hasMechanic(Mechanic mechanic) {
         return mechanics.contains(mechanic);      // contains
