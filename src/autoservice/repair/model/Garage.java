@@ -3,7 +3,9 @@ package autoservice.repair.model;
 import autoservice.repair.services.Appointment;
 import autoservice.repair.services.RepairOrder;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Garage {
 
@@ -26,13 +28,13 @@ public class Garage {
         this.address = address;
         this.totalBays = totalBays;
         this.occupiedBays = 0;
-        this.mechanics = new ArrayList<>(mechanics);
-        this.shifts = new ArrayList<>(shifts);
-        this.customers = new HashSet<>(customers);
-        this.vehicles = new ArrayList<>(vehicles);
-        this.spareParts = new HashMap<>(spareParts);
-        this.appointments = new ArrayList<>(appointments);
-        this.repairOrders = new ArrayList<>(repairOrders);
+        this.mechanics = mechanics;
+        this.shifts = shifts;
+        this.customers = customers;
+        this.vehicles = vehicles;
+        this.spareParts = spareParts;
+        this.appointments = appointments;
+        this.repairOrders = repairOrders;
     }
 
     public Boolean hasFreeBay() {

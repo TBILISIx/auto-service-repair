@@ -25,7 +25,7 @@ public class MechanicShift {
         this.shiftDate = shiftDate;
         this.startHour = startHour;
         this.endHour = endHour;
-        this.assignedServices = new ArrayList<>(); // dynamic list
+        this.assignedServices = new ArrayList<>();
     }
 
     public Integer getShiftDurationMinutes() {

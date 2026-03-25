@@ -120,26 +120,49 @@ class Main {
 
         // --- Garage: root object — fully populated ---
 
+        List<Mechanic> listOfMechanics = new ArrayList<>();
+        listOfMechanics.add(mechanic1);
+        listOfMechanics.add(mechanic2);
+
+        List<MechanicShift> listOfShifts = new ArrayList<>();
+        listOfShifts.add(shift1);
+        listOfShifts.add(shift2);
+
+        Set<Customer> listOfCustomers = new HashSet<>();
+        listOfCustomers.add(customer1);
+        listOfCustomers.add(customer2);
+        listOfCustomers.add(customer3);
+
+        List<Vehicle> listOfVehicles = new ArrayList<>();
+        listOfVehicles.add(car);
+        listOfVehicles.add(motorcycle);
+        listOfVehicles.add(truck);
+
+        Map<String, SparePart> productMap = new HashMap<>();
+        productMap.put(oilFilter.getProductNumber(), oilFilter);
+        productMap.put(brakeDisc.getProductNumber(), brakeDisc);
+        productMap.put(tirePatch.getProductNumber(), tirePatch);
+
+        List<Appointment> listOfAppointments = new ArrayList<>();
+        listOfAppointments.add(appointment1);
+        listOfAppointments.add(appointment2);
+
+        List<RepairOrder<?>> listOfRepairOrders = new ArrayList<>();
+        listOfRepairOrders.add(repairOrder1);
+        listOfRepairOrders.add(repairOrder2);
+        listOfRepairOrders.add(repairOrder3);
+
         Garage garage = new Garage(
                 "AutoFix Tbilisi",
                 "Vake District, 14 Chavchavadze Ave",
                 5,
-
-                new ArrayList<>(List.of(mechanic1, mechanic2)),
-                new ArrayList<>(List.of(shift1, shift2)),
-
-                new HashSet<>(Set.of(customer1, customer2, customer3)),
-
-                new ArrayList<>(List.of(car, motorcycle, truck)),
-
-                new HashMap<>(Map.of(
-                        oilFilter.getProductNumber(), oilFilter,
-                        brakeDisc.getProductNumber(), brakeDisc,
-                        tirePatch.getProductNumber(), tirePatch)
-                ),
-
-                new ArrayList<>(List.of(appointment1, appointment2)),
-                new ArrayList<>(List.of(repairOrder1, repairOrder2, repairOrder3))
+                listOfMechanics,
+                listOfShifts,
+                listOfCustomers,
+                listOfVehicles,
+                productMap,
+                listOfAppointments,
+                listOfRepairOrders
         );
 
         // --- BookingService uses Garage as root ---

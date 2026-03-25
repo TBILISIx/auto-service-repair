@@ -86,7 +86,7 @@ public class BookingService implements AutoCloseable {
             System.out.println("Price               : " + repairOrder.getService().getPrice() + " GEL");
             System.out.println("------------------------------------------------------------------------------");
 
-            int pointsEarned = repairOrder.getService().getPrice().intValue() / 10;
+            Integer pointsEarned = repairOrder.getService().getPrice().intValue() / 10;
             repairOrder.getCustomer().addLoyaltyPoints(pointsEarned);
             System.out.println("Loyalty points awarded: +" + pointsEarned + " | Total: " + repairOrder.getCustomer().getLoyaltyPoints());
             System.out.println("------------------------------------------------------------------------------");
@@ -100,7 +100,7 @@ public class BookingService implements AutoCloseable {
 
     @Override
     public void close() {
-        int occupied = garage.getOccupiedBays();
+        Integer occupied = garage.getOccupiedBays();
         if (occupied > 0) {
             garage.freeBay(occupied);
             System.out.println("------------------------------------------------------------------------------");
