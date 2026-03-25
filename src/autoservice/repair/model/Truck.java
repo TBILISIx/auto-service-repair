@@ -1,6 +1,8 @@
 package autoservice.repair.model;
 
-public class Truck extends Vehicle implements Drivable, Maintainable, Inspectable {
+import autoservice.repair.exceptions.AgeException;
+
+public class Truck extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge{
 
     private final Integer doors;
     private final Integer tires;
@@ -98,6 +100,13 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
 
         System.out.println("- Inspected after: " + "Yes");
         System.out.println("------------------------------------------------------------------------------");
+    }
+
+    @Override
+    public void validateAge(Customer customer) throws AgeException {
+        if (customer.getAge() < 18) {
+            throw new AgeException("According to Georgian law, customers under 18 cannot drive trucks!");
+        }
     }
 
 }

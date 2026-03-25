@@ -24,7 +24,7 @@ class Main {
         // --- Customers ---
         Customer customer1 = new Customer("Giorgi", "19207150012", "525-99-93-77", 25, insurance1, "ForGitHomework1@gmail.com");
         Customer customer2 = new Customer("Mariam", "28803220039", "599-11-22-33", 30, insurance2, "ForGitHomework2@gmail.com");
-        Customer customer3 = new Customer("David", "30111050047", "577-44-55-66", 40, insurance3, "ForGitHomework3@gmail.com");
+        Customer customer3 = new Customer("David", "30111050047", "577-44-55-66", 45, insurance3, "ForGitHomework3@gmail.com");
 
         // --- Mechanics ---
         Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));
@@ -78,9 +78,9 @@ class Main {
         getSellingPrice("Tire patch", tirePatch);
 
         // --- Repair Orders ---
-        RepairOrder repairOrder1 = new RepairOrder(customer1, mechanic1, car, oilChange, LocalDateTime.now());
-        RepairOrder repairOrder2 = new RepairOrder(customer2, mechanic2, motorcycle, brakeRepair, LocalDateTime.now());
-        RepairOrder repairOrder3 = new RepairOrder(customer3, mechanic1, truck, tireChange, LocalDateTime.now());
+        RepairOrder<Car> repairOrder1 = new RepairOrder<>(customer1, mechanic1, car, oilChange, LocalDateTime.now());
+        RepairOrder<Motorcycle> repairOrder2 = new RepairOrder<>(customer2, mechanic2, motorcycle, brakeRepair, LocalDateTime.now());
+        RepairOrder<Truck> repairOrder3 = new RepairOrder<>(customer3, mechanic1, truck, tireChange, LocalDateTime.now());
 
         // --- Appointments ---
         Appointment appointment1 = new Appointment(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));

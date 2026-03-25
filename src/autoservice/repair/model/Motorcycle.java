@@ -1,6 +1,8 @@
 package autoservice.repair.model;
 
-public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspectable {
+import autoservice.repair.exceptions.AgeException;
+
+public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspectable, ValidAge {
 
     private final Integer engineCapacity;  // in cc
     private final String bikeType;     // Sport / Cruiser / Off-road / Scooter
@@ -81,6 +83,17 @@ public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspe
         System.out.println("- Inspected after: " + "Yes");
         System.out.println("------------------------------------------------------------------------------");
     }
+
+    @Override
+    public void validateAge(Customer customer) throws AgeException {
+        if (engineCapacity > 50 && customer.getAge() < 16) {
+            throw new AgeException("According to Georgian law, customers under 16 cannot drive motorcycles above 50cc!");
+        }
+        if (engineCapacity > 125 && customer.getAge() == 17) {
+            throw new AgeException("According to Georgian law, customers of age 17 cannot drive motorcycles above 125cc!");
+        }
+    }
+
 }
 
 //    @Override

@@ -1,51 +1,22 @@
 package autoservice.repair.services;
 
-import autoservice.repair.exceptions.AgeException;
 import autoservice.repair.model.*;
 
 import java.time.LocalDateTime;
 
-public class RepairOrder {
+public class RepairOrder <T extends Vehicle & ValidAge> {
 
     private final Customer customer;
     private final Mechanic mechanic;
-    private final Vehicle vehicle;
+    private final T vehicle;
     private final Service service;
     private final LocalDateTime orderDate;
 
-    public RepairOrder(Customer customer, Mechanic mechanic, Car car, Service service, LocalDateTime orderDate) {
-        if (customer.getAge() < 18) {
-            throw new AgeException("According to Georgian law underage (-18) customers cannot drive cars!");
-        }
+    public RepairOrder(Customer customer, Mechanic mechanic, T vehicle, Service service, LocalDateTime orderDate) {
+        vehicle.validateAge(customer);
         this.customer = customer;
         this.mechanic = mechanic;
-        this.vehicle = car;
-        this.service = service;
-        this.orderDate = orderDate;
-    }
-
-    public RepairOrder(Customer customer, Mechanic mechanic, Motorcycle motorcycle, Service service, LocalDateTime orderDate) {
-        Integer age = customer.getAge();
-        if (age < 16 && motorcycle.getEngineCapacity() > 50) {
-            throw new AgeException("According to Georgian law customers under 16 cannot drive motorcycles above 50cc.");
-        }
-        if (age == 17 && motorcycle.getEngineCapacity() > 125) {
-            throw new AgeException("According to Georgian law customers of age 17 cannot drive motorcycles above 125cc.");
-        }
-        this.customer = customer;
-        this.mechanic = mechanic;
-        this.vehicle = motorcycle;
-        this.service = service;
-        this.orderDate = orderDate;
-    }
-
-    public RepairOrder(Customer customer, Mechanic mechanic, Truck truck, Service service, LocalDateTime orderDate) {
-        if (customer.getAge() < 18) {
-            throw new AgeException("According to Georgian law customers under 18 cannot drive trucks.");
-        }
-        this.customer = customer;
-        this.mechanic = mechanic;
-        this.vehicle = truck;
+        this.vehicle = vehicle;
         this.service = service;
         this.orderDate = orderDate;
     }
