@@ -6,6 +6,7 @@ import autoservice.repair.services.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.*;
 
 class Main {
 
@@ -100,12 +101,33 @@ class Main {
         }
 
         // --- Garage: root object — fully populated ---
-        Garage garage = new Garage("AutoFix Tbilisi", "Vake District, 14 Chavchavadze Ave", 5, new Mechanic[]{mechanic1, mechanic2}, new MechanicShift[]{shift1, shift2}, new Customer[]{customer1, customer2, customer3}, new Car[]{car}, new Motorcycle[]{motorcycle}, new Truck[]{truck}, new SparePart[]{oilFilter, brakeDisc, tirePatch}, new Appointment[]{appointment1, appointment2}, new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
+
+        Garage garage = new Garage(
+                "AutoFix Tbilisi",
+                "Vake District, 14 Chavchavadze Ave",
+                5,
+
+                new ArrayList<>(List.of(mechanic1, mechanic2)),
+                new ArrayList<>(List.of(shift1, shift2)),
+
+                new HashSet<>(Set.of(customer1, customer2, customer3)),
+
+                new ArrayList<>(List.of(car, motorcycle, truck)),
+
+                new HashMap<>(Map.of(
+                        oilFilter.getProductNumber(), oilFilter,
+                        brakeDisc.getProductNumber(), brakeDisc,
+                        tirePatch.getProductNumber(), tirePatch)
+                ),
+
+                new ArrayList<>(List.of(appointment1, appointment2)),
+                new ArrayList<>(List.of(repairOrder1, repairOrder2, repairOrder3))
+        );
 
         // --- BookingService uses Garage as root ---
 
         try (BookingService bookingService = new BookingService(garage)) {
-            bookingService.createOrder(new RepairOrder[]{repairOrder1, repairOrder2, repairOrder3});
+            bookingService.createOrder(List.of(repairOrder1, repairOrder2, repairOrder3));
         } catch (GarageBookingException e) {
             System.out.println("Garage booking error: " + e.getMessage());
         }
