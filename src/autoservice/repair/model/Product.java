@@ -25,6 +25,7 @@ public abstract class Product {
     public BigDecimal getUnitPrice() {
         return unitPrice;
     }
+
 }
 
 

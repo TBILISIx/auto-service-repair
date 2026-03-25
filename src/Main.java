@@ -77,10 +77,28 @@ class Main {
         getSellingPrice("Brake disk", brakeDisc);
         getSellingPrice("Tire patch", tirePatch);
 
-        // --- Repair Orders ---
+        // --- Repair Orders (First Generic)---
         RepairOrder<Car> repairOrder1 = new RepairOrder<>(customer1, mechanic1, car, oilChange, LocalDateTime.now());
         RepairOrder<Motorcycle> repairOrder2 = new RepairOrder<>(customer2, mechanic2, motorcycle, brakeRepair, LocalDateTime.now());
         RepairOrder<Truck> repairOrder3 = new RepairOrder<>(customer3, mechanic1, truck, tireChange, LocalDateTime.now());
+
+        // --- Service Queue (waiting orders / Second Generic) ---
+        ServiceQueue<RepairOrder<?>> serviceQueue = new ServiceQueue<>(5);
+
+        // add orders to queue
+        serviceQueue.add(repairOrder1);
+        serviceQueue.add(repairOrder2);
+        serviceQueue.add(repairOrder3);
+
+        // display queue
+        serviceQueue.displayQueue();
+
+        // simulate processing next order
+        RepairOrder<?> nextOrder = serviceQueue.poll();
+        System.out.println("Processing next order: " + nextOrder);
+
+        // check remaining
+        System.out.println("Orders left in queue: " + serviceQueue.size());
 
         // --- Appointments ---
         Appointment appointment1 = new Appointment(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));

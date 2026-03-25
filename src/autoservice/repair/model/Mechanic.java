@@ -46,4 +46,5 @@ public class Mechanic extends Person {
                 ", hourlyRate=" + hourlyRate +
                 '}';
     }
+
 }

@@ -61,6 +61,7 @@ public abstract class Vehicle {
     public int hashCode() {
         return Objects.hash(vin);
     }
+
 }
 
 

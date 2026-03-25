@@ -106,4 +106,5 @@ public class Invoice extends Document {
                 ", payment=" + payment +
                 '}';
     }
+
 }

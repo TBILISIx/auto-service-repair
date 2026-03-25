@@ -2,7 +2,7 @@ package autoservice.repair.model;
 
 import autoservice.repair.exceptions.AgeException;
 
-public class Truck extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge{
+public class Truck extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge {
 
     private final Integer doors;
     private final Integer tires;
