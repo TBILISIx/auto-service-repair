@@ -1,22 +1,11 @@
 package autoservice.repair.model;
 
-public final class Transmission {
+import autoservice.repair.enums.TransmissionType;
 
-    private final String type;   // Automatic / Manual / Semi-Automatic
-    private final int gears;
-
-    public Transmission(String type, int gears) {
-        this.type = type;
-        this.gears = gears;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public int getGears() {
-        return gears;
-    }
+/**
+ * @param type Automatic / Manual / Semi-Automatic
+ */
+public record Transmission(TransmissionType type, int gears) {
 
 }
 

@@ -6,15 +6,17 @@ public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspe
 
     private final Integer engineCapacity;  // in cc
     private final String bikeType;     // Sport / Cruiser / Off-road / Scooter
+    private final Transmission transmission;
 
     private Boolean ridden = false;
     private Boolean maintenanceDone = false;
     private Boolean inspected = false;
 
-    public Motorcycle(String brand, String model, Integer year, String vin, String licensePlate, Integer engineCapacity, String bikeType) {
+    public Motorcycle(String brand, String model, Integer year, String vin, String licensePlate, Integer engineCapacity, String bikeType, Transmission transmission) {
         super(brand, model, year, vin, licensePlate);
         this.engineCapacity = engineCapacity;
         this.bikeType = bikeType;
+        this.transmission = transmission;
     }
 
     public Integer getEngineCapacity() {
@@ -23,6 +25,7 @@ public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspe
     public String getBikeType() {
         return bikeType;
     }
+    public Transmission getTransmission(){return transmission;}
 
     @Override
     public String toString() {

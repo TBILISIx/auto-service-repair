@@ -22,7 +22,7 @@ public class Invoice extends Document {
     }
 
     public BigDecimal calculateTotal() {
-        BigDecimal basePrice = repairOrder.getService().getPrice();
+        BigDecimal basePrice = repairOrder.service().getPrice();
         BigDecimal discountAmount = basePrice
                 .multiply(discountPercent)
                 .divide(new BigDecimal("100"), 2, RoundingMode.HALF_UP);
@@ -43,20 +43,20 @@ public class Invoice extends Document {
         // Customer Info
         System.out.println("Customer             : " + customer.getName());
         System.out.println("Registration Date    : " + customer.getRegistrationDate());
-        System.out.println("Insurance Provider   : " + customer.getInsurance().getProvider());
-        System.out.println("Policy Number        : " + customer.getInsurance().getPolicyNumber());
+        System.out.println("Insurance Provider   : " + customer.getInsurance().provider());
+        System.out.println("Policy Number        : " + customer.getInsurance().policyNumber());
         System.out.println("Policy Expired       : " + customer.getInsurance().isExpired());
-        System.out.println("Policy Expiry Date   : " + customer.getInsurance().getExpiryDate());
+        System.out.println("Policy Expiry Date   : " + customer.getInsurance().expiryDate());
         System.out.println("------------------------------------------------------------------------------");
 
         // Vehicle Info
         System.out.println("Vehicle              : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
-        System.out.println("Service              : " + repairOrder.getService().getServiceName());
-        System.out.println("Service Description  : " + repairOrder.getService().getServiceDescription());
+        System.out.println("Service              : " + repairOrder.service().getServiceName());
+        System.out.println("Service Description  : " + repairOrder.service().getServiceDescription());
         System.out.println("------------------------------------------------------------------------------");
 
         // Pricing Info
-        System.out.println("Base Price           : " + repairOrder.getService().getPrice() + " GEL");
+        System.out.println("Base Price           : " + repairOrder.service().getPrice() + " GEL");
         System.out.println("Discount             : " + discountPercent + "%");
         System.out.println("Total Due            : " + calculateTotal() + " GEL");
 
