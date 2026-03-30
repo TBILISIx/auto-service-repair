@@ -61,7 +61,7 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
         System.out.println("Year: " + getYear());
         System.out.println("Engine Size: " + getEngineSize() + "L");
         System.out.println("Payload Capacity: " + getPayloadCapacityTons() + " tons");
-        System.out.println("Transmission: " + getTransmission().getType());
+        System.out.println("Transmission: " + getTransmission().type());
         System.out.println("Sleeping Cabin: " + (hasSleepingCabin() ? "Yes" : "No"));
         this.driven = true;
     }

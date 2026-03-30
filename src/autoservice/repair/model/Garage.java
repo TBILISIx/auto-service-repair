@@ -3,9 +3,12 @@ package autoservice.repair.model;
 import autoservice.repair.services.Appointment;
 import autoservice.repair.services.RepairOrder;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.*;
 
 public class Garage {
 
@@ -35,6 +38,56 @@ public class Garage {
         this.spareParts = spareParts;
         this.appointments = appointments;
         this.repairOrders = repairOrders;
+    }
+
+    /* java.util.functions built in functional interfaces  has exactly one abstract method, method defines the “function” of the interface
+     * target for a lambda expression or method reference.*/
+
+    // Predicate true/false with condition filtering vehicles by year inside method argument Yes/No question
+
+    public List<Vehicle> filterVehicles(Predicate<Vehicle> condition) {
+        List<Vehicle> filteredList = new ArrayList<>(); // list to store results
+        for (Vehicle n : vehicles) {
+            if (condition.test(n)) { // if satisfies condition
+                filteredList.add(n);
+            }
+        }
+
+        return filteredList;
+    }
+
+    // Function - Turn Mechanic object into a string 1) object 2) type 3) name  // Convert A into B
+
+    public List<String> getMechanicRoster(Function<Mechanic, String> formatter) {
+        List<String> roster = new ArrayList<>();
+        for (Mechanic n : mechanics) {
+            String formatted = formatter.apply(n);
+            roster.add(formatted);
+        }
+        return roster;
+    }
+
+    // 3. BiFunction<String, Integer, List<SparePart>> — find parts below certain quantity, also accepting a category prefix
+    // Convert A and B into C
+
+    public List<SparePart> getLowStockParts(BiFunction<String, Integer, List<SparePart>> lowStockChecker,
+                                            String prefix,
+                                            int minQty) {
+        return lowStockChecker.apply(prefix, minQty);
+    }
+
+    // 4. Consumer<Customer> — perform an action on every customer - give loyalty points (takes object does something to it returns nothing)
+
+    public void forEachCustomer(Consumer<Customer> action) {
+        customers.forEach(action);
+    }
+
+    // 5. UnaryOperator<T> takes certain type changes its value and returns same type also + added Predicate for first condition
+
+    public void applyRateAdjustment(Predicate<Mechanic> condition, UnaryOperator<BigDecimal> seniorBonus) {
+        mechanics.stream()
+                .filter(condition)
+                .forEach(mechanic -> mechanic.setHourlyRate(seniorBonus.apply(mechanic.getHourlyRate())));
     }
 
     public Boolean hasFreeBay() {
@@ -104,6 +157,10 @@ public class Garage {
     }
     public void removeMechanic(Mechanic mechanic) {
         mechanics.remove(mechanic);               // remove
+    }
+
+    public void addMechanic(Mechanic mechanic) {
+        mechanics.add(mechanic);
     }
 
     public boolean hasCustomers() {
