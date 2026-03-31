@@ -1,33 +1,51 @@
 package autoservice.repair.services;
 
+import autoservice.repair.enums.PaymentMethod;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * Holds the payment method and confirmation state.
+ * The final amount is set by Invoice after it finishes calculating
+ * discount + processing fee — so there is one single source of truth for pricing.
+ */
 public class Payment extends Document {
 
-    private final BigDecimal amount;
-    private final String method;   // CASH / CARD / TRANSFER
+    private BigDecimal amount;
+    private final PaymentMethod method;
     private final LocalDateTime paymentDate;
-    private Boolean confirmed;
+    private boolean confirmed;
 
-    public Payment(Integer id, BigDecimal amount, String method) {
+    public Payment(Integer id, PaymentMethod method) {
         super(id);
-        this.amount = amount;
         this.method = method;
         this.paymentDate = LocalDateTime.now();
         this.confirmed = false;
     }
 
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
     public void confirm() {
         this.confirmed = true;
-        System.out.println("Payment of " + amount + " GEL via " + method + " confirmed.");
+
+        System.out.println("=== PAYMENT CONFIRMED ===");
+        System.out.println("Method       : " + method.getDisplayName());
+        System.out.println("Total Paid   : " + amount + " GEL");
+        if (method.hasFee()) {
+            System.out.println("Includes     : " + method.getProcessingFeePercent() + "% processing fee");
+        }
+        System.out.println("==========================");
     }
 
     public BigDecimal getAmount() {
         return amount;
     }
 
-    public String getMethod() {
+    public PaymentMethod getMethod() {
         return method;
     }
 
@@ -35,7 +53,7 @@ public class Payment extends Document {
         return paymentDate;
     }
 
-    public Boolean isConfirmed() {
+    public boolean isConfirmed() {
         return confirmed;
     }
 
@@ -44,7 +62,7 @@ public class Payment extends Document {
         return "Payment{" +
                 "id=" + getId() +
                 ", amount=" + amount + " GEL" +
-                ", method='" + method + '\'' +
+                ", method='" + method.getDisplayName() + '\'' +
                 ", paymentDate=" + paymentDate +
                 ", confirmed=" + confirmed +
                 '}';

@@ -1,5 +1,6 @@
 package autoservice.repair.services;
 
+import autoservice.repair.enums.ServiceStatus;
 import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.model.Customer;
 import autoservice.repair.model.Mechanic;
@@ -14,16 +15,16 @@ public class Appointment extends Document {
     private final Mechanic mechanic;
     private final Vehicle vehicle;
     private final LocalDateTime scheduledTime;
-    private String status; // SCHEDULED, IN_PROGRESS, DONE, CANCELLED
+    private ServiceStatus status;
 
-    // Constructors
+    // Constructor
     public Appointment(Integer id, Customer customer, Mechanic mechanic, Vehicle vehicle, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
         this.mechanic = mechanic;
         this.vehicle = vehicle;
         this.scheduledTime = scheduledTime;
-        this.status = "SCHEDULED";
+        this.status = ServiceStatus.SCHEDULED;
     }
 
     // Vehicle Description
@@ -33,10 +34,13 @@ public class Appointment extends Document {
 
     // Appointment Actions
     public void start() {
-        if (!status.equals("SCHEDULED")) {
-            throw new AppointmentStatusException("Appointment can only be started if SCHEDULED. Current: " + status);
+        if (status != ServiceStatus.SCHEDULED) {
+            throw new AppointmentStatusException(
+                    "Appointment can only be started if SCHEDULED. Current: " + status.getDisplayName()
+            );
         }
-        this.status = "IN_PROGRESS";
+
+        this.status = ServiceStatus.IN_PROGRESS;
 
         System.out.println("------------------------------------------------------------------------------");
         System.out.println("\n=== APPOINTMENT STARTED ===");
@@ -44,33 +48,39 @@ public class Appointment extends Document {
         System.out.println("Vehicle         : " + getVehicleDescription());
         System.out.println("Mechanic        : " + mechanic.getName());
         System.out.println("Scheduled Time  : " + getFormattedScheduledTime());
-        System.out.println("Status          : " + status);
+        System.out.println("Status          : " + status.getDisplayName());
         System.out.println("============================");
     }
 
     public void complete() {
-        if (!status.equals("IN_PROGRESS")) {
-            throw new AppointmentStatusException("Appointment can only be completed if IN_PROGRESS. Current: " + status);
+        if (status != ServiceStatus.IN_PROGRESS) {
+            throw new AppointmentStatusException(
+                    "Appointment can only be completed if IN_PROGRESS. Current: " + status.getDisplayName()
+            );
         }
-        this.status = "DONE";
+
+        this.status = ServiceStatus.DONE;
 
         System.out.println("=== APPOINTMENT COMPLETED ===");
         System.out.println("Customer : " + customer.getName());
         System.out.println("Vehicle  : " + getVehicleDescription());
-        System.out.println("Status   : " + status);
+        System.out.println("Status   : " + status.getDisplayName());
         System.out.println("=============================");
     }
 
     public void cancel() {
-        if (status.equals("DONE")) {
-            throw new AppointmentStatusException("Cannot cancel an already completed appointment.");
+        if (!status.canBeCancelled()) {
+            throw new AppointmentStatusException(
+                    "Cannot cancel appointment in status: " + status.getDisplayName()
+            );
         }
-        this.status = "CANCELLED";
+
+        this.status = ServiceStatus.CANCELLED;
 
         System.out.println("=== APPOINTMENT CANCELLED ===");
         System.out.println("Customer : " + customer.getName());
         System.out.println("Vehicle  : " + getVehicleDescription());
-        System.out.println("Status   : " + status);
+        System.out.println("Status   : " + status.getDisplayName());
         System.out.println("==============================");
     }
 
@@ -84,16 +94,20 @@ public class Appointment extends Document {
     public Customer getCustomer() {
         return customer;
     }
+
     public Mechanic getMechanic() {
         return mechanic;
     }
+
     public Vehicle getVehicle() {
         return vehicle;
     }
+
     public LocalDateTime getScheduledTime() {
         return scheduledTime;
     }
-    public String getStatus() {
+
+    public ServiceStatus getStatus() {
         return status;
     }
 
@@ -105,8 +119,7 @@ public class Appointment extends Document {
                 ", mechanic=" + mechanic.getName() +
                 ", vehicle=" + getVehicleDescription() +
                 ", scheduledTime=" + getFormattedScheduledTime() +
-                ", status='" + status + '\'' +
+                ", status='" + status.getDisplayName() + '\'' +
                 '}';
     }
-
 }
