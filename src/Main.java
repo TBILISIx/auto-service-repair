@@ -22,9 +22,9 @@ void main() {
     Customer customer3 = new Customer("David", "30111050047", "577-44-55-66", 45, insurance3, "ForGitHomework3@gmail.com");
 
     // --- Mechanics ---
-    Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, MechanicLevel.SENIOR, new BigDecimal("25.00"));
-    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 2,MechanicLevel.JUNIOR,new BigDecimal("18.00"));
-    Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, MechanicLevel.MASTER, new BigDecimal("30.00"));
+    Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, MechanicSeniorityLevel.SENIOR, new BigDecimal("25.00"));
+    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 2, MechanicSeniorityLevel.JUNIOR,new BigDecimal("18.00"));
+    Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, MechanicSeniorityLevel.MASTER, new BigDecimal("30.00"));
 
     // --- Services ---
     Service oilChange = new OilChange(new BigDecimal("50.00"));

@@ -4,7 +4,7 @@ package autoservice.repair.enums;
  * Represents a mechanic's seniority level. Used in: Mechanic class
  */
 
-public enum MechanicLevel {
+public enum MechanicSeniorityLevel {
 
     JUNIOR("Junior", 0, 2),
     MID("Mid-Level", 3, 9),
@@ -15,7 +15,7 @@ public enum MechanicLevel {
     private final int minYears;
     private final int maxYears;
 
-    MechanicLevel(String displayName, int minYears, int maxYears) {
+    MechanicSeniorityLevel(String displayName, int minYears, int maxYears) {
         this.displayName = displayName;
         this.minYears = minYears;
         this.maxYears = maxYears;
