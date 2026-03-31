@@ -1,7 +1,7 @@
 package autoservice.repair.enums;
 
 /**
- Payment method used in a Payment. Used in: Payment class
+ * Payment method used in a Payment. Used in: Payment class
  **/
 public enum PaymentMethod {
 

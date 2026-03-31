@@ -33,7 +33,7 @@ public enum MechanicSeniorityLevel {
         return maxYears;
     }
 
-    public boolean isExperienced() {
+    public boolean isSeniorLevel() {
         return minYears >= 10;
     }
 

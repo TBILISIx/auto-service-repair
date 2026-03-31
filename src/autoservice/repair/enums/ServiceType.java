@@ -1,6 +1,8 @@
 package autoservice.repair.enums;
 
-/** Types of RepairService. Used in:OilChange, TireChange, BrakeRepair **/
+/**
+ * Types of RepairService. Used in: OilChange, TireChange, BrakeRepair
+ **/
 public enum ServiceType {
 
     OIL_CHANGE("Oil Change", "Maintenance", false),

@@ -42,7 +42,7 @@ public record BookingService(Garage garage) implements AutoCloseable {
             System.out.println("Specialization      : " + repairOrder.mechanic().getSpecialization());
             System.out.println("Experience          : " + repairOrder.mechanic().getYearsOfExperience() + " years");
             System.out.println("Seniority level     : " + repairOrder.mechanic().getLevel().getDisplayName());
-            System.out.println("Does mechanic has 10 years of experience ? " + (repairOrder.mechanic().getLevel().isExperienced() ? "- Yes" : "- No"));
+            System.out.println("Is mechanic senior level or above ? " + (repairOrder.mechanic().getLevel().isSeniorLevel() ? "- Yes" : "- No"));
             System.out.println("Mechanic Phone      : " + repairOrder.mechanic().getPhone());
             System.out.println("Hourly Rate         : " + repairOrder.mechanic().getHourlyRate() + " GEL/h");
             System.out.println("------------------------------------------------------------------------------");

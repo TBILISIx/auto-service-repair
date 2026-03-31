@@ -96,7 +96,7 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
     @Override
     public void performInspection() {
         System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Inspection report for car: " + getBrand() + " " + getModel());
+        System.out.println("Inspection report for Truck: " + getBrand() + " " + getModel());
         System.out.println("------------------------------------------------------------------------------");
         System.out.println("- Driven: " + (driven ? "Yes" : "No"));
         System.out.println("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));

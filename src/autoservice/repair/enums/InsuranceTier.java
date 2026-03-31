@@ -1,6 +1,8 @@
 package autoservice.repair.enums;
 
-/** Tiers of customers insurance policy, Used in : Insurance (record) **/
+/**
+ * Tiers of customers insurance policy, Used in : Insurance (record)
+ **/
 
 public enum InsuranceTier {
 
