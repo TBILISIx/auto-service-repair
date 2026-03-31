@@ -1,6 +1,4 @@
-import autoservice.repair.enums.BikeType;
-import autoservice.repair.enums.EngineType;
-import autoservice.repair.enums.TransmissionType;
+import autoservice.repair.enums.*;
 import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.exceptions.GarageBookingException;
 import autoservice.repair.model.*;
@@ -14,9 +12,9 @@ void main() {
     Transmission motoTransmission = new Transmission(TransmissionType.SEMI_AUTOMATIC, 6);
 
     // --- Insurance policies ---
-    Insurance insurance1 = new Insurance("Aldagi", "POL-1001", LocalDate.of(2026, 12, 31), new BigDecimal("45.00"));
-    Insurance insurance2 = new Insurance("GPI Holding", "POL-2042", LocalDate.of(2025, 6, 15), new BigDecimal("60.00"));
-    Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"));
+    Insurance insurance1 = new Insurance("Aldagi", "POL-1001", LocalDate.of(2026, 12, 31), new BigDecimal("45.00"), InsuranceTier.STANDARD);
+    Insurance insurance2 = new Insurance("GPI Holding", "POL-2042", LocalDate.of(2025, 6, 15), new BigDecimal("60.00"), InsuranceTier.PREMIUM);
+    Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"), InsuranceTier.BASIC);
 
     // --- Customers ---
     Customer customer1 = new Customer("Giorgi", "19207150012", "525-99-93-77", 25, insurance1, "ForGitHomework1@gmail.com");
@@ -24,9 +22,9 @@ void main() {
     Customer customer3 = new Customer("David", "30111050047", "577-44-55-66", 45, insurance3, "ForGitHomework3@gmail.com");
 
     // --- Mechanics ---
-    Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));
-    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 5, new BigDecimal("18.00"));
-    Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, new BigDecimal("30.00"));
+    Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, MechanicLevel.SENIOR, new BigDecimal("25.00"));
+    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 2,MechanicLevel.JUNIOR,new BigDecimal("18.00"));
+    Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, MechanicLevel.MASTER, new BigDecimal("30.00"));
 
     // --- Services ---
     Service oilChange = new OilChange(new BigDecimal("50.00"));

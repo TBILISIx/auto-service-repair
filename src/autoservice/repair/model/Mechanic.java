@@ -1,17 +1,22 @@
 package autoservice.repair.model;
 
+import autoservice.repair.enums.MechanicLevel;
+
 import java.math.BigDecimal;
 
 public class Mechanic extends Person {
 
     private String specialization;
     private final Integer yearsOfExperience;
+    private final MechanicLevel level;
     private BigDecimal hourlyRate;
 
-    public Mechanic(String name, String idNumber, String phone, String specialization, Integer yearsOfExperience, BigDecimal hourlyRate) {
+    public Mechanic(String name, String idNumber, String phone, String specialization,
+                    Integer yearsOfExperience, MechanicLevel level, BigDecimal hourlyRate) {
         super(name, idNumber, phone);
         this.specialization = specialization;
         this.yearsOfExperience = yearsOfExperience;
+        this.level = level;
         this.hourlyRate = hourlyRate;
     }
 
@@ -25,6 +30,9 @@ public class Mechanic extends Person {
 
     public Integer getYearsOfExperience() {
         return yearsOfExperience;
+    }
+    public MechanicLevel getLevel() {
+        return level;
     }
 
     public BigDecimal getHourlyRate() {

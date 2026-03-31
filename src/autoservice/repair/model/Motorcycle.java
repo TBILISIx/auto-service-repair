@@ -22,14 +22,18 @@ public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspe
         this.bikeType = bikeType;
         this.transmission = transmission;
     }
-    public EngineType getEngineType() {return engineType;}
+    public EngineType getEngineType() {
+        return engineType;
+    }
     public Integer getEngineCapacity() {
         return engineCapacity;
     }
     public BikeType getBikeType() {
         return bikeType;
     }
-    public Transmission getTransmission(){return transmission;}
+    public Transmission getTransmission() {
+        return transmission;
+    }
 
     @Override
     public String toString() {
