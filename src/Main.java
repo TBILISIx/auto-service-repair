@@ -1,6 +1,9 @@
 import autoservice.repair.enums.*;
 import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.exceptions.GarageBookingException;
+import autoservice.repair.functional.AppointmentFilter;
+import autoservice.repair.functional.DiscountStrategy;
+import autoservice.repair.functional.ObjectFormatter;
 import autoservice.repair.model.*;
 import autoservice.repair.services.*;
 
@@ -23,7 +26,7 @@ void main() {
 
     // --- Mechanics ---
     Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, MechanicSeniorityLevel.SENIOR, new BigDecimal("25.00"));
-    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 2, MechanicSeniorityLevel.JUNIOR,new BigDecimal("18.00"));
+    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 2, MechanicSeniorityLevel.JUNIOR, new BigDecimal("18.00"));
     Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, MechanicSeniorityLevel.MASTER, new BigDecimal("30.00"));
 
     // --- Services ---
@@ -367,6 +370,24 @@ void main() {
     garage.getMechanics().forEach(n ->
             System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
     );
+
+    // --- Custom Functional Interfaces just to showcase ---
+
+// 1. DiscountStrategy
+    DiscountStrategy ThirtyPercentDiscount = price -> price * 0.7;
+    double discounted = ThirtyPercentDiscount.apply(200);
+    System.out.println("\nDiscounted price: " + discounted);
+
+// 2. AppointmentFilter
+    AppointmentFilter onlyScheduled = a -> a.getStatus() == ServiceStatus.SCHEDULED;
+
+    System.out.println("Is appointment scheduled? | " + (onlyScheduled.test(appointment1) ? "Yes" : "No"));
+
+// 3. Formatter
+    ObjectFormatter<Appointment> Objectformatter =
+            a -> a.getCustomer().getName() + " | " + a.getStatus();
+
+    System.out.println("Appointment with customer: " + Objectformatter.format(appointment1));
 
 }
 
