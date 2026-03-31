@@ -1,5 +1,6 @@
 package autoservice.repair.services;
 
+import autoservice.repair.enums.PaymentMethod;
 import autoservice.repair.exceptions.GarageBookingException;
 import autoservice.repair.model.*;
 
@@ -78,9 +79,16 @@ public record BookingService(Garage garage) implements AutoCloseable {
             System.out.println("Loyalty points awarded: +" + pointsEarned + " | Total: " + repairOrder.customer().getLoyaltyPoints());
             System.out.println("------------------------------------------------------------------------------");
 
+            // 1. Create Invoice
             Invoice invoice = new Invoice(totalOrders, repairOrder.customer(), repairOrder, new BigDecimal("10"));
-            Payment payment = new Payment(totalOrders, invoice.calculateTotal(), "CARD");
+
+            // 2. Create Payment with method only — no amount yet, Invoice will calculate and stamp it
+            Payment payment = new Payment(totalOrders, PaymentMethod.CARD);
+
+            // 3. Invoice receives Payment, calculates final total (discount + fee), sets final total amount, confirms
             invoice.addPayment(payment);
+
+            // 4. Print full invoice
             invoice.generate();
         }
     }
