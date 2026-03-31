@@ -43,7 +43,7 @@ public class Garage {
     /* java.util.functions built in functional interfaces  has exactly one abstract method, method defines the “function” of the interface
      * target for a lambda expression or method reference.*/
 
-    // Predicate true/false with condition filtering vehicles by year inside method argument Yes/No question
+    // 1. Predicate true/false with condition filtering vehicles by year inside method argument Yes/No question
 
     public List<Vehicle> filterVehicles(Predicate<Vehicle> condition) {
         List<Vehicle> filteredList = new ArrayList<>(); // list to store results
@@ -56,7 +56,7 @@ public class Garage {
         return filteredList;
     }
 
-    // Function - Turn Mechanic object into a string 1) object 2) type 3) name  // Convert A into B
+    // 2. Function - Turn Mechanic object into a string 1) object 2) type 3) name  // Convert A into B
 
     public List<String> getMechanicRoster(Function<Mechanic, String> formatter) {
         List<String> roster = new ArrayList<>();
