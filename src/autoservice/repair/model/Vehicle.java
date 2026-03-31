@@ -51,9 +51,8 @@ public abstract class Vehicle {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Vehicle)) return false;
+        if (!(o instanceof Vehicle vehicle)) return false;
 
-        Vehicle vehicle = (Vehicle) o;
         return Objects.equals(vin, vehicle.vin);
     }
 

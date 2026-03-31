@@ -1,11 +1,12 @@
 package autoservice.repair.model;
 
+import autoservice.repair.enums.EngineType;
 import autoservice.repair.exceptions.AgeException;
 
 public class Car extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge {
 
     private Integer doors;
-    private String engineType;
+    private EngineType engineType;
     private Double engineSize;
     private Transmission transmission;
 
@@ -14,7 +15,7 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
     private Boolean maintenanceDone = false;
     private Boolean inspected = false;
 
-    public Car(String brand, String model, String vin, String licensePlate, Integer year, Integer doors, String engineType, Double engineSize, Transmission transmission) {
+    public Car(String brand, String model, String vin, String licensePlate, Integer year, Integer doors, EngineType engineType, Double engineSize, Transmission transmission) {
         super(brand, model, year, vin, licensePlate);
         this.doors = doors;
         this.engineType = engineType;
@@ -26,7 +27,7 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
     public Integer getDoors() {
         return doors;
     }
-    public String getEngineType() {
+    public EngineType getEngineType() {
         return engineType;
     }
     public Double getEngineSize() {
@@ -39,7 +40,7 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
     public void setDoors(Integer doors) {
         this.doors = doors;
     }
-    public void setEngineType(String engineType) {
+    public void setEngineType(EngineType engineType) {
         this.engineType = engineType;
     }
     public void setEngineSize(Double engineSize) {
