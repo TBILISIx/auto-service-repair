@@ -371,23 +371,38 @@ void main() {
             System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
     );
 
+
+    // 6. Runnable - takes nothing, returns nothing, just runs a task
+    System.out.println("\n--- Runnable: print garage status ---");
+    Runnable garageStatusPrinter = () -> {
+        System.out.println("Garage: " + garage.getName());
+        System.out.println("Free bays: " + garage.getFreeBays());
+        System.out.println("Total vehicles: " + garage.getTotalVehicles());
+    };
+    garageStatusPrinter.run();
+
+    // 7. Supplier - takes nothing, returns something
+    System.out.println("\n--- Supplier: get first customer name ---");
+    Supplier<String> firstCustomerName = () -> garage.getCustomers().iterator().next().getName();
+    System.out.println("First customer: " + firstCustomerName.get());
+
     // --- Custom Functional Interfaces just to showcase ---
 
-// 1. DiscountStrategy
+    // 1. DiscountStrategy
     DiscountStrategy thirtyPercentDiscount = price -> price * 0.7;
     BigDecimal discounted = new BigDecimal(thirtyPercentDiscount.apply(200));
     System.out.println("\nDiscounted price: " + discounted);
 
-// 2. AppointmentFilter
+    // 2. AppointmentFilter
     AppointmentFilter onlyScheduled = a -> a.getStatus() == ServiceStatus.SCHEDULED;
-
     System.out.println("Is appointment scheduled? | " + (onlyScheduled.test(appointment1) ? "Yes" : "No"));
 
-// 3. Formatter
+    // 3. ObjectFormatter
     ObjectFormatter<Appointment> objectFormatter = appointment -> appointment.getCustomer().getName()
             + " | " + appointment.getStatus();
-
     System.out.println("Appointment with customer: " + objectFormatter.format(appointment1));
+}
+
 
 }
 
