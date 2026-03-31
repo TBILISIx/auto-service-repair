@@ -371,7 +371,6 @@ void main() {
             System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
     );
 
-
     // 6. Runnable - takes nothing, returns nothing, just runs a task
     System.out.println("\n--- Runnable: print garage status ---");
     Runnable garageStatusPrinter = () -> {
@@ -401,9 +400,6 @@ void main() {
     ObjectFormatter<Appointment> objectFormatter = appointment -> appointment.getCustomer().getName()
             + " | " + appointment.getStatus();
     System.out.println("Appointment with customer: " + objectFormatter.format(appointment1));
-}
-
-
 }
 
 // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)
