@@ -25,7 +25,10 @@ public class Garage {
     private final List<Appointment> appointments;
     private final List<RepairOrder<?>> repairOrders;
 
-    public Garage(String name, String address, Integer totalBays, List<Mechanic> mechanics, List<MechanicShift> shifts, Set<Customer> customers, List<Vehicle> vehicles, Map<String, SparePart> spareParts, List<Appointment> appointments, List<RepairOrder<?>> repairOrders) {
+    public Garage(String name, String address, Integer totalBays,
+                  List<Mechanic> mechanics, List<MechanicShift> shifts, Set<Customer> customers,
+                  List<Vehicle> vehicles, Map<String, SparePart> spareParts,
+                  List<Appointment> appointments, List<RepairOrder<?>> repairOrders) {
 
         this.name = name;
         this.address = address;
@@ -40,7 +43,7 @@ public class Garage {
         this.repairOrders = repairOrders;
     }
 
-    /* java.util.functions built in functional interfaces  has exactly one abstract method, method defines the “function” of the interface
+    /** java.util.functions built in functional interfaces  has exactly one abstract method, method defines the “function” of the interface
      * target for a lambda expression or method reference.*/
 
     // 1. Predicate true/false with condition filtering vehicles by year inside method argument Yes/No question
