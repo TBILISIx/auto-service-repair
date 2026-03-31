@@ -369,6 +369,20 @@ void main() {
             System.out.printf("  %s | %.2f GEL/h%n", m.getName(), m.getHourlyRate())
     );
 
+    // 6. Runnable Functional Class  - takes nothing, returns nothing, just runs a task
+    System.out.println("\n--- Runnable: print garage status ---");
+    Runnable garageStatusPrinter = () -> {
+        System.out.println("Garage: " + garage.getName());
+        System.out.println("Free bays: " + garage.getFreeBays());
+        System.out.println("Total vehicles: " + garage.getTotalVehicles());
+    };
+    garageStatusPrinter.run();
+
+    // 7. Supplier Functional class -  takes nothing, returns something ---
+    System.out.println("\n--- Supplier: get first customer name ---");
+    Supplier<String> firstCustomerName = () -> garage.getCustomers().iterator().next().getName();
+    System.out.println("First customer: " + firstCustomerName.get());
+
 }
 
 // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)
