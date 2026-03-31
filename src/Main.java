@@ -374,8 +374,8 @@ void main() {
     // --- Custom Functional Interfaces just to showcase ---
 
 // 1. DiscountStrategy
-    DiscountStrategy ThirtyPercentDiscount = price -> price * 0.7;
-    double discounted = ThirtyPercentDiscount.apply(200);
+    DiscountStrategy thirtyPercentDiscount = price -> price * 0.7;
+    BigDecimal discounted = new BigDecimal(thirtyPercentDiscount.apply(200));
     System.out.println("\nDiscounted price: " + discounted);
 
 // 2. AppointmentFilter
@@ -384,10 +384,10 @@ void main() {
     System.out.println("Is appointment scheduled? | " + (onlyScheduled.test(appointment1) ? "Yes" : "No"));
 
 // 3. Formatter
-    ObjectFormatter<Appointment> Objectformatter =
-            a -> a.getCustomer().getName() + " | " + a.getStatus();
+    ObjectFormatter<Appointment> objectFormatter = appointment -> appointment.getCustomer().getName()
+            + " | " + appointment.getStatus();
 
-    System.out.println("Appointment with customer: " + Objectformatter.format(appointment1));
+    System.out.println("Appointment with customer: " + objectFormatter.format(appointment1));
 
 }
 
