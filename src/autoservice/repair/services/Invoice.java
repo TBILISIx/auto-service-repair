@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-/** Calculates: service price → apply discount → apply payment processing fee → final total. **/
+/**
+ * Calculates: service price → apply discount → apply payment processing fee → final total.
+ **/
 
 public class Invoice extends Document {
 
@@ -55,6 +57,9 @@ public class Invoice extends Document {
         System.out.println("Customer             : " + customer.getName());
         System.out.println("Registration Date    : " + customer.getRegistrationDate());
         System.out.println("Insurance Provider   : " + customer.getInsurance().provider());
+        System.out.println("Insurance Tier       : " + customer.getInsurance().tier().getDisplayName());
+        System.out.println("Coverage Percent     : " + customer.getInsurance().tier().getCoveragePercent() + "%");
+        System.out.println("Roadside Assistance  : " + customer.getInsurance().tier().includesRoadsideAssistance());
         System.out.println("Policy Number        : " + customer.getInsurance().policyNumber());
         System.out.println("Policy Expired       : " + customer.getInsurance().isExpired());
         System.out.println("Policy Expiry Date   : " + customer.getInsurance().expiryDate());

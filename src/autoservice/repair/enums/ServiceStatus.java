@@ -1,6 +1,8 @@
 package autoservice.repair.enums;
 
-/** Represents the status of an Appointment. Used in: Appointment.java **/
+/**
+ * The status of an Appointment. Used in: Appointment class
+ **/
 
 public enum ServiceStatus {
 
@@ -9,16 +11,13 @@ public enum ServiceStatus {
     DONE("Done", false),
     CANCELLED("Cancelled", false);
 
-
     private final String displayName;
     private final boolean canBeCancelled;
-
 
     ServiceStatus(String displayName, boolean canBeCancelled) {
         this.displayName = displayName;
         this.canBeCancelled = canBeCancelled;
     }
-
 
     public String getDisplayName() {
         return displayName;

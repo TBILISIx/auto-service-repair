@@ -34,7 +34,9 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
     public Integer getTires() {
         return tires;
     }
-    public EngineType getEngineType() {return engineType;}
+    public EngineType getEngineType() {
+        return engineType;
+    }
     public Double getEngineSize() {
         return engineSize;
     }

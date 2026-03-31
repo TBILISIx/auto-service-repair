@@ -1,6 +1,8 @@
 package autoservice.repair.enums;
 
-/** Represents the payment method used in a Payment.Used in: Payment.java **/
+/**
+ Payment method used in a Payment. Used in: Payment class
+ **/
 public enum PaymentMethod {
 
     CASH("Cash", 0.0),

@@ -24,7 +24,6 @@ public class Payment extends Document {
         this.confirmed = false;
     }
 
-
     public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
