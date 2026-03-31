@@ -1,11 +1,13 @@
 package autoservice.repair.model;
 
+import autoservice.repair.enums.EngineType;
 import autoservice.repair.exceptions.AgeException;
 
 public class Truck extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge {
 
     private final Integer doors;
     private final Integer tires;
+    private final EngineType engineType;
     private final Double engineSize;
     private final Double payloadCapacityTons;
     private final Boolean hasSleepingCabin;
@@ -15,10 +17,11 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
     private Boolean maintenanceDone = false;
     private Boolean inspected = false;
 
-    public Truck(String brand, String model, String vin, Integer year, String licensePlate, Integer doors, Integer tires, Double engineSize, Double payloadCapacityTons, Boolean hasSleepingCabin, Transmission transmission) {
+    public Truck(String brand, String model, String vin, Integer year, String licensePlate, Integer doors, Integer tires, EngineType engineType, Double engineSize, Double payloadCapacityTons, Boolean hasSleepingCabin, Transmission transmission) {
         super(brand, model, year, vin, licensePlate);
         this.doors = doors;
         this.tires = tires;
+        this.engineType = engineType;
         this.engineSize = engineSize;
         this.payloadCapacityTons = payloadCapacityTons;
         this.hasSleepingCabin = hasSleepingCabin;
@@ -30,6 +33,9 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
     }
     public Integer getTires() {
         return tires;
+    }
+    public EngineType getEngineType() {
+        return engineType;
     }
     public Double getEngineSize() {
         return engineSize;
@@ -90,7 +96,7 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
     @Override
     public void performInspection() {
         System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Inspection report for car: " + getBrand() + " " + getModel());
+        System.out.println("Inspection report for Truck: " + getBrand() + " " + getModel());
         System.out.println("------------------------------------------------------------------------------");
         System.out.println("- Driven: " + (driven ? "Yes" : "No"));
         System.out.println("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));

@@ -1,20 +1,23 @@
-import autoservice.repair.enums.TransmissionType;
+import autoservice.repair.enums.*;
 import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.exceptions.GarageBookingException;
+import autoservice.repair.functional.AppointmentFilter;
+import autoservice.repair.functional.DiscountStrategy;
+import autoservice.repair.functional.ObjectFormatter;
 import autoservice.repair.model.*;
 import autoservice.repair.services.*;
 
 void main() {
 
     // --- Transmissions ---
-    Transmission carTransmission = new Transmission(TransmissionType.Automatic, 8);
-    Transmission truckTransmission = new Transmission(TransmissionType.Manual, 12);
-    Transmission motoTransmission = new Transmission(TransmissionType.Semi_Automatic, 6);
+    Transmission carTransmission = new Transmission(TransmissionType.AUTOMATIC, 8);
+    Transmission truckTransmission = new Transmission(TransmissionType.MANUAL, 12);
+    Transmission motoTransmission = new Transmission(TransmissionType.SEMI_AUTOMATIC, 6);
 
     // --- Insurance policies ---
-    Insurance insurance1 = new Insurance("Aldagi", "POL-1001", LocalDate.of(2026, 12, 31), new BigDecimal("45.00"));
-    Insurance insurance2 = new Insurance("GPI Holding", "POL-2042", LocalDate.of(2025, 6, 15), new BigDecimal("60.00"));
-    Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"));
+    Insurance insurance1 = new Insurance("Aldagi", "POL-1001", LocalDate.of(2026, 12, 31), new BigDecimal("45.00"), InsuranceTier.STANDARD);
+    Insurance insurance2 = new Insurance("GPI Holding", "POL-2042", LocalDate.of(2025, 6, 15), new BigDecimal("60.00"), InsuranceTier.PREMIUM);
+    Insurance insurance3 = new Insurance("Irao", "POL-3300", LocalDate.of(2027, 3, 1), new BigDecimal("30.00"), InsuranceTier.BASIC);
 
     // --- Customers ---
     Customer customer1 = new Customer("Giorgi", "19207150012", "525-99-93-77", 25, insurance1, "ForGitHomework1@gmail.com");
@@ -22,10 +25,9 @@ void main() {
     Customer customer3 = new Customer("David", "30111050047", "577-44-55-66", 45, insurance3, "ForGitHomework3@gmail.com");
 
     // --- Mechanics ---
-    Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, new BigDecimal("25.00"));
-    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 5, new BigDecimal("18.00"));
-    Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, new BigDecimal("30.00"));
-
+    Mechanic mechanic1 = new Mechanic("Nika", "01005078846", "599 10 15 35", "Engine Specialist", 12, MechanicSeniorityLevel.SENIOR, new BigDecimal("25.00"));
+    Mechanic mechanic2 = new Mechanic("Luka", "03005057137", "577 22 33 44", "Brake & Suspension", 2, MechanicSeniorityLevel.JUNIOR, new BigDecimal("18.00"));
+    Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, MechanicSeniorityLevel.MASTER, new BigDecimal("30.00"));
 
     // --- Services ---
     Service oilChange = new OilChange(new BigDecimal("50.00"));
@@ -40,9 +42,9 @@ void main() {
     shift2.assignService(brakeRepair);
 
     // --- Vehicles ---
-    Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 2027, 4, "Hybrid", 2.5, carTransmission);
-    Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", 2023, "JKAZXK8J0MA000001", "GE-417", 450, "Sport", motoTransmission);
-    Truck truck = new Truck("Volvo", "FH16", "VF6FJ2C0XLN000001", 2019, "GE-804-TR", 2, 10, 16.1, 25.0, true, truckTransmission);
+    Car car = new Car("Toyota", "Camry", "JTNB11HK0L3000001", "GE-462-GE", 2027, 4, EngineType.HYBRID, 2.5, carTransmission);
+    Motorcycle motorcycle = new Motorcycle("Kawasaki", "Ninja450", 2023, "JKAZXK8J0MA000001", "GE-417", EngineType.PETROL, 450, BikeType.SPORT, motoTransmission);
+    Truck truck = new Truck("Volvo", "FH16", "VF6FJ2C0XLN000001", 2019, "GE-804-TR", 2, 10, EngineType.DIESEL, 16.1, 25.0, true, truckTransmission);
 
     // --- Interface Polymorphism examples ---
 
@@ -328,13 +330,13 @@ void main() {
     }
 
     // check all parts below quantity 10 (no prefix filter needed,empty prefix)
-    BiFunction<String, Integer, List<SparePart>> allLowStock = (prefix, minQty) ->
+    BiFunction<String, Integer, List<SparePart>> lowInStock = (_, minQty) ->
             garage.getSpareParts().values().stream()
                     .filter(part -> part.getQuantity() < minQty)
                     .collect(Collectors.toList());
 
     System.out.println("  All parts with qty < 10:");
-    garage.getLowStockParts(allLowStock, "", 10).forEach(part ->
+    garage.getLowStockParts(lowInStock, "", 10).forEach(part ->
             System.out.println("  - " + part.getProductName() + " | qty: " + part.getQuantity())
     );
 
@@ -350,7 +352,7 @@ void main() {
 
     garage.forEachCustomer(awardBonusPoints);
 
-    // 5. UnaryOperator <T> - takes certain type changes value returns same type
+    // 5. UnaryOperator <T> - takes certain type changes value returns same type + Predicate Yes/No logic
 
     System.out.println("\n--- 5. UnaryOperator<BigDecimal>: 20% senior bonus for mechanics with 10+ years ---");
 
@@ -358,18 +360,19 @@ void main() {
     UnaryOperator<BigDecimal> seniorBonus = rate -> rate.multiply(new BigDecimal("1.20"));
 
     System.out.println("  Before:");
-    garage.getMechanics().forEach(m ->
-            System.out.printf("  %s | %.2f GEL/h%n", m.getName(), m.getHourlyRate())
+    garage.getMechanics().forEach(n ->
+            System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
     );
 
     garage.applyRateAdjustment(isSenior, seniorBonus);
 
     System.out.println("  After:");
-    garage.getMechanics().forEach(m ->
-            System.out.printf("  %s | %.2f GEL/h%n", m.getName(), m.getHourlyRate())
+    garage.getMechanics().forEach(n ->
+            System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
     );
 
-    // 6. Runnable Functional Class  - takes nothing, returns nothing, just runs a task
+
+    // 6. Runnable - takes nothing, returns nothing, just runs a task
     System.out.println("\n--- Runnable: print garage status ---");
     Runnable garageStatusPrinter = () -> {
         System.out.println("Garage: " + garage.getName());
@@ -378,10 +381,28 @@ void main() {
     };
     garageStatusPrinter.run();
 
-    // 7. Supplier Functional class -  takes nothing, returns something ---
+    // 7. Supplier - takes nothing, returns something
     System.out.println("\n--- Supplier: get first customer name ---");
     Supplier<String> firstCustomerName = () -> garage.getCustomers().iterator().next().getName();
     System.out.println("First customer: " + firstCustomerName.get());
+
+    // --- Custom Functional Interfaces just to showcase ---
+
+    // 1. DiscountStrategy
+    DiscountStrategy thirtyPercentDiscount = price -> price * 0.7;
+    BigDecimal discounted = new BigDecimal(thirtyPercentDiscount.apply(200));
+    System.out.println("\nDiscounted price: " + discounted);
+
+    // 2. AppointmentFilter
+    AppointmentFilter onlyScheduled = a -> a.getStatus() == ServiceStatus.SCHEDULED;
+    System.out.println("Is appointment scheduled? | " + (onlyScheduled.test(appointment1) ? "Yes" : "No"));
+
+    // 3. ObjectFormatter
+    ObjectFormatter<Appointment> objectFormatter = appointment -> appointment.getCustomer().getName()
+            + " | " + appointment.getStatus();
+    System.out.println("Appointment with customer: " + objectFormatter.format(appointment1));
+}
+
 
 }
 

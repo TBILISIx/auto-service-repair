@@ -1,19 +1,25 @@
 package autoservice.repair.services;
 
+import autoservice.repair.enums.ServiceType;
+
 import java.math.BigDecimal;
 
 public abstract class Service {
 
-    protected String serviceName;
+    protected ServiceType serviceType;
     protected BigDecimal price;
 
-    public Service(String serviceName, BigDecimal price) {
-        this.serviceName = serviceName;
+    public Service(ServiceType serviceType, BigDecimal price) {
+        this.serviceType = serviceType;
         this.price = price;
     }
 
     public String getServiceName() {
-        return serviceName;
+        return serviceType.getDisplayName();
+    }
+
+    public ServiceType getServiceType() {
+        return serviceType;
     }
 
     public BigDecimal getPrice() {
