@@ -44,7 +44,7 @@ public class SparePart extends Product implements Sellable {
     @Override
     public BigDecimal getSellingPrice() {
 
-        return getUnitPrice();
+        return getUnitPrice().multiply(new BigDecimal("1.3"));
 
     }
 
