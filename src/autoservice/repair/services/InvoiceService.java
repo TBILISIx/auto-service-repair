@@ -10,14 +10,14 @@ import java.time.LocalDate;
  * Calculates: service price → apply discount → apply payment processing fee → final total.
  **/
 
-public class Invoice extends Document {
+public class InvoiceService extends Document {
 
     private final Customer customer;
     private final RepairOrder<?> repairOrder;
     private BigDecimal discountPercent;
     private Payment payment;
 
-    public Invoice(Integer id, Customer customer, RepairOrder<?> repairOrder, BigDecimal discountPercent) {
+    public InvoiceService(Integer id, Customer customer, RepairOrder<?> repairOrder, BigDecimal discountPercent) {
         super(id);
         this.customer = customer;
         this.repairOrder = repairOrder;

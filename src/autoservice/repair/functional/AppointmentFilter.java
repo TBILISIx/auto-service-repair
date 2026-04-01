@@ -1,10 +1,10 @@
 package autoservice.repair.functional;
 
-import autoservice.repair.services.Appointment;
+import autoservice.repair.services.AppointmentService;
 
 @FunctionalInterface
 public interface AppointmentFilter {
 
-    boolean test(Appointment appointment);
+    boolean test(AppointmentService appointment);
 
 }

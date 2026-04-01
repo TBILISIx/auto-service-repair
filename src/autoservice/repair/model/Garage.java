@@ -1,13 +1,11 @@
 package autoservice.repair.model;
 
-import autoservice.repair.services.Appointment;
+import autoservice.repair.enums.MechanicSeniorityLevel;
+import autoservice.repair.services.AppointmentService;
 import autoservice.repair.services.RepairOrder;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
@@ -23,13 +21,13 @@ public class Garage {
     private final Set<Customer> customers;
     private final List<Vehicle> vehicles;
     private final Map<String, SparePart> spareParts;
-    private final List<Appointment> appointments;
+    private final List<AppointmentService> appointments;
     private final List<RepairOrder<?>> repairOrders;
 
     public Garage(String name, String address, Integer totalBays,
                   List<Mechanic> mechanics, List<MechanicShift> shifts, Set<Customer> customers,
                   List<Vehicle> vehicles, Map<String, SparePart> spareParts,
-                  List<Appointment> appointments, List<RepairOrder<?>> repairOrders) {
+                  List<AppointmentService> appointments, List<RepairOrder<?>> repairOrders) {
 
         this.name = name;
         this.address = address;
@@ -50,11 +48,10 @@ public class Garage {
      */
 
     // 1. Predicate true/false with condition filtering vehicles by year inside method argument Yes/No question
-
     public List<Vehicle> filterVehicles(Predicate<Vehicle> condition) {
-      return vehicles.stream()
-              .filter(condition)
-              .collect(Collectors.toList());
+        return vehicles.stream()
+                .filter(condition)
+                .collect(Collectors.toList());
     }
 
     // 2. Function - Turn Mechanic object into a string 1) object 2) type 3) name  // Convert A into B
@@ -143,7 +140,7 @@ public class Garage {
 
         return spareParts;
     }
-    public List<Appointment> getAppointments() {
+    public List<AppointmentService> getAppointments() {
 
         return appointments;
     }
@@ -155,6 +152,7 @@ public class Garage {
     public boolean hasMechanic(Mechanic mechanic) {
         return mechanics.contains(mechanic);      // contains
     }
+
     public void removeMechanic(Mechanic mechanic) {
         mechanics.remove(mechanic);               // remove
     }
@@ -166,6 +164,7 @@ public class Garage {
     public boolean hasCustomers() {
         return !customers.isEmpty();              // isEmpty
     }
+
     public void removeCustomer(Customer customer) {
         customers.remove(customer);               // remove (Set)
     }
@@ -173,6 +172,7 @@ public class Garage {
     public Integer getTotalVehicles() {
         return vehicles.size();                   // size
     }
+
     public void removeVehicle(Vehicle vehicle) {
         vehicles.remove(vehicle);                 // remove (List)
     }
@@ -180,8 +180,44 @@ public class Garage {
     public void addSparePart(SparePart sparePart) {
         spareParts.put(sparePart.getProductNumber(), sparePart);
     } // add sparePart with .put
+
     public SparePart getSparePartByNumber(String productNumber) {
         return spareParts.get(productNumber); // get (Map)
+    }
+
+    public Optional<Mechanic> getHighestPaidMechanic() {
+        return mechanics.stream()
+                .max(Comparator.comparing(Mechanic::getHourlyRate)); // max may not exist interface returns optional <T>
+    }
+
+    public Long countVehiclesByClassType(Class<?> type) {
+        return vehicles.stream().filter(type::isInstance)
+                .count();
+    }
+
+    public List<Customer> getCustomersWithExpiredInsurance() {
+        return customers.stream()
+                .filter(customer -> customer.getInsurance().isExpired())
+                .collect(Collectors.toList());
+    }
+
+    public boolean hasMasterMechanic() {
+        return mechanics.stream()
+                .anyMatch(mechanic -> mechanic.getLevel() == MechanicSeniorityLevel.MASTER);
+    }
+
+    public double getTotalSparePartsValue() {
+        return spareParts.values().stream()
+                .mapToDouble(part -> part.getUnitPrice()
+                        .multiply(new BigDecimal(part.getQuantity()))
+                        .doubleValue())
+                .sum();
+    }
+
+    public List<AppointmentService> getAppointmentsSortedByTime() {
+        return appointments.stream()
+                .sorted(Comparator.comparing(AppointmentService::getScheduledTime))
+                .collect(Collectors.toList());
     }
 
 }
