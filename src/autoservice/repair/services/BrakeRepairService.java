@@ -4,24 +4,27 @@ import autoservice.repair.enums.ServiceType;
 
 import java.math.BigDecimal;
 
-public class OilChange extends Service {
+public class BrakeRepairService extends Service {
 
-    public OilChange(BigDecimal price) {
-        super(ServiceType.OIL_CHANGE, price);
+    public BrakeRepairService(BigDecimal price) {
+
+        super(ServiceType.BRAKE_REPAIR, price);
 
     }
 
     @Override
     public Integer getDurationMinutes() {
-        return 20;
+        return 90;
     }
 
     @Override
     public String getServiceDescription() {
-        return "Changing vehicle oil — Category: "
-                + serviceType.getCategory() + " | Safety Related? - "
+        return "Inspecting and repairing vehicle brakes — Category: "
+                + serviceType.getCategory() + " | " + "Safety Related ? - "
                 + (serviceType.isSafetyRelated() ? "Yes |" : "NO |");
     }
 
 }
+
+
 

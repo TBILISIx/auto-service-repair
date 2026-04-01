@@ -9,7 +9,7 @@ import autoservice.repair.model.Vehicle;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class Appointment extends Document {
+public class AppointmentService extends Document {
 
     private final Customer customer;
     private final Mechanic mechanic;
@@ -18,7 +18,7 @@ public class Appointment extends Document {
     private ServiceStatus status;
 
     // Constructor
-    public Appointment(Integer id, Customer customer, Mechanic mechanic, Vehicle vehicle, LocalDateTime scheduledTime) {
+    public AppointmentService(Integer id, Customer customer, Mechanic mechanic, Vehicle vehicle, LocalDateTime scheduledTime) {
         super(id);
         this.customer = customer;
         this.mechanic = mechanic;

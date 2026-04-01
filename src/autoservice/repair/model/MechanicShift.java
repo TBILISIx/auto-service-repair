@@ -33,10 +33,9 @@ public class MechanicShift {
     }
 
     public Integer getRemainingMinutesBeforeShiftEnd() {
-        int bookedMinutes = 0;
-        for (Service service : assignedServices) {
-            bookedMinutes += service.getDurationMinutes();
-        }
+        int bookedMinutes = assignedServices.stream()
+                .mapToInt(Service::getDurationMinutes) // Since method works only on instance of that class (object)
+                .sum();
         return getShiftDurationMinutes() - bookedMinutes;
     }
 

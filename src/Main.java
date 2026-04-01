@@ -30,9 +30,9 @@ void main() {
     Mechanic mechanic3 = new Mechanic("Gia", "01505027167", "527 55 23 14", "Transmission", 35, MechanicSeniorityLevel.MASTER, new BigDecimal("30.00"));
 
     // --- Services ---
-    Service oilChange = new OilChange(new BigDecimal("50.00"));
+    Service oilChange = new OilChangeService(new BigDecimal("50.00"));
     Service tireChange = new TireChange(new BigDecimal("100.00"));
-    Service brakeRepair = new BrakeRepair(new BigDecimal("200.00"));
+    Service brakeRepair = new BrakeRepairService(new BigDecimal("200.00"));
 
     // --- MechanicShifts ---
     MechanicShift shift1 = new MechanicShift(mechanic1, LocalDate.now(), 8, 18);
@@ -100,8 +100,8 @@ void main() {
     System.out.println("Orders left in queue: " + serviceQueue.size());
 
     // --- Appointments ---
-    Appointment appointment1 = new Appointment(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
-    Appointment appointment2 = new Appointment(2, customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
+    AppointmentService appointment1 = new AppointmentService(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
+    AppointmentService appointment2 = new AppointmentService(2, customer2, mechanic2, motorcycle, LocalDateTime.now().plusHours(2));
 
     try {
         appointment1.start();
@@ -143,7 +143,7 @@ void main() {
     sparePartMap.put(brakeDisc.getProductNumber(), brakeDisc);
     sparePartMap.put(tirePatch.getProductNumber(), tirePatch);
 
-    List<Appointment> listOfAppointments = new ArrayList<>();
+    List<AppointmentService> listOfAppointments = new ArrayList<>();
     listOfAppointments.add(appointment1);
     listOfAppointments.add(appointment2);
 
@@ -193,10 +193,12 @@ void main() {
     /* List - with index */
     Mechanic firstMechanic = garage.getMechanics().get(0);
     System.out.println("\n- First mechanic: " + firstMechanic.getName());
+
     /* remove */
     System.out.println("\n- Mechanics before remove: " + garage.getMechanics().size());
     garage.removeMechanic(mechanic3);
     System.out.println("- Mechanics after remove: " + garage.getMechanics().size());
+
     /* contains */
     System.out.println("- Has mechanic Nika: " + garage.hasMechanic(mechanic1));
 
@@ -210,13 +212,16 @@ void main() {
                 + " | " + customer.getPhone()
                 + " | " + customer.getEmail());
     }
+
     /* Set — iterator (Sets have no index) */
     Customer firstCustomer = garage.getCustomers().iterator().next();
     System.out.println("\n- First customer: " + firstCustomer.getName());
+
     /* remove */
     System.out.println("\n- Customers before remove: " + garage.getCustomers().size());
     garage.removeCustomer(customer3);
     System.out.println("- Customers after remove: " + garage.getCustomers().size());
+
     /* isEmpty ? */
     System.out.println("- Has customers: " + garage.hasCustomers());
 
@@ -231,11 +236,13 @@ void main() {
     /* Map — first entry via entrySet iterator */
     SparePart firstPart = garage.getSpareParts().entrySet().iterator().next().getValue();
     System.out.println("\n- First spare part: " + firstPart.getProductName());
+
     /* put */
     System.out.println("\n- Spare parts before put: " + garage.getSpareParts().size());
     SparePart sparkPlug = new SparePart("Spark Plug", "SP-1122", new BigDecimal("8.00"), 15);
     garage.addSparePart(sparkPlug);
     System.out.println("- Spare parts after put: " + garage.getSpareParts().size());
+
     /* get */
     System.out.println("- Spare part lookup: " + garage.getSparePartByNumber("OF-4521").getProductName());
 
@@ -257,6 +264,7 @@ void main() {
     /* ************************************************************************************************************ */
 
     // ---  java.util.function LAMBDA DEMONSTRATIONS  lambda = '->' = parameter -> action-- //
+
     System.out.println("\n------------------------------------------------------------------------------");
     System.out.println("  java.util.function LAMBDA DEMONSTRATIONS");
     System.out.println("------------------------------------------------------------------------------");
@@ -390,9 +398,48 @@ void main() {
     System.out.println("Is appointment scheduled? | " + (onlyScheduled.test(appointment1) ? "Yes" : "No"));
 
     // 3. ObjectFormatter
-    ObjectFormatter<Appointment> objectFormatter = appointment -> appointment.getCustomer().getName()
+    ObjectFormatter<AppointmentService> objectFormatter = appointment -> appointment.getCustomer().getName()
             + " | " + appointment.getStatus();
     System.out.println("Appointment with customer: " + objectFormatter.format(appointment1));
+
+
+
+    /* ************************************************************************************************************ */
+
+    // ---  java.util.Collection.stream additional streams to showcase --- //
+
+    /* 1 getHighestPaidMechanic */
+    garage.getHighestPaidMechanic()
+            .ifPresent(mechanic -> System.out.println("\nHighest paid mechanic: "
+                    + mechanic.getName()
+                    + " | " + mechanic.getHourlyRate() + " GEL/h"));
+
+    /* 2 countVehiclesByClassType */
+    System.out.println("\nCars in garage: " + garage.countVehiclesByClassType(Car.class));
+    System.out.println("Trucks in garage: " + garage.countVehiclesByClassType(Truck.class));
+    System.out.println("Motorcycles in garage: " + garage.countVehiclesByClassType(Motorcycle.class));
+
+    /* 3 getCustomersWithExpiredInsurance */
+    List<Customer> expiredInsurance = garage.getCustomersWithExpiredInsurance();
+    Optional.of(expiredInsurance)
+            .filter(list -> !list.isEmpty()) // needed because if still is empty ifPresent checks only for Null and never reaches second sys.out
+            .ifPresentOrElse(
+                    list -> list.forEach(customer -> System.out.println("\nExpired insurance: " + customer.getName())),
+                    () -> System.out.println("\nNo customers with expired insurance.")
+            );
+
+    /* 4 hasMasterMechanic  - .anymatch() condition  with enum SENIOR */
+    System.out.println("\nHas master mechanic: " + garage.hasMasterMechanic());
+
+    /* 5 getTotalSparePartsValue */
+    System.out.println("\nTotal spare parts value: " + garage.getTotalSparePartsValue() + " GEL\n");
+
+    /* getAppointmentsSortedByTime */
+    garage.getAppointmentsSortedByTime()
+            .forEach(appointment -> System.out.println("Appointment: " + appointment.getCustomer().getName()
+                    + " | " + appointment.getFormattedScheduledTime()
+                    + " | " + appointment.getStatus().getDisplayName()));
+
 }
 
 // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)

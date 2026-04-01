@@ -82,7 +82,7 @@ public record BookingService(Garage garage) implements AutoCloseable {
             System.out.println("------------------------------------------------------------------------------");
 
             // 1. Create Invoice
-            Invoice invoice = new Invoice(totalOrders, repairOrder.customer(), repairOrder, new BigDecimal("10"));
+            InvoiceService invoice = new InvoiceService(totalOrders, repairOrder.customer(), repairOrder, new BigDecimal("10"));
 
             // 2. Create Payment with method only — no amount yet, Invoice will calculate and stamp it
             Payment payment = new Payment(totalOrders, PaymentMethod.CARD);
