@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.*;
+import java.util.stream.Collectors;
 
 public class Garage {
 
@@ -49,26 +50,20 @@ public class Garage {
      */
 
     // 1. Predicate true/false with condition filtering vehicles by year inside method argument Yes/No question
-    public List<Vehicle> filterVehicles(Predicate<Vehicle> condition) {
-        List<Vehicle> filteredList = new ArrayList<>(); // list to store results
-        for (Vehicle n : vehicles) {
-            if (condition.test(n)) { // if satisfies condition
-                filteredList.add(n);
-            }
-        }
 
-        return filteredList;
+    public List<Vehicle> filterVehicles(Predicate<Vehicle> condition) {
+      return vehicles.stream()
+              .filter(condition)
+              .collect(Collectors.toList());
     }
 
     // 2. Function - Turn Mechanic object into a string 1) object 2) type 3) name  // Convert A into B
 
     public List<String> getMechanicRoster(Function<Mechanic, String> formatter) {
-        List<String> roster = new ArrayList<>();
-        for (Mechanic n : mechanics) {
-            String formatted = formatter.apply(n);
-            roster.add(formatted);
-        }
-        return roster;
+
+        return mechanics.stream()
+                .map(formatter)
+                .collect(Collectors.toList());
     }
 
     // 3. BiFunction<String, Integer, List<SparePart>> — find parts below certain quantity, also accepting a category prefix
@@ -91,7 +86,8 @@ public class Garage {
     public void applyRateAdjustment(Predicate<Mechanic> condition, UnaryOperator<BigDecimal> seniorBonus) {
         mechanics.stream()
                 .filter(condition)
-                .forEach(mechanic -> mechanic.setHourlyRate(seniorBonus.apply(mechanic.getHourlyRate())));
+                .forEach(mechanic -> mechanic
+                        .setHourlyRate(seniorBonus.apply(mechanic.getHourlyRate())));
     }
 
     public Boolean hasFreeBay() {

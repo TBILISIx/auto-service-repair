@@ -138,10 +138,10 @@ void main() {
     listOfVehicles.add(motorcycle);
     listOfVehicles.add(truck);
 
-    Map<String, SparePart> productMap = new HashMap<>();
-    productMap.put(oilFilter.getProductNumber(), oilFilter);
-    productMap.put(brakeDisc.getProductNumber(), brakeDisc);
-    productMap.put(tirePatch.getProductNumber(), tirePatch);
+    Map<String, SparePart> sparePartMap = new HashMap<>();
+    sparePartMap.put(oilFilter.getProductNumber(), oilFilter);
+    sparePartMap.put(brakeDisc.getProductNumber(), brakeDisc);
+    sparePartMap.put(tirePatch.getProductNumber(), tirePatch);
 
     List<Appointment> listOfAppointments = new ArrayList<>();
     listOfAppointments.add(appointment1);
@@ -160,7 +160,7 @@ void main() {
             listOfShifts,
             listOfCustomers,
             listOfVehicles,
-            productMap,
+            sparePartMap,
             listOfAppointments,
             listOfRepairOrders
     );
@@ -307,17 +307,10 @@ void main() {
 
     System.out.println("\n--- 3. BiFunction<String, Integer, List<SparePart>>: low in stock---");
 
-    BiFunction<String, Integer, List<SparePart>> lowStockChecker = (prefix, minQty) -> {
-
-        List<SparePart> result = new ArrayList<>();
-
-        for (SparePart part : garage.getSpareParts().values()) {
-            if (part.getProductNumber().startsWith(prefix) && part.getQuantity() < minQty) {
-                result.add(part);
-            }
-        }
-        return result;
-    };
+    BiFunction<String, Integer, List<SparePart>> lowStockChecker = (prefix, minQty)
+            -> garage.getSpareParts().values().stream()
+            .filter(part -> part.getProductNumber().startsWith(prefix) && part.getQuantity() < minQty)
+            .collect(Collectors.toList());
 
     List<SparePart> lowStock = garage.getLowStockParts(lowStockChecker, "BD", 5);
     if (lowStock.isEmpty()) {

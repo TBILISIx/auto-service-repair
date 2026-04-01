@@ -32,8 +32,7 @@ public abstract class Document {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Document)) return false;
-        Document document = (Document) o;
+        if (!(o instanceof Document document)) return false;
         return Objects.equals(id, document.id);
     }
 
