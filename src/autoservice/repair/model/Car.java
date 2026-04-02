@@ -1,7 +1,14 @@
 package autoservice.repair.model;
 
+import autoservice.repair.annotations.Checker;
+import autoservice.repair.annotations.Description;
+import autoservice.repair.annotations.ServiceInfo;
 import autoservice.repair.enums.EngineType;
 import autoservice.repair.exceptions.AgeException;
+import autoservice.repair.interfaces.Drivable;
+import autoservice.repair.interfaces.Inspectable;
+import autoservice.repair.interfaces.Maintainable;
+import autoservice.repair.interfaces.ValidAge;
 
 public class Car extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge {
 
@@ -66,7 +73,8 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
         return "Car{" + "brand='" + getBrand() + '\'' + ", model='" + getModel() + '\'' + ", vin='" + getVin() + '\'' + ", licensePlate='" + getLicensePlate() + '\'' + ", doors=" + doors + ", engineType='" + engineType + '\'' + ", engineSize=" + engineSize + ", transmission=" + transmission + '}';
     }
 
-    // --- Drivable implementation ---
+    // --- Drivable implementation + Custom Annotation implementation ----
+    @Description(description = "This method gives us information about customers vehicle")
     @Override
     public void drive() {
         System.out.println("------------------------------------------------------------------------------");
@@ -81,7 +89,9 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
         driven = true;
     }
 
-    // --- Maintainable implementation ---
+    // --- Maintainable implementation + Custom Annotation implementation
+    @ServiceInfo(description = "This method describes maintenance steps and on which vehicle it is performed",
+            isSafetyCheck = false)
     @Override
     public void performMaintenance() {
         System.out.println("------------------------------------------------------------------------------");
@@ -102,7 +112,9 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
         maintenanceDone = true;
     }
 
-    // --- Inspectable implementation ---
+    // --- Inspectable implementation + Custom Annotation implementation
+    @ServiceInfo(description = "After maintenance official inspection is done, and this method gives its report",
+            isSafetyCheck = true)
     @Override
     public void performInspection() {
         System.out.println("------------------------------------------------------------------------------");
@@ -118,6 +130,9 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
         System.out.println("------------------------------------------------------------------------------");
     }
 
+    // --- Custom Annotation Checker --- //
+
+    @Checker(description = "This method checks customers age and whether is eligible to drive a car or not ")
     @Override
     public void validateAge(Customer customer) throws AgeException {
         if (customer.getAge() < 18) {

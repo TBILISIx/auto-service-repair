@@ -3,6 +3,10 @@ package autoservice.repair.model;
 import autoservice.repair.enums.BikeType;
 import autoservice.repair.enums.EngineType;
 import autoservice.repair.exceptions.AgeException;
+import autoservice.repair.interfaces.Inspectable;
+import autoservice.repair.interfaces.Maintainable;
+import autoservice.repair.interfaces.Rideable;
+import autoservice.repair.interfaces.ValidAge;
 
 public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspectable, ValidAge {
 

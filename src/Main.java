@@ -1,9 +1,13 @@
+import autoservice.repair.annotations.Checker;
+import autoservice.repair.annotations.Description;
+import autoservice.repair.annotations.ServiceInfo;
 import autoservice.repair.enums.*;
 import autoservice.repair.exceptions.AppointmentStatusException;
 import autoservice.repair.exceptions.GarageBookingException;
 import autoservice.repair.functional.AppointmentFilter;
 import autoservice.repair.functional.DiscountStrategy;
 import autoservice.repair.functional.ObjectFormatter;
+import autoservice.repair.interfaces.*;
 import autoservice.repair.model.*;
 import autoservice.repair.services.*;
 
@@ -439,6 +443,118 @@ void main() {
             .forEach(appointment -> System.out.println("Appointment: " + appointment.getCustomer().getName()
                     + " | " + appointment.getFormattedScheduledTime()
                     + " | " + appointment.getStatus().getDisplayName()));
+
+
+
+
+    /* ********************************************************************************************* */
+
+    // --- "Reflection" Demonstration from - Java Application programming interface (API) java.lang.reflect --- //
+
+    try {
+        Class<?> carClass = Car.class;
+
+        /* 1. Class info */
+        System.out.println("\n--- CLASS INFO ---");
+        System.out.println("Class name  : " + carClass.getName());
+        System.out.println("Superclass  : " + carClass.getSuperclass().getSimpleName());
+        System.out.print("Interfaces  : ");
+        for (Class<?> implementedInterface : carClass.getInterfaces()) {
+            System.out.print(implementedInterface.getSimpleName() + " ");
+        }
+        System.out.println();
+
+        /* 2. Declared fields */
+        System.out.println("\n--- FIELDS (declared in Car) ---");
+        for (Field field : carClass.getDeclaredFields()) {
+            System.out.printf("  [%s] %s %s%n",
+                    Modifier.toString(field.getModifiers()),
+                    field.getType().getSimpleName(),
+                    field.getName());
+        }
+
+
+        /* 3. Constructors */
+        System.out.println("\n--- CONSTRUCTORS ---");
+        for (Constructor<?> declaredConstructors : carClass.getDeclaredConstructors()) {
+            System.out.print("  " + declaredConstructors.getName() + "(");
+            Parameter[] parameters = declaredConstructors.getParameters();
+            for (Parameter parameter : parameters) {
+                System.out.print(parameter.getType().getSimpleName() + " ");
+            }
+            System.out.println(")");
+        }
+
+        /* 4. Declared methods */
+        System.out.println("\n--- METHODS (declared in Car) ---");
+        for (Method method : carClass.getDeclaredMethods()) {
+            System.out.printf("  [%s] %s %s(%s)%n",
+                    Modifier.toString(method.getModifiers()),
+                    method.getReturnType().getSimpleName(),
+                    method.getName(),
+                    method.getParameterCount() > 0 ? "..." : "");
+        }
+
+        /* 5. Create a NEW Car instance via Constructor reflection */
+
+        System.out.println("\n---CREATING CAR INSTANCE VIA REFLECTION ---");
+        Transmission reflectTransmission = new Transmission(TransmissionType.AUTOMATIC, 6);
+        Constructor<?> reflectCarConstructor = carClass.getDeclaredConstructor(
+                String.class, String.class, String.class, String.class,
+                Integer.class, Integer.class, EngineType.class,
+                Double.class, Transmission.class
+        );
+        Object reflectedCar = reflectCarConstructor.newInstance(
+                "Honda", "Civic", "VIN-REFLECT-001", "GE-REF-01",
+                2024, 4, EngineType.PETROL, 1.5, reflectTransmission
+        );
+        System.out.println("Created via reflection: " + reflectedCar);
+
+        /* 6. Read a private field value via reflection */
+        System.out.println("\n--- READING PRIVATE FIELD VALUE ---");
+        Field doorsField = carClass.getDeclaredField("doors");
+        doorsField.setAccessible(true);
+        System.out.println("doors field value: " + doorsField.get(reflectedCar));
+
+        /* 7. Invoke a method via reflection */
+        System.out.println("\n--- INVOKING drive() VIA REFLECTION ---");
+        Method driveMethod = carClass.getDeclaredMethod("drive");
+        driveMethod.setAccessible(true);
+        driveMethod.invoke(reflectedCar);
+
+        /* 8. Find and invoke @ServiceInfo annotated methods */
+        System.out.println("\n--- @ServiceInfo, Description, Checker ANNOTATED METHODS ---");
+        for (Method method : carClass.getDeclaredMethods()) {
+
+            String methodName = method.getName();
+            String description = null;
+            String extra = null;
+
+            if (method.isAnnotationPresent(ServiceInfo.class)) {
+                ServiceInfo info = method.getAnnotation(ServiceInfo.class);
+                description = info.description();
+                extra = "  Safety : " + info.isSafetyCheck();
+            } else if (method.isAnnotationPresent(Description.class)) {
+                description = method.getAnnotation(Description.class).description();
+            } else if (method.isAnnotationPresent(Checker.class)) {
+                description = method.getAnnotation(Checker.class).description();
+            }
+
+            if (description != null) {
+                System.out.println("  Method : " + methodName);
+                System.out.println("  Desc   : " + description);
+                if (extra != null) System.out.println(extra);
+                if (method.getParameterCount() == 0) {
+                    System.out.println("  → Invoking...");
+                    method.invoke(reflectedCar);
+                }
+                System.out.println();
+            }
+        }
+
+    } catch (Exception e) {
+        System.out.println("Reflection Error: " + e.getMessage());
+    }
 
 }
 
