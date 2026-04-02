@@ -1,8 +1,8 @@
 package autoservice.repair.services;
 
+import autoservice.repair.interfaces.ValidAge;
 import autoservice.repair.model.Customer;
 import autoservice.repair.model.Mechanic;
-import autoservice.repair.model.ValidAge;
 import autoservice.repair.model.Vehicle;
 
 import java.time.LocalDateTime;

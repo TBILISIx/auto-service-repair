@@ -1,4 +1,4 @@
-package autoservice.repair.model;
+package autoservice.repair.interfaces;
 
 public interface Inspectable {
 

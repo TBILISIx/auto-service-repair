@@ -2,6 +2,7 @@ package autoservice.repair.model;
 
 import autoservice.repair.exceptions.InvalidArgumentException;
 import autoservice.repair.exceptions.OutOfStockException;
+import autoservice.repair.interfaces.Sellable;
 
 import java.math.BigDecimal;
 
