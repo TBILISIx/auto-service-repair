@@ -1,15 +1,15 @@
-import com.solvd.auto.service.repair.annotations.Checker;
-import com.solvd.auto.service.repair.annotations.Description;
-import com.solvd.auto.service.repair.annotations.ServiceInfo;
-import com.solvd.auto.service.repair.enums.*;
-import com.solvd.auto.service.repair.exceptions.AppointmentStatusException;
-import com.solvd.auto.service.repair.exceptions.GarageBookingException;
-import com.solvd.auto.service.repair.functional.AppointmentFilter;
-import com.solvd.auto.service.repair.functional.DiscountStrategy;
-import com.solvd.auto.service.repair.functional.ObjectFormatter;
-import com.solvd.auto.service.repair.interfaces.*;
-import com.solvd.auto.service.repair.model.*;
-import com.solvd.auto.service.repair.services.*;
+import com.solvd.autoservicerepair.annotations.Checker;
+import com.solvd.autoservicerepair.annotations.Description;
+import com.solvd.autoservicerepair.annotations.ServiceInfo;
+import com.solvd.autoservicerepair.enums.*;
+import com.solvd.autoservicerepair.exceptions.AppointmentStatusException;
+import com.solvd.autoservicerepair.exceptions.GarageBookingException;
+import com.solvd.autoservicerepair.functional.AppointmentFilter;
+import com.solvd.autoservicerepair.functional.DiscountStrategy;
+import com.solvd.autoservicerepair.functional.ObjectFormatter;
+import com.solvd.autoservicerepair.interfaces.*;
+import com.solvd.autoservicerepair.model.*;
+import com.solvd.autoservicerepair.services.*;
 
 void main() {
 
