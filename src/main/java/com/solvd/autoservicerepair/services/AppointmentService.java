@@ -5,10 +5,12 @@ import com.solvd.autoservicerepair.exceptions.AppointmentStatusException;
 import com.solvd.autoservicerepair.model.Customer;
 import com.solvd.autoservicerepair.model.Mechanic;
 import com.solvd.autoservicerepair.model.Vehicle;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@Slf4j
 public class AppointmentService extends Document {
 
     private final Customer customer;
@@ -42,14 +44,14 @@ public class AppointmentService extends Document {
 
         this.status = ServiceStatus.IN_PROGRESS;
 
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("\n=== APPOINTMENT STARTED ===");
-        System.out.println("Customer        : " + customer.getName());
-        System.out.println("Vehicle         : " + getVehicleDescription());
-        System.out.println("Mechanic        : " + mechanic.getName());
-        System.out.println("Scheduled Time  : " + getFormattedScheduledTime());
-        System.out.println("Status          : " + status.getDisplayName());
-        System.out.println("============================");
+        log.info("------------------------------------------------------------------------------");
+        log.info("\n=== APPOINTMENT STARTED ===");
+        log.info("Customer        : " + customer.getName());
+        log.info("Vehicle         : " + getVehicleDescription());
+        log.info("Mechanic        : " + mechanic.getName());
+        log.info("Scheduled Time  : " + getFormattedScheduledTime());
+        log.info("Status          : " + status.getDisplayName());
+        log.info("============================");
     }
 
     public void complete() {
@@ -61,11 +63,11 @@ public class AppointmentService extends Document {
 
         this.status = ServiceStatus.DONE;
 
-        System.out.println("=== APPOINTMENT COMPLETED ===");
-        System.out.println("Customer : " + customer.getName());
-        System.out.println("Vehicle  : " + getVehicleDescription());
-        System.out.println("Status   : " + status.getDisplayName());
-        System.out.println("=============================");
+        log.info("=== APPOINTMENT COMPLETED ===");
+        log.info("Customer : " + customer.getName());
+        log.info("Vehicle  : " + getVehicleDescription());
+        log.info("Status   : " + status.getDisplayName());
+        log.info("=============================");
     }
 
     public void cancel() {
@@ -77,11 +79,11 @@ public class AppointmentService extends Document {
 
         this.status = ServiceStatus.CANCELLED;
 
-        System.out.println("=== APPOINTMENT CANCELLED ===");
-        System.out.println("Customer : " + customer.getName());
-        System.out.println("Vehicle  : " + getVehicleDescription());
-        System.out.println("Status   : " + status.getDisplayName());
-        System.out.println("==============================");
+        log.info("=== APPOINTMENT CANCELLED ===");
+        log.info("Customer : " + customer.getName());
+        log.info("Vehicle  : " + getVehicleDescription());
+        log.info("Status   : " + status.getDisplayName());
+        log.info("==============================");
     }
 
     // Formatting Scheduled Time

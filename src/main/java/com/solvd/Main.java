@@ -12,7 +12,10 @@ import com.solvd.autoservicerepair.functional.ObjectFormatter;
 import com.solvd.autoservicerepair.interfaces.*;
 import com.solvd.autoservicerepair.model.*;
 import com.solvd.autoservicerepair.services.*;
+import com.solvd.autoservicerepair.utils.FileReaderUtil;
+import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,6 +24,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class Main {
 
     public static void main(String[] args) {
@@ -110,10 +114,10 @@ public class Main {
 
         // simulate processing next order
         RepairOrder<?> nextOrder = serviceQueue.poll();
-        System.out.println("Processing next order: " + nextOrder);
+        log.info("Processing next order: {}", nextOrder);
 
         // check remaining
-        System.out.println("Orders left in queue: " + serviceQueue.size());
+        log.info("Orders left in queue: {}", serviceQueue.size());
 
         // --- Appointments ---
         AppointmentService appointment1 = new AppointmentService(1, customer1, mechanic1, car, LocalDateTime.now().plusHours(1));
@@ -125,12 +129,12 @@ public class Main {
             appointment1.complete();
             appointment2.start();
         } catch (AppointmentStatusException e) {
-            System.out.println("Appointment error: " + e.getMessage());
+            log.error("Appointment error: {}", e.getMessage());
         } finally {
-            System.out.println("Appointment processing finished");
-            System.out.println("Appointment 1 status: " + appointment1.getStatus());
-            System.out.println("Appointment 2 status: " + appointment2.getStatus());
-            System.out.println("------------------------------------------------------------------------------");
+            log.info("Appointment processing finished");
+            log.info("Appointment 1 status: {}", appointment1.getStatus());
+            log.info("Appointment 2 status: {}", appointment2.getStatus());
+            log.info("------------------------------------------------------------------------------");
         }
 
         // --- Garage: root object — fully populated ---
@@ -186,114 +190,104 @@ public class Main {
         try (BookingService bookingService = new BookingService(garage)) {
             bookingService.createOrder(List.of(repairOrder1, repairOrder2, repairOrder3));
         } catch (GarageBookingException e) {
-            System.out.println("Garage booking error: " + e.getMessage());
+            log.error("Garage booking error: {}", e.getMessage());
         }
 
-        System.out.println("Total orders processed: " + BookingService.getTotalOrders());
-        System.out.println("Garage: " + garage.getName() + " | Free bays: " + garage.getFreeBays());
+        log.info("Total orders processed: {}", BookingService.getTotalOrders());
+        log.info("Garage: {} | Free bays: {}", garage.getName(), garage.getFreeBays());
 
         /* ********************************************************************************************* */
 
         // --- Collection method demonstrations ---
 
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("------------------------------------------------------------------------------");
 
         // Iteration through List (mechanics) + print first element + remove + contains
 
-        System.out.println("\nAll mechanics:");
+        log.info("\nAll mechanics:");
         for (Mechanic mechanic : garage.getMechanics()) {
-            System.out.println("- " + mechanic.getName()
-                    + " | " + mechanic.getSpecialization()
-                    + " | " + mechanic.getYearsOfExperience());
+            log.info("- {} | {} | {}", mechanic.getName(), mechanic.getSpecialization(), mechanic.getYearsOfExperience());
         }
         /* List - with index */
         Mechanic firstMechanic = garage.getMechanics().get(0);
-        System.out.println("\n- First mechanic: " + firstMechanic.getName());
+        log.info("\n- First mechanic: {}", firstMechanic.getName());
 
         /* remove */
-        System.out.println("\n- Mechanics before remove: " + garage.getMechanics().size());
+        log.info("\n- Mechanics before remove: {}", garage.getMechanics().size());
         garage.removeMechanic(mechanic3);
-        System.out.println("- Mechanics after remove: " + garage.getMechanics().size());
+        log.info("- Mechanics after remove: {}", garage.getMechanics().size());
 
         /* contains */
-        System.out.println("- Has mechanic Nika: " + garage.hasMechanic(mechanic1));
+        log.info("- Has mechanic Nika: {}", garage.hasMechanic(mechanic1));
 
         garage.addMechanic(mechanic3);
 
         // Iteration through Set (customers) + print first element + remove + isEmpty
 
-        System.out.println("\nAll customers:");
+        log.info("\nAll customers:");
         for (Customer customer : garage.getCustomers()) {
-            System.out.println("- " + customer.getName()
-                    + " | " + customer.getPhone()
-                    + " | " + customer.getEmail());
+            log.info("- {} | {} | {}", customer.getName(), customer.getPhone(), customer.getEmail());
         }
 
         /* Set — iterator (Sets have no index) */
         Customer firstCustomer = garage.getCustomers().iterator().next();
-        System.out.println("\n- First customer: " + firstCustomer.getName());
+        log.info("\n- First customer: {}", firstCustomer.getName());
 
         /* remove */
-        System.out.println("\n- Customers before remove: " + garage.getCustomers().size());
+        log.info("\n- Customers before remove: {}", garage.getCustomers().size());
         garage.removeCustomer(customer3);
-        System.out.println("- Customers after remove: " + garage.getCustomers().size());
+        log.info("- Customers after remove: {}", garage.getCustomers().size());
 
         /* isEmpty ? */
-        System.out.println("- Has customers: " + garage.hasCustomers());
+        log.info("- Has customers: {}", garage.hasCustomers());
 
         // Iterate through Map (spareParts) + put (add a sparePart) + get (sparePart with key-->value pair)
 
-        System.out.println("\nAll spare parts:");
+        log.info("\nAll spare parts:");
         for (Map.Entry<String, SparePart> entry : garage.getSpareParts().entrySet()) {
-            System.out.println("- " + entry.getKey()
-                    + " | " + entry.getValue().getProductName()
-                    + " | quantity: " + entry.getValue().getQuantity());
+            log.info("- {} | {} | quantity: {}", entry.getKey(), entry.getValue().getProductName(), entry.getValue().getQuantity());
         }
         /* Map — first entry via entrySet iterator */
         SparePart firstPart = garage.getSpareParts().entrySet().iterator().next().getValue();
-        System.out.println("\n- First spare part: " + firstPart.getProductName());
+        log.info("\n- First spare part: {}", firstPart.getProductName());
 
         /* put */
-        System.out.println("\n- Spare parts before put: " + garage.getSpareParts().size());
+        log.info("\n- Spare parts before put: {}", garage.getSpareParts().size());
         SparePart sparkPlug = new SparePart("Spark Plug", "SP-1122", new BigDecimal("8.00"), 15);
         garage.addSparePart(sparkPlug);
-        System.out.println("- Spare parts after put: " + garage.getSpareParts().size());
+        log.info("- Spare parts after put: {}", garage.getSpareParts().size());
 
         /* get */
-        System.out.println("- Spare part lookup: " + garage.getSparePartByNumber("OF-4521").getProductName());
+        log.info("- Spare part lookup: {}", garage.getSparePartByNumber("OF-4521").getProductName());
 
         // Iteration through List (vehicles) + print first element + remove
         Vehicle firstVehicle = garage.getVehicles().get(0);
-        System.out.println("\n- First vehicle: " + firstVehicle.getBrand()
-                + " " + firstVehicle.getModel());
-        System.out.println("\nAll vehicles: ");
+        log.info("\n- First vehicle: {} {}", firstVehicle.getBrand(), firstVehicle.getModel());
+        log.info("\nAll vehicles: ");
         for (Vehicle vehicle : garage.getVehicles()) {
-            System.out.println("- " + vehicle.getBrand()
-                    + " | " + vehicle.getModel()
-                    + " | " + vehicle.getYear()
-                    + " | " + vehicle.getVin());
+            log.info("- {} | {} | {} | {}", vehicle.getBrand(), vehicle.getModel(), vehicle.getYear(), vehicle.getVin());
         }
-        System.out.println("\n- Total vehicles before remove: " + garage.getTotalVehicles());
+        log.info("\n- Total vehicles before remove: {}", garage.getTotalVehicles());
         garage.removeVehicle(truck);
-        System.out.println("- Vehicles after remove: " + garage.getTotalVehicles());
+        log.info("- Vehicles after remove: {}", garage.getTotalVehicles());
 
         /* ************************************************************************************************************ */
 
         // ---  java.util.function LAMBDA DEMONSTRATIONS  lambda = '->' = parameter -> action-- //
 
-        System.out.println("\n------------------------------------------------------------------------------");
-        System.out.println("  java.util.function LAMBDA DEMONSTRATIONS");
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("\n------------------------------------------------------------------------------");
+        log.info("  java.util.function LAMBDA DEMONSTRATIONS");
+        log.info("------------------------------------------------------------------------------");
 
         // 1) PREDICATE <Vehicle> - Filters the garage's vehicle list by a given condition. //
 
-        System.out.println("\n--- 1. Predicate<Vehicle>: vehicles from 2018 or newer ---");
+        log.info("\n--- 1. Predicate<Vehicle>: vehicles from 2018 or newer ---");
 
         Predicate<Vehicle> isModernVehicleCondition = vehicle -> vehicle.getYear() >= 2018;
 
         List<Vehicle> modernVehicles = garage.filterVehicles(isModernVehicleCondition);
         modernVehicles.forEach(vehicle ->
-                System.out.println("  " + vehicle.getBrand() + " " + vehicle.getModel() + " (" + vehicle.getYear() + ")")
+                log.info("  {} {} ({})", vehicle.getBrand(), vehicle.getModel(), vehicle.getYear())
         );
 
         /* second condition */
@@ -303,14 +297,14 @@ public class Main {
         /* 2 conditions with .and */
         List<Vehicle> modernNonMotorcycles = garage.filterVehicles(isModernVehicleCondition.and(isNotMotorcycleCondition));
 
-        System.out.println("  Modern non-motorcycles:");
+        log.info("  Modern non-motorcycles:");
         modernNonMotorcycles.forEach(v ->
-                System.out.println("  " + v.getBrand() + " " + v.getModel())
+                log.info("  {} {}", v.getBrand(), v.getModel())
         );
 
         // 2) Function<Mechanic, String> Transforms each mechanic into a formatted roster String
 
-        System.out.println("\n--- 2. Function<Mechanic, String>: formatted mechanic roster ---");
+        log.info("\n--- 2. Function<Mechanic, String>: formatted mechanic roster ---");
 
         Function<Mechanic, String> formatter = mechanic ->
                 String.format("%-10s | %-20s | %d yrs exp | %.2f GEL/h",
@@ -321,7 +315,7 @@ public class Main {
 
         List<String> roster = garage.getMechanicRoster(formatter);
 
-        roster.forEach(line -> System.out.println("  " + line));
+        roster.forEach(line -> log.info("  {}", line));
 
         // 3) BiFunction<String, Integer, List<SparePart>>
 
@@ -329,7 +323,7 @@ public class Main {
             and whose quantity is below a minimum threshold,
             useful for finding what is low in stock. */
 
-        System.out.println("\n--- 3. BiFunction<String, Integer, List<SparePart>>: low in stock---");
+        log.info("\n--- 3. BiFunction<String, Integer, List<SparePart>>: low in stock---");
 
         BiFunction<String, Integer, List<SparePart>> lowStockChecker = (prefix, minQty)
                 -> garage.getSpareParts().values().stream()
@@ -338,11 +332,10 @@ public class Main {
 
         List<SparePart> lowStock = garage.getLowStockParts(lowStockChecker, "BD", 5);
         if (lowStock.isEmpty()) {
-            System.out.println("  No low-stock parts found for prefix 'BD'.");
+            log.info("  No low-stock parts found for prefix 'BD'.");
         } else {
             lowStock.forEach(part ->
-                    System.out.println("  LOW STOCK: " + part.getProductName()
-                            + " (" + part.getProductNumber() + ") — qty: " + part.getQuantity())
+                    log.info("  LOW STOCK: {} ({}) — qty: {}", part.getProductName(), part.getProductNumber(), part.getQuantity())
             );
         }
 
@@ -352,71 +345,70 @@ public class Main {
                         .filter(part -> part.getQuantity() < minQty)
                         .collect(Collectors.toList());
 
-        System.out.println("  All parts with qty < 10:");
+        log.info("  All parts with qty < 10:");
         garage.getLowStockParts(lowInStock, "", 10).forEach(part ->
-                System.out.println("  - " + part.getProductName() + " | qty: " + part.getQuantity())
+                log.info("  - {} | qty: {}", part.getProductName(), part.getQuantity())
         );
 
         // 4. Consumer<Customer> takes object,  does something return nothing
 
-        System.out.println("\n--- 4. Consumer<Customer>: award 10 bonus loyalty points to all ---");
+        log.info("\n--- 4. Consumer<Customer>: award 10 bonus loyalty points to all ---");
 
         Consumer<Customer> awardBonusPoints = customer -> {
             customer.addLoyaltyPoints(10);
-            System.out.println("  Awarded 10 pts to " + customer.getName()
-                    + " | Total: " + customer.getLoyaltyPoints());
+            log.info("  Awarded 10 pts to {} | Total: {}", customer.getName(), customer.getLoyaltyPoints());
         };
 
         garage.forEachCustomer(awardBonusPoints);
 
         // 5. UnaryOperator <T> - takes certain type changes value returns same type + Predicate Yes/No logic
 
-        System.out.println("\n--- 5. UnaryOperator<BigDecimal>: 20% senior bonus for mechanics with 10+ years ---");
+        log.info("\n--- 5. UnaryOperator<BigDecimal>: 20% senior bonus for mechanics with 10+ years ---");
 
         Predicate<Mechanic> isSenior = mechanic -> mechanic.getYearsOfExperience() >= 10;
         UnaryOperator<BigDecimal> seniorBonus = rate -> rate.multiply(new BigDecimal("1.20"));
 
-        System.out.println("  Before:");
+        log.info("  Before:");
         garage.getMechanics().forEach(n ->
                 System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
         );
 
         garage.applyRateAdjustment(isSenior, seniorBonus);
 
-        System.out.println("  After:");
+        log.info("  After:");
         garage.getMechanics().forEach(n ->
                 System.out.printf("  %s | %.2f GEL/h%n", n.getName(), n.getHourlyRate())
         );
 
         // 6. Runnable - takes nothing, returns nothing, just runs a task
-        System.out.println("\n--- Runnable: print garage status ---");
+        log.info("\n--- Runnable: print garage status ---");
         Runnable garageStatusPrinter = () -> {
-            System.out.println("Garage: " + garage.getName());
-            System.out.println("Free bays: " + garage.getFreeBays());
-            System.out.println("Total vehicles: " + garage.getTotalVehicles());
+            log.info("Garage: {}", garage.getName());
+            log.info("Free bays: {}", garage.getFreeBays());
+            log.info("Total vehicles: {}", garage.getTotalVehicles());
         };
         garageStatusPrinter.run();
 
         // 7. Supplier - takes nothing, returns something
-        System.out.println("\n--- Supplier: get first customer name ---");
+        log.info("\n--- Supplier: get first customer name ---");
         Supplier<String> firstCustomerName = () -> garage.getCustomers().iterator().next().getName();
-        System.out.println("First customer: " + firstCustomerName.get());
+        log.info("First customer: {}", firstCustomerName.get());
 
         // --- Custom Functional Interfaces just to showcase ---
 
         // 1. DiscountStrategy
         DiscountStrategy thirtyPercentDiscount = price -> price * 0.7;
         BigDecimal discounted = new BigDecimal(thirtyPercentDiscount.apply(200));
-        System.out.println("\nDiscounted price: " + discounted);
+        log.info("\nDiscounted price: {}", discounted);
 
         // 2. AppointmentFilter
         AppointmentFilter onlyScheduled = a -> a.getStatus() == ServiceStatus.SCHEDULED;
-        System.out.println("Is appointment scheduled? | " + (onlyScheduled.test(appointment1) ? "Yes" : "No"));
+        log.info("Is appointment scheduled? | {}", onlyScheduled.test(appointment1) ? "Yes" : "No");
 
         // 3. ObjectFormatter
         ObjectFormatter<AppointmentService> objectFormatter = appointment -> appointment.getCustomer().getName()
                 + " | " + appointment.getStatus();
-        System.out.println("Appointment with customer: " + objectFormatter.format(appointment1));
+        log.info("Appointment with customer: {}", objectFormatter.format(appointment1));
 
 
 
@@ -426,35 +418,31 @@ public class Main {
 
         /* 1 getHighestPaidMechanic */
         garage.getHighestPaidMechanic()
-                .ifPresent(mechanic -> System.out.println("\nHighest paid mechanic: "
-                        + mechanic.getName()
-                        + " | " + mechanic.getHourlyRate() + " GEL/h"));
+                .ifPresent(mechanic -> log.info("\nHighest paid mechanic: {} | {} GEL/h", mechanic.getName(), mechanic.getHourlyRate()));
 
         /* 2 countVehiclesByClassType */
-        System.out.println("\nCars in garage: " + garage.countVehiclesByClassType(Car.class));
-        System.out.println("Trucks in garage: " + garage.countVehiclesByClassType(Truck.class));
-        System.out.println("Motorcycles in garage: " + garage.countVehiclesByClassType(Motorcycle.class));
+        log.info("\nCars in garage: {}", garage.countVehiclesByClassType(Car.class));
+        log.info("Trucks in garage: {}", garage.countVehiclesByClassType(Truck.class));
+        log.info("Motorcycles in garage: {}", garage.countVehiclesByClassType(Motorcycle.class));
 
         /* 3 getCustomersWithExpiredInsurance */
         List<Customer> expiredInsurance = garage.getCustomersWithExpiredInsurance();
         Optional.of(expiredInsurance)
                 .filter(list -> !list.isEmpty()) // needed because if still is empty ifPresent checks only for Null and never reaches second sys.out
                 .ifPresentOrElse(
-                        list -> list.forEach(customer -> System.out.println("\nExpired insurance: " + customer.getName())),
-                        () -> System.out.println("\nNo customers with expired insurance.")
+                        list -> list.forEach(customer -> log.info("\nExpired insurance: {}", customer.getName())),
+                        () -> log.info("\nNo customers with expired insurance.")
                 );
 
         /* 4 hasMasterMechanic  - .anymatch() condition  with enum SENIOR */
-        System.out.println("\nHas master mechanic: " + garage.hasMasterMechanic());
+        log.info("\nHas master mechanic: {}", garage.hasMasterMechanic());
 
         /* 5 getTotalSparePartsValue */
-        System.out.println("\nTotal spare parts value: " + garage.getTotalSparePartsValue() + " GEL\n");
+        log.info("\nTotal spare parts value: {} GEL\n", garage.getTotalSparePartsValue());
 
         /* getAppointmentsSortedByTime */
         garage.getAppointmentsSortedByTime()
-                .forEach(appointment -> System.out.println("Appointment: " + appointment.getCustomer().getName()
-                        + " | " + appointment.getFormattedScheduledTime()
-                        + " | " + appointment.getStatus().getDisplayName()));
+                .forEach(appointment -> log.info("Appointment: {} | {} | {}", appointment.getCustomer().getName(), appointment.getFormattedScheduledTime(), appointment.getStatus().getDisplayName()));
 
 
 
@@ -467,17 +455,17 @@ public class Main {
             Class<?> carClass = Car.class;
 
             /* 1. Class info */
-            System.out.println("\n--- CLASS INFO ---");
-            System.out.println("Class name  : " + carClass.getName());
-            System.out.println("Superclass  : " + carClass.getSuperclass().getSimpleName());
+            log.info("\n--- CLASS INFO ---");
+            log.info("Class name  : {}", carClass.getName());
+            log.info("Superclass  : {}", carClass.getSuperclass().getSimpleName());
             System.out.print("Interfaces  : ");
             for (Class<?> implementedInterface : carClass.getInterfaces()) {
                 System.out.print(implementedInterface.getSimpleName() + " ");
             }
-            System.out.println();
+            log.info("");
 
             /* 2. Declared fields */
-            System.out.println("\n--- FIELDS (declared in Car) ---");
+            log.info("\n--- FIELDS (declared in Car) ---");
             for (Field field : carClass.getDeclaredFields()) {
                 System.out.printf("  [%s] %s %s%n",
                         Modifier.toString(field.getModifiers()),
@@ -487,18 +475,18 @@ public class Main {
 
 
             /* 3. Constructors */
-            System.out.println("\n--- CONSTRUCTORS ---");
+            log.info("\n--- CONSTRUCTORS ---");
             for (Constructor<?> declaredConstructors : carClass.getDeclaredConstructors()) {
                 System.out.print("  " + declaredConstructors.getName() + "(");
                 Parameter[] parameters = declaredConstructors.getParameters();
                 for (Parameter parameter : parameters) {
                     System.out.print(parameter.getType().getSimpleName() + " ");
                 }
-                System.out.println(")");
+                log.info(")");
             }
 
             /* 4. Declared methods */
-            System.out.println("\n--- METHODS (declared in Car) ---");
+            log.info("\n--- METHODS (declared in Car) ---");
             for (Method method : carClass.getDeclaredMethods()) {
                 System.out.printf("  [%s] %s %s(%s)%n",
                         Modifier.toString(method.getModifiers()),
@@ -509,7 +497,7 @@ public class Main {
 
             /* 5. Create a NEW Car instance via Constructor reflection */
 
-            System.out.println("\n---CREATING CAR INSTANCE VIA REFLECTION ---");
+            log.info("\n---CREATING CAR INSTANCE VIA REFLECTION ---");
             Transmission reflectTransmission = new Transmission(TransmissionType.AUTOMATIC, 6);
             Constructor<?> reflectCarConstructor = carClass.getDeclaredConstructor(
                     String.class, String.class, String.class, String.class,
@@ -520,22 +508,22 @@ public class Main {
                     "Honda", "Civic", "VIN-REFLECT-001", "GE-REF-01",
                     2024, 4, EngineType.PETROL, 1.5, reflectTransmission
             );
-            System.out.println("Created via reflection: " + reflectedCar);
+            log.info("Created via reflection: {}", reflectedCar);
 
             /* 6. Read a private field value via reflection */
-            System.out.println("\n--- READING PRIVATE FIELD VALUE ---");
+            log.info("\n--- READING PRIVATE FIELD VALUE ---");
             Field doorsField = carClass.getDeclaredField("doors");
             doorsField.setAccessible(true);
-            System.out.println("doors field value: " + doorsField.get(reflectedCar));
+            log.info("doors field value: {}", doorsField.get(reflectedCar));
 
             /* 7. Invoke a method via reflection */
-            System.out.println("\n--- INVOKING drive() VIA REFLECTION ---");
+            log.info("\n--- INVOKING drive() VIA REFLECTION ---");
             Method driveMethod = carClass.getDeclaredMethod("drive");
             driveMethod.setAccessible(true);
             driveMethod.invoke(reflectedCar);
 
-            /* 8. Find and invoke @ServiceInfo annotated methods */
-            System.out.println("\n--- @ServiceInfo, Description, Checker ANNOTATED METHODS ---");
+            /* 8. Find and invoke @ServiceInfo, Description, Checker annotated methods */
+            log.info("\n--- @ServiceInfo, Description, Checker ANNOTATED METHODS ---");
             for (Method method : carClass.getDeclaredMethods()) {
 
                 String methodName = method.getName();
@@ -553,20 +541,25 @@ public class Main {
                 }
 
                 if (description != null) {
-                    System.out.println("  Method : " + methodName);
-                    System.out.println("  Description : " + description);
-                    if (extra != null) System.out.println(extra);
+                    log.info("  Method : {}", methodName);
+                    log.info("  Description : {}", description);
+                    if (extra != null) log.info(extra);
                     if (method.getParameterCount() == 0) {
-                        System.out.println("  → Invoking...");
+                        log.info("  → Invoking...");
                         method.invoke(reflectedCar);
                     }
-                    System.out.println();
+                    log.info("");
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("Reflection Error: " + e.getMessage());
+            log.error("Reflection Error: {}", e.getMessage());
         }
+
+        FileReaderUtil.readFile("IHNMSIMS");
+
+//        FileReaderUtil.readFile(new File("D:\\java-solvd\\auto-service-repair\\src\\main\\resources\\IHNMSIMS"));
+
     }
 
     // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)
@@ -584,7 +577,7 @@ public class Main {
         vehicle.performInspection();
     }
     public static void getSellingPrice(String name, Sellable sparePart) {
-        System.out.println(name + " selling price: " + sparePart.getSellingPrice());
+        log.info("{} selling price: {}", name, sparePart.getSellingPrice());
     }
 
 }

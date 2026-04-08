@@ -1,6 +1,7 @@
 package com.solvd.autoservicerepair.services;
 
 import com.solvd.autoservicerepair.model.Customer;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,6 +11,7 @@ import java.time.LocalDate;
  * Calculates: service price → apply discount → apply payment processing fee → final total.
  **/
 
+@Slf4j
 public class InvoiceService extends Document {
 
     private final Customer customer;
@@ -51,40 +53,40 @@ public class InvoiceService extends Document {
     }
 
     public void generate() {
-        System.out.println("=== INVOICE ===");
-        System.out.println("Issue Date           : " + getDate());
+        log.info("=== INVOICE ===");
+        log.info("Issue Date           : " + getDate());
 
-        System.out.println("Customer             : " + customer.getName());
-        System.out.println("Registration Date    : " + customer.getRegistrationDate());
-        System.out.println("Insurance Provider   : " + customer.getInsurance().provider());
-        System.out.println("Insurance Tier       : " + customer.getInsurance().tier().getDisplayName());
-        System.out.println("Coverage Percent     : " + customer.getInsurance().tier().getCoveragePercent() + "%");
-        System.out.println("Roadside Assistance  : " + customer.getInsurance().tier().includesRoadsideAssistance());
-        System.out.println("Policy Number        : " + customer.getInsurance().policyNumber());
-        System.out.println("Policy Expired       : " + customer.getInsurance().isExpired());
-        System.out.println("Policy Expiry Date   : " + customer.getInsurance().expiryDate());
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("Customer             : " + customer.getName());
+        log.info("Registration Date    : " + customer.getRegistrationDate());
+        log.info("Insurance Provider   : " + customer.getInsurance().provider());
+        log.info("Insurance Tier       : " + customer.getInsurance().tier().getDisplayName());
+        log.info("Coverage Percent     : " + customer.getInsurance().tier().getCoveragePercent() + "%");
+        log.info("Roadside Assistance  : " + customer.getInsurance().tier().includesRoadsideAssistance());
+        log.info("Policy Number        : " + customer.getInsurance().policyNumber());
+        log.info("Policy Expired       : " + customer.getInsurance().isExpired());
+        log.info("Policy Expiry Date   : " + customer.getInsurance().expiryDate());
+        log.info("------------------------------------------------------------------------------");
 
-        System.out.println("Vehicle              : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
-        System.out.println("Service              : " + repairOrder.service().getServiceName());
-        System.out.println("Service Description  : " + repairOrder.service().getServiceDescription());
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("Vehicle              : " + repairOrder.getVehicleBrand() + " " + repairOrder.getVehicleModel());
+        log.info("Service              : " + repairOrder.service().getServiceName());
+        log.info("Service Description  : " + repairOrder.service().getServiceDescription());
+        log.info("------------------------------------------------------------------------------");
 
-        System.out.println("Base Price           : " + repairOrder.service().getPrice() + " GEL");
-        System.out.println("Discount             : " + discountPercent + "%");
+        log.info("Base Price           : " + repairOrder.service().getPrice() + " GEL");
+        log.info("Discount             : " + discountPercent + "%");
 
         if (payment != null && payment.getMethod().hasFee()) {
-            System.out.println("Processing Fee       : " + payment.getMethod().getProcessingFeePercent() + "%");
+            log.info("Processing Fee       : " + payment.getMethod().getProcessingFeePercent() + "%");
         }
 
-        System.out.println("Total Due            : " + payment.getAmount() + " GEL");
+        log.info("Total Due            : " + payment.getAmount() + " GEL");
 
         if (payment != null) {
-            System.out.println("Payment Method       : " + payment.getMethod().getDisplayName());
-            System.out.println("Payment Confirmed    : " + payment.isConfirmed());
+            log.info("Payment Method       : " + payment.getMethod().getDisplayName());
+            log.info("Payment Confirmed    : " + payment.isConfirmed());
         }
 
-        System.out.println("===============");
+        log.info("===============");
     }
 
     // Getters and Setters
