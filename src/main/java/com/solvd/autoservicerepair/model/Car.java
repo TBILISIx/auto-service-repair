@@ -9,7 +9,9 @@ import com.solvd.autoservicerepair.interfaces.Drivable;
 import com.solvd.autoservicerepair.interfaces.Inspectable;
 import com.solvd.autoservicerepair.interfaces.Maintainable;
 import com.solvd.autoservicerepair.interfaces.ValidAge;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Car extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge {
 
     private Integer doors;
@@ -77,14 +79,14 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
     @Description(description = "This method gives us information about customers vehicle")
     @Override
     public void drive() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Car Customer is driving");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Brand: " + getBrand());
-        System.out.println("Model: " + getModel());
-        System.out.println("Engine Type: " + getEngineType());
-        System.out.println("VIN: " + getVin());
-        System.out.println("Year: " + getYear());
+        log.info("------------------------------------------------------------------------------");
+        log.info("Car Customer is driving");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Brand: " + getBrand());
+        log.info("Model: " + getModel());
+        log.info("Engine Type: " + getEngineType());
+        log.info("VIN: " + getVin());
+        log.info("Year: " + getYear());
 
         driven = true;
     }
@@ -94,20 +96,20 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
             isSafetyCheck = false)
     @Override
     public void performMaintenance() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Performing maintenance on the vehicle:");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Brand: " + getBrand());
-        System.out.println("Model: " + getModel());
-        System.out.println("VIN: " + getVin());
-        System.out.println("Year: " + getYear());
-        System.out.println("Engine Type: " + getEngineType());
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Maintenance Steps:");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("- Check oil levels and change if necessary.");
-        System.out.println("- Test brakes for wear and responsiveness.");
-        System.out.println("- Inspect suspension and tires.");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Performing maintenance on the vehicle:");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Brand: " + getBrand());
+        log.info("Model: " + getModel());
+        log.info("VIN: " + getVin());
+        log.info("Year: " + getYear());
+        log.info("Engine Type: " + getEngineType());
+        log.info("------------------------------------------------------------------------------");
+        log.info("Maintenance Steps:");
+        log.info("------------------------------------------------------------------------------");
+        log.info("- Check oil levels and change if necessary.");
+        log.info("- Test brakes for wear and responsiveness.");
+        log.info("- Inspect suspension and tires.");
 
         maintenanceDone = true;
     }
@@ -117,17 +119,17 @@ public class Car extends Vehicle implements Drivable, Maintainable, Inspectable,
             isSafetyCheck = true)
     @Override
     public void performInspection() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Inspection report for car: " + getBrand() + " " + getModel());
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("- Driven: " + (driven ? "Yes" : "No"));
-        System.out.println("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
-        System.out.println("- Inspected before: " + (inspected ? "Yes" : "No"));
+        log.info("------------------------------------------------------------------------------");
+        log.info("Inspection report for car: " + getBrand() + " " + getModel());
+        log.info("------------------------------------------------------------------------------");
+        log.info("- Driven: " + (driven ? "Yes" : "No"));
+        log.info("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
+        log.info("- Inspected before: " + (inspected ? "Yes" : "No"));
 
         inspected = true;
 
-        System.out.println("- Inspected after: " + "Yes");
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("- Inspected after: " + "Yes");
+        log.info("------------------------------------------------------------------------------");
     }
 
     // --- Custom Annotation Checker --- //

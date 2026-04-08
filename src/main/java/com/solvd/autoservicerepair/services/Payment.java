@@ -1,6 +1,7 @@
 package com.solvd.autoservicerepair.services;
 
 import com.solvd.autoservicerepair.enums.PaymentMethod;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,6 +11,8 @@ import java.time.LocalDateTime;
  * The final amount is set by Invoice after it finishes calculating
  * discount + processing fee — so there is one single source of truth for pricing.
  */
+
+@Slf4j
 public class Payment extends Document {
 
     private BigDecimal amount;
@@ -31,13 +34,13 @@ public class Payment extends Document {
     public void confirm() {
         this.confirmed = true;
 
-        System.out.println("=== PAYMENT CONFIRMED ===");
-        System.out.println("Method       : " + method.getDisplayName());
-        System.out.println("Total Paid   : " + amount + " GEL");
+        log.info("=== PAYMENT CONFIRMED ===");
+        log.info("Method       : " + method.getDisplayName());
+        log.info("Total Paid   : " + amount + " GEL");
         if (method.hasFee()) {
-            System.out.println("Includes     : " + method.getProcessingFeePercent() + "% processing fee");
+            log.info("Includes     : " + method.getProcessingFeePercent() + "% processing fee");
         }
-        System.out.println("==========================");
+        log.info("==========================");
     }
 
     public BigDecimal getAmount() {

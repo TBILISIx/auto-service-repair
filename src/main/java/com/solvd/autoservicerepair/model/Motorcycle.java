@@ -7,7 +7,9 @@ import com.solvd.autoservicerepair.interfaces.Inspectable;
 import com.solvd.autoservicerepair.interfaces.Maintainable;
 import com.solvd.autoservicerepair.interfaces.Rideable;
 import com.solvd.autoservicerepair.interfaces.ValidAge;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspectable, ValidAge {
 
     private final EngineType engineType;
@@ -53,50 +55,50 @@ public class Motorcycle extends Vehicle implements Rideable, Maintainable, Inspe
 
     @Override
     public void ride() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Motorcycle Customer is riding");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Brand: " + getBrand());
-        System.out.println("Model: " + getModel());
-        System.out.println("VIN: " + getVin());
-        System.out.println("BikeType: " + getBikeType());
-        System.out.println("Year: " + getYear());
+        log.info("------------------------------------------------------------------------------");
+        log.info("Motorcycle Customer is riding");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Brand: " + getBrand());
+        log.info("Model: " + getModel());
+        log.info("VIN: " + getVin());
+        log.info("BikeType: " + getBikeType());
+        log.info("Year: " + getYear());
         this.ridden = true;
     }
 
     @Override
     public void performMaintenance() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Performing maintenance on motorcycle:");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Brand: " + getBrand());
-        System.out.println("Model: " + getModel());
-        System.out.println("VIN: " + getVin());
-        System.out.println("Year: " + getYear());
-        System.out.println("Engine Capacity: " + getEngineCapacity() + "cc");
-        System.out.println("Bike Type: " + getBikeType());
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Maintenance Steps:");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("- Check oil levels and change if necessary.");
-        System.out.println("- Test brakes for wear and responsiveness.");
-        System.out.println("- Check tire pressure and tread.");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Performing maintenance on motorcycle:");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Brand: " + getBrand());
+        log.info("Model: " + getModel());
+        log.info("VIN: " + getVin());
+        log.info("Year: " + getYear());
+        log.info("Engine Capacity: " + getEngineCapacity() + "cc");
+        log.info("Bike Type: " + getBikeType());
+        log.info("------------------------------------------------------------------------------");
+        log.info("Maintenance Steps:");
+        log.info("------------------------------------------------------------------------------");
+        log.info("- Check oil levels and change if necessary.");
+        log.info("- Test brakes for wear and responsiveness.");
+        log.info("- Check tire pressure and tread.");
         maintenanceDone = true;
     }
 
     @Override
     public void performInspection() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Inspection report for motorcycle: " + getBrand() + " " + getModel());
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("- Ridden: " + (ridden ? "Yes" : "No"));
-        System.out.println("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
-        System.out.println("- Inspected before: " + (inspected ? "Yes" : "No"));
+        log.info("------------------------------------------------------------------------------");
+        log.info("Inspection report for motorcycle: " + getBrand() + " " + getModel());
+        log.info("------------------------------------------------------------------------------");
+        log.info("- Ridden: " + (ridden ? "Yes" : "No"));
+        log.info("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
+        log.info("- Inspected before: " + (inspected ? "Yes" : "No"));
 
         inspected = true;
 
-        System.out.println("- Inspected after: " + "Yes");
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("- Inspected after: " + "Yes");
+        log.info("------------------------------------------------------------------------------");
     }
 
     @Override

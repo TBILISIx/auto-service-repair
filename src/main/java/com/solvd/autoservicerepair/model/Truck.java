@@ -6,7 +6,9 @@ import com.solvd.autoservicerepair.interfaces.Drivable;
 import com.solvd.autoservicerepair.interfaces.Inspectable;
 import com.solvd.autoservicerepair.interfaces.Maintainable;
 import com.solvd.autoservicerepair.interfaces.ValidAge;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Truck extends Vehicle implements Drivable, Maintainable, Inspectable, ValidAge {
 
     private final Integer doors;
@@ -62,54 +64,54 @@ public class Truck extends Vehicle implements Drivable, Maintainable, Inspectabl
 
     @Override
     public void drive() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Truck Customer is driving");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Brand: " + getBrand());
-        System.out.println("Model: " + getModel());
-        System.out.println("VIN: " + getVin());
-        System.out.println("Year: " + getYear());
-        System.out.println("Engine Size: " + getEngineSize() + "L");
-        System.out.println("Payload Capacity: " + getPayloadCapacityTons() + " tons");
-        System.out.println("Transmission: " + getTransmission().type());
-        System.out.println("Sleeping Cabin: " + (hasSleepingCabin() ? "Yes" : "No"));
+        log.info("------------------------------------------------------------------------------");
+        log.info("Truck Customer is driving");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Brand: " + getBrand());
+        log.info("Model: " + getModel());
+        log.info("VIN: " + getVin());
+        log.info("Year: " + getYear());
+        log.info("Engine Size: " + getEngineSize() + "L");
+        log.info("Payload Capacity: " + getPayloadCapacityTons() + " tons");
+        log.info("Transmission: " + getTransmission().type());
+        log.info("Sleeping Cabin: " + (hasSleepingCabin() ? "Yes" : "No"));
         this.driven = true;
     }
 
     @Override
     public void performMaintenance() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Performing maintenance on truck:");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Brand: " + getBrand());
-        System.out.println("Model: " + getModel());
-        System.out.println("VIN: " + getVin());
-        System.out.println("Engine Size: " + getEngineSize() + "L");
-        System.out.println("Payload Capacity: " + getPayloadCapacityTons() + " tons");
-        System.out.println("Sleeping Cabin: " + (hasSleepingCabin() ? "Yes" : "No"));
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Maintenance Steps:");
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("- Check oil and fluid levels.");
-        System.out.println("- Inspect brakes and tires.");
-        System.out.println("- Check transmission fluid.");
-        System.out.println("- Inspect suspension and load-bearing parts.");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Performing maintenance on truck:");
+        log.info("------------------------------------------------------------------------------");
+        log.info("Brand: " + getBrand());
+        log.info("Model: " + getModel());
+        log.info("VIN: " + getVin());
+        log.info("Engine Size: " + getEngineSize() + "L");
+        log.info("Payload Capacity: " + getPayloadCapacityTons() + " tons");
+        log.info("Sleeping Cabin: " + (hasSleepingCabin() ? "Yes" : "No"));
+        log.info("------------------------------------------------------------------------------");
+        log.info("Maintenance Steps:");
+        log.info("------------------------------------------------------------------------------");
+        log.info("- Check oil and fluid levels.");
+        log.info("- Inspect brakes and tires.");
+        log.info("- Check transmission fluid.");
+        log.info("- Inspect suspension and load-bearing parts.");
         this.maintenanceDone = true;
     }
 
     @Override
     public void performInspection() {
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("Inspection report for Truck: " + getBrand() + " " + getModel());
-        System.out.println("------------------------------------------------------------------------------");
-        System.out.println("- Driven: " + (driven ? "Yes" : "No"));
-        System.out.println("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
-        System.out.println("- Inspected before: " + (inspected ? "Yes" : "No"));
+        log.info("------------------------------------------------------------------------------");
+        log.info("Inspection report for Truck: " + getBrand() + " " + getModel());
+        log.info("------------------------------------------------------------------------------");
+        log.info("- Driven: " + (driven ? "Yes" : "No"));
+        log.info("- Maintenance done: " + (maintenanceDone ? "Yes" : "No"));
+        log.info("- Inspected before: " + (inspected ? "Yes" : "No"));
 
         inspected = true;
 
-        System.out.println("- Inspected after: " + "Yes");
-        System.out.println("------------------------------------------------------------------------------");
+        log.info("- Inspected after: " + "Yes");
+        log.info("------------------------------------------------------------------------------");
     }
 
     @Override
