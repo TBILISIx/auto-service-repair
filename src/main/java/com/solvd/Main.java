@@ -15,7 +15,6 @@ import com.solvd.autoservicerepair.services.*;
 import com.solvd.autoservicerepair.utils.FileReaderUtil;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -556,10 +555,7 @@ public class Main {
             log.error("Reflection Error: {}", e.getMessage());
         }
 
-        FileReaderUtil.readFile("IHNMSIMS");
-
-//        FileReaderUtil.readFile(new File("D:\\java-solvd\\auto-service-repair\\src\\main\\resources\\IHNMSIMS"));
-
+        FileReaderUtil.readFile("IHNMSIMS", "logs/output.txt");
     }
 
     // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)

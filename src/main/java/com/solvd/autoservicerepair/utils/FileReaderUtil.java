@@ -19,18 +19,20 @@ public class FileReaderUtil {
     private FileReaderUtil() {
     }
 
-    public static void readFile(String resourcePath) {
+    public static void readFile(String inputFilePath, String outputFilePath) {
 
         try {
-            File file = new File(Main.class.getClassLoader().getResource(resourcePath).getFile());
+
+            File file = new File(Main.class.getClassLoader().getResource(inputFilePath).getFile());
+
             List<String> lines = FileUtils.readLines(file, StandardCharsets.UTF_8);
 
             Map<String, Long> wordCountMap = new HashMap<>();
 
             for (String line : lines) {
                 for (String word : StringUtils.split(line)) { // splits by whitespace
-                    if (StringUtils.isNotBlank(word)) {
-                        String formattedWord = word.replaceAll("\\W", "").toLowerCase();
+                    String formattedWord = word.replaceAll("\\W", "").toLowerCase();
+                    if (StringUtils.isNotBlank(formattedWord)) {
                         wordCountMap.put(formattedWord, wordCountMap.getOrDefault(formattedWord, 0L) + 1);
                     }
                 }
@@ -45,9 +47,23 @@ public class FileReaderUtil {
 
             });
 
-            log.info("Word Map: {}", wordCountMap);
-            log.info("Unique Words: {}", uniqueWords);
-            log.info("Unique Words Count: {}", uniqueWords.size());
+            List<String> outputLines = new ArrayList<>();
+
+            outputLines.add("Total lines: " + lines.size());
+            outputLines.add("");
+            outputLines.add("Total words: " + wordCountMap.size());
+            outputLines.add("");
+            outputLines.add("Unique words count: " + uniqueWords.size());
+            outputLines.add("");
+            outputLines.add("Word Count: ");
+            wordCountMap.forEach((word, count) ->
+                    outputLines.add(word + " : " + count)
+            );
+            outputLines.add("");
+            outputLines.add("--- Unique Words ---");
+            outputLines.addAll(uniqueWords);
+
+            FileUtils.writeLines(new File(outputFilePath), outputLines);
 
         } catch (IOException e) {
             throw new RuntimeException("Either couldn't read file or file is null", e);
