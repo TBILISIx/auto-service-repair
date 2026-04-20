@@ -29,7 +29,11 @@ public class ConnectionPool {
     private ConnectionPool(int size) {
         pool = new ArrayBlockingQueue<>(size);
         for (int i = 1; i <= size; i++) {
-            pool.offer(new AccountDao(i));
+            boolean added = pool.offer(new AccountDao(i));
+            if (!added) {
+                throw new IllegalStateException(
+                        "ConnectionPool failed to add connection " + i + " — queue full unexpectedly.");
+            }
         }
         log.info("ConnectionPool initialized with {} connections.", size);
     }
@@ -67,7 +71,12 @@ public class ConnectionPool {
      */
     public void releaseConnection(AccountDao connection) {
         String thread = Thread.currentThread().getName();
-        pool.offer(connection);
+        boolean released = pool.offer(connection);
+        if (!released) {
+            throw new IllegalStateException(
+                    "ConnectionPool could not accept released connection — pool is full. " +
+                            "Was this connection released more than once?");
+        }
         log.info("[{}] Released {} (available: {})", thread, connection, pool.size());
     }
 
