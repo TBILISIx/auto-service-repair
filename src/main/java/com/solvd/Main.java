@@ -338,7 +338,7 @@ public class Main {
             );
         }
 
-        // check all parts below quantity 10 (no prefix filter needed,empty prefix)
+        // check all parts below quantity 10 (no prefix filter needed, empty prefix)
         BiFunction<String, Integer, List<SparePart>> lowInStock = (ignored, minQty) ->
                 garage.getSpareParts().values().stream()
                         .filter(part -> part.getQuantity() < minQty)
@@ -349,7 +349,7 @@ public class Main {
                 log.info("  - {} | qty: {}", part.getProductName(), part.getQuantity())
         );
 
-        // 4. Consumer<Customer> takes object,  does something return nothing
+        // 4. Consumer<Customer> takes an object, does something return nothing
 
         log.info("\n--- 4. Consumer<Customer>: award 10 bonus loyalty points to all ---");
 
@@ -360,7 +360,7 @@ public class Main {
 
         garage.forEachCustomer(awardBonusPoints);
 
-        // 5. UnaryOperator <T> - takes certain type changes value returns same type + Predicate Yes/No logic
+        // 5. UnaryOperator <T> - takes certain type changes value returns the same type + Predicate Yes/No logic
 
         log.info("\n--- 5. UnaryOperator<BigDecimal>: 20% senior bonus for mechanics with 10+ years ---");
 
@@ -556,9 +556,10 @@ public class Main {
         }
 
         FileReaderUtil.readFile("IHNMSIMS", "logs/output.txt");
+
     }
 
-    // --- Helper methods using interfaces as parameters --- ( Drivable ; Rideable ; Maintainable; Inspectable; Sellable)
+    // --- Helper methods using interfaces as parameters --- (Drivable; Rideable; Maintainable; Inspectable; Sellable)
 
     public static void testDrive(Drivable vehicle) {
         vehicle.drive();

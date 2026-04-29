@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- ==================== ROOT ==================== -->
+
+    <xs:element name="garage" type="GarageType">
+
+        <!--
+            xs:key  — declares a uniqueness constraint on a set of elements.
+                      Like a PRIMARY KEY in SQL. The selected nodes must exist and be unique.
+            xs:keyref — declares a foreign-key reference to a previously defined xs:key.
+                        Like a FOREIGN KEY in SQL. The value must match an existing key.
+
+            REFERENTIAL INTEGRITY:
+            customerRef  → customer/idNumber
+            mechanicRef  → mechanic/idNumber
+            vehicleRef   → vehicle/vin
+        -->
+
+        <!-- PRIMARY KEYS -->
+        <xs:key name="customerKey">
+            <xs:selector xpath="customers/customer"/>
+            <xs:field    xpath="idNumber"/>
+        </xs:key>
+
+        <xs:key name="mechanicKey">
+            <xs:selector xpath="mechanics/mechanic"/>
+            <xs:field    xpath="idNumber"/>
+        </xs:key>
+
+        <xs:key name="vehicleKey">
+            <!--
+                Union selector covers all substitution group members.
+                NOTE: xs:key selectors with substitution group expansion
+                ("vehicles/vehicle") are correct per W3C spec and work in
+                Java Xerces. lxml/libxml2 does not expand substitution groups
+                in key selectors, so an explicit union is used here for
+                cross-tool compatibility. Add any new vehicle type to this
+                union when extending the substitution group.
+            -->
+            <xs:selector xpath="vehicles/car|vehicles/motorcycle|vehicles/truck"/>
+            <xs:field    xpath="vin"/>
+        </xs:key>
+
+        <xs:key name="appointmentKey">
+            <xs:selector xpath="appointments/appointment"/>
+            <xs:field    xpath="id"/>
+        </xs:key>
+
+        <!-- FOREIGN KEY REFERENCES -->
+        <xs:keyref name="appointmentCustomerRef" refer="customerKey">
+            <xs:selector xpath="appointments/appointment"/>
+            <xs:field    xpath="customerRef"/>
+        </xs:keyref>
+
+        <xs:keyref name="appointmentMechanicRef" refer="mechanicKey">
+            <xs:selector xpath="appointments/appointment"/>
+            <xs:field    xpath="mechanicRef"/>
+        </xs:keyref>
+
+        <xs:keyref name="appointmentVehicleRef" refer="vehicleKey">
+            <xs:selector xpath="appointments/appointment"/>
+            <xs:field    xpath="vehicleRef"/>
+        </xs:keyref>
+
+        <xs:key name="sparePartKey">
+            <xs:selector xpath="spareParts/sparePart"/>
+            <xs:field    xpath="productNumber"/>
+        </xs:key>
+
+    </xs:element>
+
+    <!-- ==================== GARAGE ==================== -->
+
+    <xs:complexType name="GarageType">
+        <xs:sequence>
+            <xs:element name="name"         type="xs:string"/>
+            <xs:element name="address"      type="xs:string"/>
+            <xs:element name="totalBays"    type="xs:positiveInteger"/>
+            <!--
+                occupiedBays <= totalBays cannot be enforced in XSD 1.0.
+                XSD 1.1 supports xs:assert for cross-field constraints, but standard
+                Java tooling (JAXB / javax.xml.validation) targets XSD 1.0.
+                Enforce this invariant in Garage constructor or BookingService instead.
+            -->
+            <xs:element name="occupiedBays" type="xs:nonNegativeInteger"/>
+            <xs:element name="mechanics"    type="MechanicsListType"/>
+            <xs:element name="customers"    type="CustomersListType"/>
+            <xs:element name="vehicles"     type="VehiclesListType"/>
+            <xs:element name="appointments" type="AppointmentsListType"/>
+            <xs:element name="spareParts"   type="SparePartsListType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ==================== SHARED STRONG SIMPLE TYPES ==================== -->
+
+    <!--
+        Pattern-restricted types give semantic meaning to otherwise plain strings.
+        xs:pattern uses XML Schema regex (similar to Java regex).
+    -->
+
+    <!-- Georgian 11-digit national ID -->
+    <xs:simpleType name="IdNumberType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\d{11}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Accepts formats: 599 10 15 35 | 525-99-93-77 | +995599101535 -->
+    <xs:simpleType name="PhoneType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="\+?\d[\d\s\-]{6,19}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Basic email sanity check -->
+    <xs:simpleType name="EmailType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-Za-z0-9._%+\-]{2,}@[A-Za-z0-9.\-]{2,}\.[A-Za-z]{2,}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- VIN: exactly 17 uppercase alphanumeric chars (standard VIN format) -->
+    <xs:simpleType name="VinType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[A-HJ-NPR-Z0-9]{17}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- Positive decimal (prices, rates, engine sizes) -->
+    <xs:simpleType name="PositiveDecimalType">
+        <xs:restriction base="xs:decimal">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ==================== ENUMERATIONS ==================== -->
+
+    <xs:simpleType name="MechanicSeniorityLevelType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="JUNIOR"/>
+            <xs:enumeration value="MID"/>
+            <xs:enumeration value="SENIOR"/>
+            <xs:enumeration value="MASTER"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="InsuranceTierType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BASIC"/>
+            <xs:enumeration value="STANDARD"/>
+            <xs:enumeration value="PREMIUM"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="EngineTypeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PETROL"/>
+            <xs:enumeration value="DIESEL"/>
+            <xs:enumeration value="ELECTRIC"/>
+            <xs:enumeration value="HYBRID"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="BikeTypeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SPORT"/>
+            <xs:enumeration value="CRUISER"/>
+            <xs:enumeration value="OFF_ROAD"/>
+            <xs:enumeration value="SCOOTER"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="TransmissionTypeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="AUTOMATIC"/>
+            <xs:enumeration value="MANUAL"/>
+            <xs:enumeration value="SEMI_AUTOMATIC"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ServiceStatusType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SCHEDULED"/>
+            <xs:enumeration value="IN_PROGRESS"/>
+            <xs:enumeration value="DONE"/>
+            <xs:enumeration value="CANCELLED"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- ==================== MECHANIC ==================== -->
+
+    <xs:complexType name="MechanicsListType">
+        <xs:sequence>
+            <xs:element name="mechanic" type="MechanicType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="MechanicType">
+        <xs:sequence>
+            <xs:element name="name"              type="xs:string"/>
+            <xs:element name="idNumber"          type="IdNumberType"/>
+            <xs:element name="phone"             type="PhoneType"/>
+            <xs:element name="specialization"    type="xs:string"/>
+            <xs:element name="yearsOfExperience" type="xs:nonNegativeInteger"/>
+            <xs:element name="level"             type="MechanicSeniorityLevelType"/>
+            <xs:element name="hourlyRate"        type="PositiveDecimalType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ==================== CUSTOMER + INSURANCE ==================== -->
+
+    <xs:complexType name="CustomersListType">
+        <xs:sequence>
+            <xs:element name="customer" type="CustomerType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="CustomerType">
+        <xs:sequence>
+            <xs:element name="name"          type="xs:string"/>
+            <xs:element name="idNumber"      type="IdNumberType"/>
+            <xs:element name="phone"         type="PhoneType"/>
+            <xs:element name="age"           type="xs:positiveInteger"/>
+            <xs:element name="loyaltyPoints" type="xs:nonNegativeInteger"/>
+            <xs:element name="email"         type="EmailType"/>
+            <xs:element name="insurance"     type="InsuranceType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="InsuranceType">
+        <xs:sequence>
+            <xs:element name="provider"       type="xs:string"/>
+            <xs:element name="policyNumber"   type="xs:string"/>
+            <xs:element name="expiryDate"     type="xs:date"/>
+            <xs:element name="monthlyPremium" type="PositiveDecimalType"/>
+            <xs:element name="tier"           type="InsuranceTierType"/>
+            <!--
+                'expired' removed — it is a derived value (LocalDate.now().isAfter(expiryDate)).
+                Storing it in XML creates a risk of stale / contradictory data.
+                Derive it in Java: insurance.isExpired()
+            -->
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ==================== VEHICLES — TYPE INHERITANCE ==================== -->
+    <!--
+        xs:extension lets a child type inherit all elements of a base type and
+        then add its own specific elements.  This mirrors your Java class hierarchy:
+            Vehicle (abstract) <- Car
+                               <- Motorcycle
+                               <- Truck
+
+        BaseVehicleType holds the 5 fields every vehicle has.
+        Each concrete type extends it with its own fields — a motorcycle cannot
+        accidentally carry <doors> and a car cannot carry <bikeType>.
+    -->
+
+    <!--
+        SUBSTITUTION GROUPS — fix for fragile xs:choice union selector.
+
+        xs:element with abstract="true" declares a placeholder that can never
+        appear in XML itself but acts as the head of a substitution group.
+        Concrete elements (car, motorcycle, truck) declare
+        substitutionGroup="vehicle", which means anywhere the schema says
+        "vehicle is allowed here", any member of the group is also allowed.
+
+        Benefits:
+          - vehicleKey selector uses "vehicles/vehicle" — works for ANY
+            future vehicle type added to the group, no selector change needed.
+          - Adding a new type (e.g. <van>) only requires declaring its element
+            with substitutionGroup="vehicle" — the list type and key need no edit.
+          - Mirrors the Java abstract class / concrete subclass hierarchy exactly.
+    -->
+    <xs:element name="vehicle"    type="BaseVehicleType" abstract="true"/>
+    <xs:element name="car"        type="CarType"         substitutionGroup="vehicle"/>
+    <xs:element name="motorcycle" type="MotorcycleType"  substitutionGroup="vehicle"/>
+    <xs:element name="truck"      type="TruckType"       substitutionGroup="vehicle"/>
+
+    <xs:complexType name="VehiclesListType">
+        <xs:sequence>
+            <xs:element ref="vehicle" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Shared base: the 5 fields every vehicle owns -->
+    <xs:complexType name="BaseVehicleType">
+        <xs:sequence>
+            <xs:element name="brand"        type="xs:string"/>
+            <xs:element name="model"        type="xs:string"/>
+            <xs:element name="year"         type="xs:gYear"/>
+            <xs:element name="vin"          type="VinType"/>
+            <xs:element name="licensePlate" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- Car extends base with Car-specific fields -->
+    <xs:complexType name="CarType">
+        <xs:complexContent>
+            <xs:extension base="BaseVehicleType">
+                <xs:sequence>
+                    <xs:element name="doors"        type="xs:positiveInteger"/>
+                    <xs:element name="engineType"   type="EngineTypeEnum"/>
+                    <xs:element name="engineSize"   type="PositiveDecimalType"/>
+                    <xs:element name="transmission" type="TransmissionType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Motorcycle extends base with Motorcycle-specific fields -->
+    <xs:complexType name="MotorcycleType">
+        <xs:complexContent>
+            <xs:extension base="BaseVehicleType">
+                <xs:sequence>
+                    <xs:element name="engineCapacity" type="xs:positiveInteger"/>
+                    <xs:element name="engineType"     type="EngineTypeEnum"/>
+                    <xs:element name="bikeType"       type="BikeTypeEnum"/>
+                    <xs:element name="transmission"   type="TransmissionType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Truck extends base with Truck-specific fields -->
+    <xs:complexType name="TruckType">
+        <xs:complexContent>
+            <xs:extension base="BaseVehicleType">
+                <xs:sequence>
+                    <xs:element name="doors"               type="xs:positiveInteger"/>
+                    <xs:element name="tires"               type="xs:positiveInteger"/>
+                    <xs:element name="engineType"          type="EngineTypeEnum"/>
+                    <xs:element name="engineSize"          type="PositiveDecimalType"/>
+                    <xs:element name="payloadCapacityTons" type="PositiveDecimalType"/>
+                    <xs:element name="hasSleepingCabin"    type="xs:boolean"/>
+                    <xs:element name="transmission"        type="TransmissionType"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- ==================== TRANSMISSION ==================== -->
+
+    <xs:complexType name="TransmissionType">
+        <xs:sequence>
+            <xs:element name="type"  type="TransmissionTypeEnum"/>
+            <xs:element name="gears" type="xs:positiveInteger"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ==================== APPOINTMENT ==================== -->
+
+    <xs:complexType name="AppointmentsListType">
+        <xs:sequence>
+            <xs:element name="appointment" type="AppointmentType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="AppointmentType">
+        <xs:sequence>
+            <xs:element name="id"            type="xs:positiveInteger"/>
+            <xs:element name="scheduledTime" type="xs:dateTime"/>
+            <xs:element name="status"        type="ServiceStatusType"/>
+            <!--
+                These three elements are the FOREIGN KEY side of xs:keyref constraints
+                declared on the root <garage> element above.
+                The validator will reject any value here that does not match
+                an existing customer/idNumber, mechanic/idNumber, or vehicle/vin.
+            -->
+            <xs:element name="customerRef"   type="IdNumberType"/>
+            <xs:element name="mechanicRef"   type="IdNumberType"/>
+            <xs:element name="vehicleRef"    type="VinType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <!-- ==================== SPARE PART ==================== -->
+
+    <xs:complexType name="SparePartsListType">
+        <xs:sequence>
+            <xs:element name="sparePart" type="SparePartType" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SparePartType">
+        <xs:sequence>
+            <xs:element name="productName"   type="xs:string"/>
+            <xs:element name="productNumber" type="xs:string"/>
+            <xs:element name="unitPrice"     type="PositiveDecimalType"/>
+            <xs:element name="quantity"      type="xs:nonNegativeInteger"/>
+            <!--
+                'inStock' removed — it is derived from quantity > 0.
+                Storing it creates a risk of quantity=0 with inStock=true (contradiction).
+                Derive it in Java: sparePart.isInStock()
+            -->
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
