@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<garage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="garage.xsd">
+
+    <name>AutoFix Tbilisi</name>
+    <address>Vake District, 14 Chavchavadze Ave</address>
+    <totalBays>5</totalBays>
+    <!-- occupiedBays <= totalBays enforced in Java, not XSD 1.0 -->
+    <occupiedBays>2</occupiedBays>
+
+    <!-- ===== MECHANICS ===== -->
+    <mechanics>
+
+        <mechanic>
+            <name>Nika</name>
+            <idNumber>01005078846</idNumber>
+            <phone>599 10 15 35</phone>
+            <specialization>Engine Specialist</specialization>
+            <yearsOfExperience>12</yearsOfExperience>
+            <level>SENIOR</level>
+            <hourlyRate>25.00</hourlyRate>
+        </mechanic>
+
+        <mechanic>
+            <name>Luka</name>
+            <idNumber>03005057137</idNumber>
+            <phone>577 22 33 44</phone>
+            <specialization>Brake and Suspension</specialization>
+            <yearsOfExperience>2</yearsOfExperience>
+            <level>JUNIOR</level>
+            <hourlyRate>18.00</hourlyRate>
+        </mechanic>
+
+        <mechanic>
+            <name>Gia</name>
+            <idNumber>01505027167</idNumber>
+            <phone>527 55 23 14</phone>
+            <specialization>Transmission</specialization>
+            <yearsOfExperience>35</yearsOfExperience>
+            <level>MASTER</level>
+            <hourlyRate>30.00</hourlyRate>
+        </mechanic>
+
+    </mechanics>
+
+    <!-- ===== CUSTOMERS ===== -->
+    <customers>
+
+        <customer>
+            <name>Giorgi</name>
+            <idNumber>19207150012</idNumber>
+            <phone>525-99-93-77</phone>
+            <age>25</age>
+            <loyaltyPoints>50</loyaltyPoints>
+            <email>ForGitHomework1@gmail.com</email>
+            <insurance>
+                <provider>Aldagi</provider>
+                <policyNumber>POL-1001</policyNumber>
+                <expiryDate>2026-12-31</expiryDate>
+                <monthlyPremium>45.00</monthlyPremium>
+                <tier>STANDARD</tier>
+                <!-- expired derived in Java: LocalDate.now().isAfter(expiryDate) -->
+            </insurance>
+        </customer>
+
+        <customer>
+            <name>Mariam</name>
+            <idNumber>28803220039</idNumber>
+            <phone>599-11-22-33</phone>
+            <age>30</age>
+            <loyaltyPoints>100</loyaltyPoints>
+            <email>ForGitHomework2@gmail.com</email>
+            <insurance>
+                <provider>GPI Holding</provider>
+                <policyNumber>POL-2042</policyNumber>
+                <expiryDate>2025-06-15</expiryDate>
+                <monthlyPremium>60.00</monthlyPremium>
+                <tier>PREMIUM</tier>
+            </insurance>
+        </customer>
+
+        <customer>
+            <name>David</name>
+            <idNumber>30111050047</idNumber>
+            <phone>577-44-55-66</phone>
+            <age>45</age>
+            <loyaltyPoints>10</loyaltyPoints>
+            <email>ForGitHomework3@gmail.com</email>
+            <insurance>
+                <provider>Irao</provider>
+                <policyNumber>POL-3300</policyNumber>
+                <expiryDate>2027-03-01</expiryDate>
+                <monthlyPremium>30.00</monthlyPremium>
+                <tier>BASIC</tier>
+            </insurance>
+        </customer>
+
+    </customers>
+
+    <!-- ===== VEHICLES — typed elements, not a generic vehicle with a type attr ===== -->
+    <vehicles>
+
+        <car>
+            <brand>Toyota</brand>
+            <model>Camry</model>
+            <year>2027</year>
+            <vin>JTNB11HK0L3000001</vin>
+            <licensePlate>GE-462-GE</licensePlate>
+            <doors>4</doors>
+            <engineType>HYBRID</engineType>
+            <engineSize>2.5</engineSize>
+            <transmission>
+                <type>AUTOMATIC</type>
+                <gears>8</gears>
+            </transmission>
+        </car>
+
+        <motorcycle>
+            <brand>Kawasaki</brand>
+            <model>Ninja450</model>
+            <year>2023</year>
+            <vin>JKAZXK8J0MA000001</vin>
+            <licensePlate>GE-417</licensePlate>
+            <engineCapacity>450</engineCapacity>
+            <engineType>PETROL</engineType>
+            <bikeType>SPORT</bikeType>
+            <transmission>
+                <type>SEMI_AUTOMATIC</type>
+                <gears>6</gears>
+            </transmission>
+        </motorcycle>
+
+        <truck>
+            <brand>Volvo</brand>
+            <model>FH16</model>
+            <year>2019</year>
+            <vin>VF6FJ2C0XLN000001</vin>
+            <licensePlate>GE-804-TR</licensePlate>
+            <doors>2</doors>
+            <tires>10</tires>
+            <engineType>DIESEL</engineType>
+            <engineSize>16.1</engineSize>
+            <payloadCapacityTons>25.0</payloadCapacityTons>
+            <hasSleepingCabin>true</hasSleepingCabin>
+            <transmission>
+                <type>MANUAL</type>
+                <gears>12</gears>
+            </transmission>
+        </truck>
+
+    </vehicles>
+
+    <!-- ===== APPOINTMENTS — refs are enforced by xs:keyref on root element ===== -->
+    <appointments>
+
+        <appointment>
+            <id>1</id>
+            <scheduledTime>2026-04-23T10:00:00</scheduledTime>
+            <status>DONE</status>
+            <customerRef>19207150012</customerRef>
+            <mechanicRef>01005078846</mechanicRef>
+            <vehicleRef>JTNB11HK0L3000001</vehicleRef>
+        </appointment>
+
+        <appointment>
+            <id>2</id>
+            <scheduledTime>2026-04-23T12:00:00</scheduledTime>
+            <status>IN_PROGRESS</status>
+            <customerRef>28803220039</customerRef>
+            <mechanicRef>03005057137</mechanicRef>
+            <vehicleRef>JKAZXK8J0MA000001</vehicleRef>
+        </appointment>
+
+    </appointments>
+
+    <!-- ===== SPARE PARTS ===== -->
+    <spareParts>
+
+        <sparePart>
+            <productName>Oil Filter</productName>
+            <productNumber>OF-4521</productNumber>
+            <unitPrice>12.50</unitPrice>
+            <quantity>9</quantity>
+            <!-- inStock derived in Java: quantity > 0 -->
+        </sparePart>
+
+        <sparePart>
+            <productName>Brake Disc</productName>
+            <productNumber>BD-9900</productNumber>
+            <unitPrice>85.00</unitPrice>
+            <quantity>3</quantity>
+        </sparePart>
+
+        <sparePart>
+            <productName>Tire Patch Kit</productName>
+            <productNumber>TP-0011</productNumber>
+            <unitPrice>5.00</unitPrice>
+            <quantity>0</quantity>
+        </sparePart>
+
+    </spareParts>
+
+</garage>
