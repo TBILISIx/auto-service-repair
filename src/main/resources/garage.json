@@ -1,0 +1,187 @@
+{
+  "name": "AutoFix Tbilisi",
+  "address": "Vake District, 14 Chavchavadze Ave",
+  "totalBays": 5,
+  "occupiedBays": 2,
+
+  "mechanics": [
+    {
+      "name": "Nika",
+      "idNumber": "01005078846",
+      "phone": "599 10 15 35",
+      "specialization": "Engine Specialist",
+      "yearsOfExperience": 12,
+      "level": "SENIOR",
+      "hourlyRate": 25.00
+    },
+    {
+      "name": "Luka",
+      "idNumber": "03005057137",
+      "phone": "577 22 33 44",
+      "specialization": "Brake and Suspension",
+      "yearsOfExperience": 2,
+      "level": "JUNIOR",
+      "hourlyRate": 18.00
+    },
+    {
+      "name": "Gia",
+      "idNumber": "01505027167",
+      "phone": "527 55 23 14",
+      "specialization": "Transmission",
+      "yearsOfExperience": 35,
+      "level": "MASTER",
+      "hourlyRate": 30.00
+    }
+  ],
+
+  "customers": [
+    {
+      "name": "Giorgi",
+      "idNumber": "19207150012",
+      "phone": "525-99-93-77",
+      "age": 25,
+      "loyaltyPoints": 50,
+      "email": "ForGitHomework1@gmail.com",
+      "insurance": {
+        "provider": "Aldagi",
+        "policyNumber": "POL-1001",
+        "expiryDate": "2026-12-31",
+        "monthlyPremium": 45.00,
+        "tier": "STANDARD"
+      }
+    },
+    {
+      "name": "Mariam",
+      "idNumber": "28803220039",
+      "phone": "599-11-22-33",
+      "age": 30,
+      "loyaltyPoints": 100,
+      "email": "ForGitHomework2@gmail.com",
+      "insurance": {
+        "provider": "GPI Holding",
+        "policyNumber": "POL-2042",
+        "expiryDate": "2025-06-15",
+        "monthlyPremium": 60.00,
+        "tier": "PREMIUM"
+      }
+    },
+    {
+      "name": "David",
+      "idNumber": "30111050047",
+      "phone": "577-44-55-66",
+      "age": 45,
+      "loyaltyPoints": 10,
+      "email": "ForGitHomework3@gmail.com",
+      "insurance": {
+        "provider": "Irao",
+        "policyNumber": "POL-3300",
+        "expiryDate": "2027-03-01",
+        "monthlyPremium": 30.00,
+        "tier": "BASIC"
+      }
+    }
+  ],
+
+  "vehicles": [
+    {
+      "type": "car",
+      "brand": "Toyota",
+      "model": "Camry",
+      "year": 2027,
+      "vin": "JTNB11HK0L3000001",
+      "licensePlate": "GE-462-GE",
+      "doors": 4,
+      "engineType": "HYBRID",
+      "engineSize": 2.5,
+      "engineCapacity": 0,
+      "bikeType": null,
+      "tires": 0,
+      "payloadCapacityTons": 0.0,
+      "hasSleepingCabin": false,
+      "transmission": {
+        "type": "AUTOMATIC",
+        "gears": 8
+      }
+    },
+    {
+      "type": "motorcycle",
+      "brand": "Kawasaki",
+      "model": "Ninja450",
+      "year": 2023,
+      "vin": "JKAZXK8J0MA000001",
+      "licensePlate": "GE-417",
+      "doors": 0,
+      "engineType": "PETROL",
+      "engineSize": 0.0,
+      "engineCapacity": 450,
+      "bikeType": "SPORT",
+      "tires": 0,
+      "payloadCapacityTons": 0.0,
+      "hasSleepingCabin": false,
+      "transmission": {
+        "type": "SEMI_AUTOMATIC",
+        "gears": 6
+      }
+    },
+    {
+      "type": "truck",
+      "brand": "Volvo",
+      "model": "FH16",
+      "year": 2019,
+      "vin": "VF6FJ2C0XLN000001",
+      "licensePlate": "GE-804-TR",
+      "doors": 2,
+      "engineType": "DIESEL",
+      "engineSize": 16.1,
+      "engineCapacity": 0,
+      "bikeType": null,
+      "tires": 10,
+      "payloadCapacityTons": 25.0,
+      "hasSleepingCabin": true,
+      "transmission": {
+        "type": "MANUAL",
+        "gears": 12
+      }
+    }
+  ],
+
+  "appointments": [
+    {
+      "id": 1,
+      "scheduledTime": "2026-04-23T10:00:00",
+      "status": "DONE",
+      "customerRef": "19207150012",
+      "mechanicRef": "01005078846",
+      "vehicleRef": "JTNB11HK0L3000001"
+    },
+    {
+      "id": 2,
+      "scheduledTime": "2026-04-23T12:00:00",
+      "status": "IN_PROGRESS",
+      "customerRef": "28803220039",
+      "mechanicRef": "03005057137",
+      "vehicleRef": "JKAZXK8J0MA000001"
+    }
+  ],
+
+  "spareParts": [
+    {
+      "productName": "Oil Filter",
+      "productNumber": "OF-4521",
+      "unitPrice": 12.50,
+      "quantity": 9
+    },
+    {
+      "productName": "Brake Disc",
+      "productNumber": "BD-9900",
+      "unitPrice": 85.00,
+      "quantity": 3
+    },
+    {
+      "productName": "Tire Patch Kit",
+      "productNumber": "TP-0011",
+      "unitPrice": 5.00,
+      "quantity": 0
+    }
+  ]
+}

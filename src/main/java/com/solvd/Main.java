@@ -557,7 +557,9 @@ public class Main {
 
         FileReaderUtil.readFile("IHNMSIMS", "logs/output.txt");
 
+
     }
+
 
     // --- Helper methods using interfaces as parameters --- (Drivable; Rideable; Maintainable; Inspectable; Sellable)
 

@@ -11,7 +11,6 @@
             xs:keyref — declares a foreign-key reference to a previously defined xs:key.
                         Like a FOREIGN KEY in SQL. The value must match an existing key.
 
-            REFERENTIAL INTEGRITY:
             customerRef  → customer/idNumber
             mechanicRef  → mechanic/idNumber
             vehicleRef   → vehicle/vin
@@ -29,15 +28,6 @@
         </xs:key>
 
         <xs:key name="vehicleKey">
-            <!--
-                Union selector covers all substitution group members.
-                NOTE: xs:key selectors with substitution group expansion
-                ("vehicles/vehicle") are correct per W3C spec and work in
-                Java Xerces. lxml/libxml2 does not expand substitution groups
-                in key selectors, so an explicit union is used here for
-                cross-tool compatibility. Add any new vehicle type to this
-                union when extending the substitution group.
-            -->
             <xs:selector xpath="vehicles/car|vehicles/motorcycle|vehicles/truck"/>
             <xs:field    xpath="vin"/>
         </xs:key>
@@ -77,12 +67,6 @@
             <xs:element name="name"         type="xs:string"/>
             <xs:element name="address"      type="xs:string"/>
             <xs:element name="totalBays"    type="xs:positiveInteger"/>
-            <!--
-                occupiedBays <= totalBays cannot be enforced in XSD 1.0.
-                XSD 1.1 supports xs:assert for cross-field constraints, but standard
-                Java tooling (JAXB / javax.xml.validation) targets XSD 1.0.
-                Enforce this invariant in Garage constructor or BookingService instead.
-            -->
             <xs:element name="occupiedBays" type="xs:nonNegativeInteger"/>
             <xs:element name="mechanics"    type="MechanicsListType"/>
             <xs:element name="customers"    type="CustomersListType"/>
@@ -93,11 +77,6 @@
     </xs:complexType>
 
     <!-- ==================== SHARED STRONG SIMPLE TYPES ==================== -->
-
-    <!--
-        Pattern-restricted types give semantic meaning to otherwise plain strings.
-        xs:pattern uses XML Schema regex (similar to Java regex).
-    -->
 
     <!-- Georgian 11-digit national ID -->
     <xs:simpleType name="IdNumberType">
@@ -235,43 +214,21 @@
             <xs:element name="expiryDate"     type="xs:date"/>
             <xs:element name="monthlyPremium" type="PositiveDecimalType"/>
             <xs:element name="tier"           type="InsuranceTierType"/>
-            <!--
-                'expired' removed — it is a derived value (LocalDate.now().isAfter(expiryDate)).
-                Storing it in XML creates a risk of stale / contradictory data.
-                Derive it in Java: insurance.isExpired()
-            -->
         </xs:sequence>
     </xs:complexType>
 
     <!-- ==================== VEHICLES — TYPE INHERITANCE ==================== -->
     <!--
         xs:extension lets a child type inherit all elements of a base type and
-        then add its own specific elements.  This mirrors your Java class hierarchy:
+        then add its own specific elements.  This mirrors Java class hierarchy:
             Vehicle (abstract) <- Car
                                <- Motorcycle
                                <- Truck
-
         BaseVehicleType holds the 5 fields every vehicle has.
-        Each concrete type extends it with its own fields — a motorcycle cannot
-        accidentally carry <doors> and a car cannot carry <bikeType>.
+        Each concrete type extends it with its own fields.
     -->
 
-    <!--
-        SUBSTITUTION GROUPS — fix for fragile xs:choice union selector.
 
-        xs:element with abstract="true" declares a placeholder that can never
-        appear in XML itself but acts as the head of a substitution group.
-        Concrete elements (car, motorcycle, truck) declare
-        substitutionGroup="vehicle", which means anywhere the schema says
-        "vehicle is allowed here", any member of the group is also allowed.
-
-        Benefits:
-          - vehicleKey selector uses "vehicles/vehicle" — works for ANY
-            future vehicle type added to the group, no selector change needed.
-          - Adding a new type (e.g. <van>) only requires declaring its element
-            with substitutionGroup="vehicle" — the list type and key need no edit.
-          - Mirrors the Java abstract class / concrete subclass hierarchy exactly.
-    -->
     <xs:element name="vehicle"    type="BaseVehicleType" abstract="true"/>
     <xs:element name="car"        type="CarType"         substitutionGroup="vehicle"/>
     <xs:element name="motorcycle" type="MotorcycleType"  substitutionGroup="vehicle"/>
@@ -387,11 +344,6 @@
             <xs:element name="productNumber" type="xs:string"/>
             <xs:element name="unitPrice"     type="PositiveDecimalType"/>
             <xs:element name="quantity"      type="xs:nonNegativeInteger"/>
-            <!--
-                'inStock' removed — it is derived from quantity > 0.
-                Storing it creates a risk of quantity=0 with inStock=true (contradiction).
-                Derive it in Java: sparePart.isInStock()
-            -->
         </xs:sequence>
     </xs:complexType>
 
