@@ -1,7 +1,7 @@
-package com.solvd.autoservicerepair.parser;
+package com.solvd.autoservicerepair.parsers;
 
 import com.solvd.autoservicerepair.interfaces.Parser;
-import com.solvd.autoservicerepair.parser.xmltojavaobject.*;
+import com.solvd.autoservicerepair.parsers.xmltojavaobject.*;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -18,28 +18,39 @@ import java.util.List;
 /**
  * StAX (Streaming API for XML) parser for garage.xml.
  * <p>
- * WHY StAX:
  * DOM — loads the entire file into memory as a tree. Simple to use but heavy.
  * SAX — event-driven like StAX but push-based: the parser calls YOUR methods.
  * StAX — event-driven and pull-based: YOU call reader.next() to ask for the
- * next event. This gives you full control of the loop, which makes the
- * code easier to read and debug for structured documents like ours.
+ * next event. This gives full control of the loop, which makes the
+ * code easier to read and debug for structured documents.
  * <p>
- * HOW THE STATE MACHINE WORKS:
- * StAX fires three events we care about:
- * START_ELEMENT — opening tag, e.g. <mechanic>
+ * HOW it works:
+ * StAX starts three events we care about:
+ * START_ELEMENT — opening elementNameTag, e.g. <mechanic>
  * CHARACTERS     — text content, e.g. Nika
- * END_ELEMENT    — closing tag,  e.g. </mechanic>
+ * END_ELEMENT    — closing elementNameTag,  e.g. </mechanic>
  * <p>
  * The problem: many elements share the same local name.
  * Both <garage> and <mechanic> and <customer> have a <name> child.
  * When StAX fires START_ELEMENT for "name", how do we know whose name it is?
+ *
  * <p>
- * SOLUTION — a context stack (Deque<String>).
+ * SOLUTION — the idea of stack (Deque<String>).  (Double-Ended Queue, An Array where you can add or remove items from both ends.)
  * Every time we open a structural element (mechanic, customer, insurance …),
- * we push its name onto the stack.
- * Every time we close one, we pop it.
- * At any point, stack.peek() tells us exactly where we are.
+ * we push its name onto the stack. (stack.push → add on top)
+ * At any point, stack.peek() tells us exactly where we are. (peek → look at the top)
+ * Every time we close one, we pop it. (stack.pop → remove from top)
+ * <p>
+ *
+ * <p>
+ * Who is on top of the stack?
+ * You enter "garage"
+ * Then "mechanics"
+ * Then "mechanic"
+ * <p>
+ * If here is a name: Nika.
+ * Logically, I'll know:
+ * “Oh, I’m inside a mechanic → this must be the mechanic’s name"
  * <p>
  * Example — while reading Nika's name, the stack looks like:
  * TOP → "mechanic"
@@ -48,22 +59,26 @@ import java.util.List;
  * So when we see the "name" START_ELEMENT, we check stack.peek() == "mechanic"
  * and know with certainty this belongs to the current mechanic.
  */
+
 public class GarageStaxParser implements Parser<GarageXml> {
 
-    // -------------------------------------------------------------------------
-    // Context constants — string literals pushed onto / popped from the stack.
-    // Using constants prevents typo bugs (the compiler catches "mechanic").
-    // -------------------------------------------------------------------------
-    private static final String CTX_GARAGE = "garage";
-    private static final String CTX_MECHANIC = "mechanic";
-    private static final String CTX_CUSTOMER = "customer";
-    private static final String CTX_INSURANCE = "insurance";
-    private static final String CTX_CAR = "car";
-    private static final String CTX_MOTORCYCLE = "motorcycle";
-    private static final String CTX_TRUCK = "truck";
-    private static final String CTX_TRANSMISSION = "transmission";
-    private static final String CTX_APPOINTMENT = "appointment";
-    private static final String CTX_SPARE_PART = "sparePart";
+/*  -------------------------------------------------------------------------
+    These temporary(TMP) constants represent element names from the XML file.
+    I push them onto a stack and compare them during parsing to understand
+    where we are in the XML structure (garage, mechanic, customer, etc.).
+    Using constants instead of raw strings prevents typos and makes the code
+    safer — for example, "mechnaic" would cause a compile-time error instead of silently breaking logic.
+ ------------------------------------------------------------------------- */
+    private static final String TMP_GARAGE = "garage";
+    private static final String TMP_MECHANIC = "mechanic";
+    private static final String TMP_CUSTOMER = "customer";
+    private static final String TMP_INSURANCE = "insurance";
+    private static final String TMP_CAR = "car";
+    private static final String TMP_MOTORCYCLE = "motorcycle";
+    private static final String TMP_TRUCK = "truck";
+    private static final String TMP_TRANSMISSION = "transmission";
+    private static final String TMP_APPOINTMENT = "appointment";
+    private static final String TMP_SPARE_PART = "sparePart";
 
     // -------------------------------------------------------------------------
     // parse() — the only public method.
@@ -80,7 +95,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                 .newInstance()
                 .createXMLStreamReader(new FileInputStream(filePath));
 
-        // ── result collectors ────────────────────────────────────────────────
+        // ---- collect results ------------------------------------------
         GarageXml garage = new GarageXml();
         List<MechanicXml> mechanics = new ArrayList<>();
         List<CustomerXml> customers = new ArrayList<>();
@@ -88,7 +103,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
         List<AppointmentXml> appointments = new ArrayList<>();
         List<SparePartXml> spareParts = new ArrayList<>();
 
-        // ── current-object pointers (null when not inside that element) ──────
+        // current-object pointers (null when not inside that element)
         MechanicXml currentMechanic = null;
         CustomerXml currentCustomer = null;
         InsuranceXml currentInsurance = null;
@@ -97,30 +112,34 @@ public class GarageStaxParser implements Parser<GarageXml> {
         AppointmentXml currentAppointment = null;
         SparePartXml currentSparePart = null;
 
-        // ── THE CONTEXT STACK ────────────────────────────────────────────────
-        // ArrayDeque is the recommended Deque implementation in Java.
-        // push() adds to the front (top), peek() reads the front, pop() removes it.
-        Deque<String> context = new ArrayDeque<>();
+        // ---- The Temporary Constants (TMP_"elementNameFromXml") STACK ----------------
 
-        // ── main event loop ──────────────────────────────────────────────────
+        // ArrayDeque (Array where you can add or remove items from both ends,
+        // but in my case method to quickly add/remove from one side (top of stack))
+        // push() adds to the front (top), peek() reads the front, pop() removes it.
+
+        Deque<String> xmlElementStackInMemory = new ArrayDeque<>();
+
+        // ---- main event loop ----------------------------------------------------------------------
         while (reader.hasNext()) {
 
             int event = reader.next();  // ask StAX for the next event
 
             // =================================================================
-            // START_ELEMENT — an opening tag was found
+            // START_ELEMENT — an opening elementNameTag was found
             // =================================================================
+
             if (event == XMLStreamConstants.START_ELEMENT) {
 
-                String tag = reader.getLocalName();
-                // getLocalName() gives "name", "mechanic" etc. without a namespace prefix.
+                String elementNameTag = reader.getLocalName();
+                // getLocalName() gives "name", "mechanic" etc.
 
-                switch (tag) {
+                switch (elementNameTag) {
 
-                    // ── structural elements: push context, create object ──────
+                    // ---- structural elements: push Temporar Constant, create object ------------
 
-                    case CTX_GARAGE:
-                        context.push(CTX_GARAGE);
+                    case TMP_GARAGE:
+                        xmlElementStackInMemory.push(TMP_GARAGE);
                         break;
 
                     case "mechanics":
@@ -128,81 +147,83 @@ public class GarageStaxParser implements Parser<GarageXml> {
                     case "vehicles":
                     case "appointments":
                     case "spareParts":
-                        // List wrapper elements — push so children know where they are,
-                        // but we don't create any object for these themselves.
-                        context.push(tag);
+                        xmlElementStackInMemory.push(elementNameTag);
                         break;
 
-                    case CTX_MECHANIC:
+                    case TMP_MECHANIC:
                         currentMechanic = new MechanicXml();
-                        context.push(CTX_MECHANIC);
+                        xmlElementStackInMemory.push(TMP_MECHANIC);
                         break;
 
-                    case CTX_CUSTOMER:
+                    case TMP_CUSTOMER:
                         currentCustomer = new CustomerXml();
-                        context.push(CTX_CUSTOMER);
+                        xmlElementStackInMemory.push(TMP_CUSTOMER);
                         break;
 
-                    case CTX_INSURANCE:
+                    case TMP_INSURANCE:
                         currentInsurance = new InsuranceXml();
-                        context.push(CTX_INSURANCE);
+                        xmlElementStackInMemory.push(TMP_INSURANCE);
                         break;
 
-                    case CTX_CAR:
+                    case TMP_CAR:
                         currentVehicle = new VehicleXml();
                         currentVehicle.setType("car");
-                        context.push(CTX_CAR);
+                        xmlElementStackInMemory.push(TMP_CAR);
                         break;
 
-                    case CTX_MOTORCYCLE:
+                    case TMP_MOTORCYCLE:
                         currentVehicle = new VehicleXml();
                         currentVehicle.setType("motorcycle");
-                        context.push(CTX_MOTORCYCLE);
+                        xmlElementStackInMemory.push(TMP_MOTORCYCLE);
                         break;
 
-                    case CTX_TRUCK:
+                    case TMP_TRUCK:
                         currentVehicle = new VehicleXml();
                         currentVehicle.setType("truck");
-                        context.push(CTX_TRUCK);
+                        xmlElementStackInMemory.push(TMP_TRUCK);
                         break;
 
-                    case CTX_TRANSMISSION:
+                    case TMP_TRANSMISSION:
                         currentTransmission = new TransmissionXml();
-                        context.push(CTX_TRANSMISSION);
+                        xmlElementStackInMemory.push(TMP_TRANSMISSION);
                         break;
 
-                    case CTX_APPOINTMENT:
+                    case TMP_APPOINTMENT:
                         currentAppointment = new AppointmentXml();
-                        context.push(CTX_APPOINTMENT);
+                        xmlElementStackInMemory.push(TMP_APPOINTMENT);
                         break;
 
-                    case CTX_SPARE_PART:
+                    case TMP_SPARE_PART:
                         currentSparePart = new SparePartXml();
-                        context.push(CTX_SPARE_PART);
+                        xmlElementStackInMemory.push(TMP_SPARE_PART);
                         break;
-
-                    // ── leaf elements: read text and set on the correct object ─
 
                     /*
                      * "name" appears in three places: garage, mechanic, customer.
-                     * We look at context.peek() to decide which object to populate.
+                     * with context.peek() we decide which object to populate.
                      *
                      * getElementText() is a StAX convenience method:
                      *   it reads the CHARACTERS event AND the END_ELEMENT event for us,
                      *   returning the trimmed text content as a String.
-                     *   After calling it, the reader is positioned AFTER the closing tag,
-                     *   so we must NOT handle this tag's END_ELEMENT separately.
+                     * Example:
+                     * <name> Nika </name>
+                     * becomes:
+                     * "Nika"
+                     *
+                     *   After calling it, the reader is positioned AFTER the closing elementNameTag,
+                     *   so we must NOT handle this elementNameTag's END_ELEMENT separately.
                      */
+
                     case "name":
                         String nameValue = reader.getElementText();
-                        switch (context.peek()) {
-                            case CTX_GARAGE -> garage.setName(nameValue);
-                            case CTX_MECHANIC -> currentMechanic.setName(nameValue);
-                            case CTX_CUSTOMER -> currentCustomer.setName(nameValue);
+                        switch (xmlElementStackInMemory.peek()) {
+                            case TMP_GARAGE -> garage.setName(nameValue);
+                            case TMP_MECHANIC -> currentMechanic.setName(nameValue);
+                            case TMP_CUSTOMER -> currentCustomer.setName(nameValue);
                         }
                         break;
 
-                    // ── garage scalars ────────────────────────────────────────
+                    // ---- garage fields --------------------------------------------------
                     case "address":
                         garage.setAddress(reader.getElementText());
                         break;
@@ -215,16 +236,16 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         garage.setOccupiedBays(Integer.parseInt(reader.getElementText()));
                         break;
 
-                    // ── mechanic scalars ──────────────────────────────────────
+                    // ---- mechanic fields ----------------------------------------------
                     /*
                      * "idNumber" also appears in both mechanic and customer.
                      * Same pattern: check context.peek().
                      */
                     case "idNumber":
                         String idValue = reader.getElementText();
-                        switch (context.peek()) {
-                            case CTX_MECHANIC -> currentMechanic.setIdNumber(idValue);
-                            case CTX_CUSTOMER -> currentCustomer.setIdNumber(idValue);
+                        switch (xmlElementStackInMemory.peek()) {
+                            case TMP_MECHANIC -> currentMechanic.setIdNumber(idValue);
+                            case TMP_CUSTOMER -> currentCustomer.setIdNumber(idValue);
                         }
                         break;
 
@@ -233,9 +254,9 @@ public class GarageStaxParser implements Parser<GarageXml> {
                      */
                     case "phone":
                         String phoneValue = reader.getElementText();
-                        switch (context.peek()) {
-                            case CTX_MECHANIC -> currentMechanic.setPhone(phoneValue);
-                            case CTX_CUSTOMER -> currentCustomer.setPhone(phoneValue);
+                        switch (xmlElementStackInMemory.peek()) {
+                            case TMP_MECHANIC -> currentMechanic.setPhone(phoneValue);
+                            case TMP_CUSTOMER -> currentCustomer.setPhone(phoneValue);
                         }
                         break;
 
@@ -257,7 +278,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                                 new BigDecimal(reader.getElementText()));
                         break;
 
-                    // ── customer scalars ──────────────────────────────────────
+                    // ---- customer fields ----------------------------------------------
                     case "age":
                         currentCustomer.setAge(
                                 Integer.parseInt(reader.getElementText()));
@@ -272,7 +293,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         currentCustomer.setEmail(reader.getElementText());
                         break;
 
-                    // ── insurance scalars (context is already CTX_INSURANCE) ──
+                    // ---- insurance fields (we are already on TMP_INSURANCE) ----
                     case "provider":
                         currentInsurance.setProvider(reader.getElementText());
                         break;
@@ -296,7 +317,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         currentInsurance.setTier(reader.getElementText());
                         break;
 
-                    // ── vehicle scalars (shared by car / motorcycle / truck) ───
+                    // ---- vehicle fields (shared by car / motorcycle / truck) ----
                     case "brand":
                         currentVehicle.setBrand(reader.getElementText());
                         break;
@@ -318,7 +339,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         currentVehicle.setLicensePlate(reader.getElementText());
                         break;
 
-                    // ── car-specific ──────────────────────────────────────────
+                    // ---- car-specific ------------------------------------------------------
                     case "doors":
                         currentVehicle.setDoors(
                                 Integer.parseInt(reader.getElementText()));
@@ -333,7 +354,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                                 Double.parseDouble(reader.getElementText()));
                         break;
 
-                    // ── motorcycle-specific ───────────────────────────────────
+                    // ---- motorcycle-specific --------------------------------------------------------------------
                     case "engineCapacity":
                         currentVehicle.setEngineCapacity(
                                 Integer.parseInt(reader.getElementText()));
@@ -343,7 +364,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         currentVehicle.setBikeType(reader.getElementText());
                         break;
 
-                    // ── truck-specific ────────────────────────────────────────
+                    // ---- truck-specific --------------------------------------------------
                     case "tires":
                         currentVehicle.setTires(
                                 Integer.parseInt(reader.getElementText()));
@@ -355,7 +376,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         break;
 
                     /*
-                     * hasSleepingCabin — this is the Boolean field required by the assignment.
+                     * hasSleepingCabin — this is the Boolean field.
                      * In XML, it is stored as "true" / "false".
                      * Boolean.parseBoolean("true") returns true, anything else returns false.
                      */
@@ -364,11 +385,10 @@ public class GarageStaxParser implements Parser<GarageXml> {
                                 Boolean.parseBoolean(reader.getElementText()));
                         break;
 
-                    // ── transmission scalars ──────────────────────────────────
+                    // ---- transmission fields ------------------------------------------
                     /*
                      * "type" is a child of <transmission>.
-                     * context.peek() == CTX_TRANSMISSION at this point.
-                     * We don't need an extra check because "type" only exists inside transmission.
+                     * context.peek() == TMP_TRANSMISSION at this point.
                      */
                     case "type":
                         currentTransmission.setType(reader.getElementText());
@@ -379,7 +399,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                                 Integer.parseInt(reader.getElementText()));
                         break;
 
-                    // ── appointment scalars ───────────────────────────────────
+                    // ---- appointment scalars ------------------------------------------
                     case "id":
                         currentAppointment.setId(
                                 Integer.parseInt(reader.getElementText()));
@@ -416,7 +436,7 @@ public class GarageStaxParser implements Parser<GarageXml> {
                         currentAppointment.setVehicleRef(reader.getElementText());
                         break;
 
-                    // ── spare part scalars ────────────────────────────────────
+                    // ---- spare part scalars ------------------------------------------
                     case "productName":
                         currentSparePart.setProductName(reader.getElementText());
                         break;
@@ -438,13 +458,13 @@ public class GarageStaxParser implements Parser<GarageXml> {
             }
 
             // =================================================================
-            // END_ELEMENT — a closing tag was found
+            // END_ELEMENT — a closing elementNameTag was found
             // =================================================================
             else if (event == XMLStreamConstants.END_ELEMENT) {
 
-                String tag = reader.getLocalName();
+                String elementNameTag = reader.getLocalName();
 
-                switch (tag) {
+                switch (elementNameTag) {
 
                     /*
                      * When we close a structural element:
@@ -454,54 +474,54 @@ public class GarageStaxParser implements Parser<GarageXml> {
                      *      write to a finished object.
                      */
 
-                    case CTX_TRANSMISSION:
+                    case TMP_TRANSMISSION:
                         // Attach the finished transmission to whatever vehicle we're building.
                         if (currentVehicle != null) {
                             currentVehicle.setTransmission(currentTransmission);
                         }
                         currentTransmission = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
-                    case CTX_INSURANCE:
+                    case TMP_INSURANCE:
                         // Attach the finished insurance to the customer we're building.
                         if (currentCustomer != null) {
                             currentCustomer.setInsurance(currentInsurance);
                         }
                         currentInsurance = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
-                    case CTX_MECHANIC:
+                    case TMP_MECHANIC:
                         mechanics.add(currentMechanic);
                         currentMechanic = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
-                    case CTX_CUSTOMER:
+                    case TMP_CUSTOMER:
                         customers.add(currentCustomer);
                         currentCustomer = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
-                    case CTX_CAR:
-                    case CTX_MOTORCYCLE:
-                    case CTX_TRUCK:
+                    case TMP_CAR:
+                    case TMP_MOTORCYCLE:
+                    case TMP_TRUCK:
                         vehicles.add(currentVehicle);
                         currentVehicle = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
-                    case CTX_APPOINTMENT:
+                    case TMP_APPOINTMENT:
                         appointments.add(currentAppointment);
                         currentAppointment = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
-                    case CTX_SPARE_PART:
+                    case TMP_SPARE_PART:
                         spareParts.add(currentSparePart);
                         currentSparePart = null;
-                        context.pop();
+                        xmlElementStackInMemory.pop();
                         break;
 
                     case "mechanics":
@@ -509,17 +529,9 @@ public class GarageStaxParser implements Parser<GarageXml> {
                     case "vehicles":
                     case "appointments":
                     case "spareParts":
-                    case CTX_GARAGE:
-                        context.pop();
+                    case TMP_GARAGE:
+                        xmlElementStackInMemory.pop();
                         break;
-
-                    /*
-                     * Leaf element closing tags (name, address, brand …) do NOT appear here.
-                     * That is because we used getElementText() when we opened them.
-                     * getElementText() consumes both the CHARACTERS and the END_ELEMENT events
-                     * internally, so by the time our switch sees the next event, those closing
-                     * tags are already gone.
-                     */
                 }
             }
         }

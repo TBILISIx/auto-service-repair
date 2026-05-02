@@ -1,4 +1,4 @@
-package com.solvd.autoservicerepair.parser.xmltojavaobject;
+package com.solvd.autoservicerepair.parsers.xmltojavaobject;
 
 import lombok.Getter;
 import lombok.Setter;

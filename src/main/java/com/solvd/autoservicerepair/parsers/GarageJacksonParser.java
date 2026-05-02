@@ -1,4 +1,4 @@
-package com.solvd.autoservicerepair.parser;
+package com.solvd.autoservicerepair.parsers;
 
 import com.solvd.autoservicerepair.interfaces.Parser;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -24,50 +24,65 @@ import java.util.List;
  *   Like JAXB for XML, Jackson reads annotations on your classes and
  *   maps JSON fields to Java fields automatically.
  *
- *   "Deserialization" = reading JSON and producing Java objects (what we do).
- *   "Serialization"   = taking Java objects and writing JSON (the opposite).
+ *   "Deserialization" = reading JSON and producing Java objects (what we do here).
+ *   "Serialization" = taking Java objects and writing JSON (the opposite).
  *
- *   The central class is ObjectMapper (or JsonMapper in Jackson 3.x).
- *   One line does all the work:
+ *   The central class is ObjectMapper. It does everything in one line:
  *     mapper.readValue(file, GarageJson.class)
+ *   That single call reads the entire JSON file and returns a populated object.
+ *   Compare this to StAX where you write a full while loop with every case manually.
  *
- * JACKSON 3.x vs 2.x:
- *   Your pom.xml uses groupId "tools.jackson" — that is Jackson 3.x.
- *   Jackson 3.x moved packages from "com.fasterxml.jackson" to "tools.jackson".
- *   The concepts are identical, only the import paths changed.
- *   Jackson 2.x: com.fasterxml.jackson.databind.ObjectMapper
- *   Jackson 3.x: tools.jackson.databind.ObjectMapper
+ * THREE STEPS TO PARSE WITH JACKSON:
+ *
+ *   1. new ObjectMapper()
+ *      Creates the mapper with default settings.
+ *
+ *   2. mapper.registerModule(new JavaTimeModule())
+ *      Jackson (com.fasterxml.jackson version 2.x) does not support
+ *      Java 8 date types (LocalDate, LocalDateTime) out of the box.
+ *      JavaTimeModule adds that support. Without it, Jackson throws
+ *      an error when it encounters those fields.
+ *
+ *   3. mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+ *      By default Jackson writes/reads dates as numbers (timestamps).
+ *      Disabling this tells Jackson to use ISO strings like
+ *      "2026-04-23T10:00:00" instead — which matches our JSON file.
  *
  * JACKSON ANNOTATIONS EXPLAINED:
  *
  *   @JsonProperty("name")
  *     Maps a JSON key to a Java field.
- *     When Jackson reads "name": "AutoFix Tbilisi" in JSON,
- *     it sets the 'name' field on the Java object.
- *     If the Java field name matches the JSON key, this is optional.
- *     We write it explicitly for clarity.
+ *     When Jackson reads "name": "AutoFix Tbilisi" in the JSON file,
+ *     it sets the 'name' field on the Java object to "AutoFix Tbilisi".
+ *     If the Java field name already matches the JSON key exactly,
+ *     this annotation is optional — but we write it everywhere explicitly
+ *     so the mapping is obvious when reading the code.
  *
  *   @JsonIgnoreProperties(ignoreUnknown = true)
- *     If the JSON has fields the Java class does not have, ignore them
- *     instead of throwing an error. Makes the parser more robust.
+ *     If the JSON file contains a field that the Java class does not have,
+ *     Jackson ignores it instead of throwing an error.
+ *     Makes the parser robust against extra or unexpected fields in the JSON.
  *
  *   @JsonDeserialize(using = LocalDateDeserializer.class)
- *     Jackson 3.x handles LocalDate/LocalDateTime via the JavaTimeModule,
- *     but registering it requires a custom deserializer or module setup.
- *     We use custom deserializers here for maximum clarity.
+ *     Points Jackson to a custom deserializer for a specific field.
+ *     Jackson does not know how to convert "2026-12-31" into a LocalDate
+ *     on its own. The deserializer class does that conversion:
+ *     it receives the raw String from the JSON and returns a LocalDate.
+ *     JavaTimeModule does this automatically once registered on the mapper,
+ *     but we also write explicit deserializers to make the logic visible.
  */
+
 public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJson> {
 
     @Override
     public GarageJson parse(String filePath) throws Exception {
 
         /*
-         * JsonMapper is the Jackson 3.x replacement for ObjectMapper.
-         * builder() creates a builder that lets us configure the mapper
-         * before building it — cleaner than calling methods after construction.
-         *
-         * addModule(new JavaTimeModule()) registers Java 8 date/time support.
-         * Without this, Jackson cannot deserialize LocalDate and LocalDateTime.
+         * ObjectMapper is the core Jackson class (com.fasterxml.jackson, version 2.x).
+         * registerModule(new JavaTimeModule()) adds Java 8 date/time support.
+         * disable(WRITE_DATES_AS_TIMESTAMPS) makes Jackson use ISO strings for dates
+         * instead of numeric timestamps — required to match our JSON file format.
+         * 
          */
 
         ObjectMapper mapper = new ObjectMapper();
@@ -110,7 +125,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
     // Fields match the JSON keys. Annotations tell Jackson the mapping.
     // =========================================================================
 
-    // ── Root ──────────────────────────────────────────────────────────────────
+    // -- Root ------------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class GarageJson {
 
@@ -146,7 +161,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── Mechanic ──────────────────────────────────────────────────────────────
+    // -- Mechanic --------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class MechanicJson {
 
@@ -173,7 +188,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── Insurance ─────────────────────────────────────────────────────────────
+    // -- Insurance -------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class InsuranceJson {
 
@@ -207,7 +222,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── Customer ──────────────────────────────────────────────────────────────
+    // -- Customer --------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class CustomerJson {
 
@@ -234,7 +249,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── Transmission ──────────────────────────────────────────────────────────
+    // -- Transmission ----------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class TransmissionJson {
 
@@ -250,11 +265,10 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── Vehicle — flat class matching your VehicleXml exactly ─────────────────
+    // -- Vehicle — flat class matching your VehicleXml exactly -----------------
     /*
      * JSON has "type": "car" / "motorcycle" / "truck" as a plain field.
      * Jackson reads it into the 'type' String field directly.
-     * No polymorphism needed — same flat-class approach as your VehicleXml.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class VehicleJson {
@@ -306,7 +320,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── Appointment ───────────────────────────────────────────────────────────
+    // -- Appointment -----------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class AppointmentJson {
 
@@ -335,7 +349,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    // ── SparePart ─────────────────────────────────────────────────────────────
+    // -- SparePart -------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class SparePartJson {
 

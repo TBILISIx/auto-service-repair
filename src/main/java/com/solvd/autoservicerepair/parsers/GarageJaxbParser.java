@@ -1,4 +1,4 @@
-package com.solvd.autoservicerepair.parser;
+package com.solvd.autoservicerepair.parsers;
 
 import com.solvd.autoservicerepair.interfaces.Parser;
 import jakarta.xml.bind.JAXBContext;
@@ -21,8 +21,8 @@ import java.util.List;
  *   JAXB — you put annotations on your classes and JAXB does ALL the
  *           reading automatically. You write almost no parsing logic.
  *
- *   "Unmarshal" = read XML and produce Java objects  (what we do here).
- *   "Marshal"   = take Java objects and write XML    (the opposite).
+ *   "Unmarshal" = read XML and produce Java objects (what we do here).
+ *   "Marshal"= take Java objects and write XML(the opposite).
  *
  * THREE STEPS — that is the entire parser logic:
  *   1. JAXBContext.newInstance(JaxbGarageXml.class)
@@ -37,10 +37,9 @@ import java.util.List;
  *      This single line replaces the entire while loop in GarageStaxParser.
  *
  * WHY INNER CLASSES:
- *   Your existing Xml classes in xmltojavaobject have no JAXB annotations.
- *   Rather than modifying them (mixing StAX and JAXB concerns), we keep a
+ *    My POJO (plain old java object) classes I created for StaX parser have no JAXB annotations.
+ *   Rather than modifying them (mixing StAX and JAXB concerns), its better to keep a
  *   self-contained set of JAXB-annotated classes right here inside this parser.
- *   Same pattern as your original StAX parser had inner classes.
  *
  * JAXB ANNOTATIONS EXPLAINED:
  *
@@ -50,7 +49,7 @@ import java.util.List;
  *     Only the root class needs this annotation.
  *
  *   @XmlAccessorType(XmlAccessType.FIELD)
- *     Tells JAXB to read annotations from FIELDS not from getters.
+ *     Tells JAXB to read annotations from FIELDS, not from getters.
  *     Without this, JAXB looks for getters — which Lombok generates at
  *     compile time and JAXB cannot see at annotation-scan time.
  *
@@ -73,6 +72,7 @@ import java.util.List;
  *     The adapter is a converter — it tells JAXB:
  *     "take the String from the XML, call unmarshal(), get a LocalDate back."
  */
+
 public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> {
 
     @Override
@@ -96,34 +96,33 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
 
     public static class LocalDateAdapter extends XmlAdapter<String, LocalDate> {
         @Override
-        public LocalDate unmarshal(String s) {
-            // "2026-12-31" → LocalDate   (ISO format, no formatter needed)
-            return LocalDate.parse(s);
+        public LocalDate unmarshal(String localDate) {
+            // "2026-12-31" -> LocalDate (ISO format, no formatter needed)
+            return LocalDate.parse(localDate);
         }
         @Override
-        public String marshal(LocalDate d) {
-            return d.toString();
+        public String marshal(LocalDate localDate) {
+            return localDate.toString();
         }
     }
 
     public static class LocalDateTimeAdapter extends XmlAdapter<String, LocalDateTime> {
         @Override
-        public LocalDateTime unmarshal(String s) {
-            // "2026-04-23T10:00:00" → LocalDateTime   (ISO format, no formatter needed)
-            return LocalDateTime.parse(s);
+        public LocalDateTime unmarshal(String localDateTime) {
+            // "2026-04-23T10:00:00" -> LocalDateTime
+            return LocalDateTime.parse(localDateTime);
         }
         @Override
-        public String marshal(LocalDateTime dt) {
-            return dt.toString();
+        public String marshal(LocalDateTime localDateTime) {
+            return localDateTime.toString();
         }
     }
 
     // =========================================================================
-    // JAXB DATA CLASSES — one per XML structure, mirroring your xmltojavaobject
-    // classes exactly in terms of fields, but with JAXB annotations added.
+    // JAXB DATA CLASSES — one per XML structure, mirrors xmltojavaobject classes exactly, but with JAXB annotations added.
     // =========================================================================
 
-    // ── Root ──────────────────────────────────────────────────────────────────
+    // -- Root ------------------------------------------------------------------
     @XmlRootElement(name = "garage")
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbGarageXml {
@@ -149,12 +148,13 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         private List<JaxbCustomerXml> customers;
 
         /*
-         * @XmlElements (plural) — handles the case where one list wrapper
+         * @XmlElements - handles the case where one list wrapper
          * contains elements with different names: <car>, <motorcycle>, <truck>.
          * Each @XmlElement inside maps one element name to a Java class.
-         * Since your VehicleXml is a flat class covering all three vehicle types,
-         * we map all three element names to JaxbVehicleXml.
+         * VehicleXml is a class covering all three vehicle types;
+         * We map all three element names to JaxbVehicleXml.
          */
+
         @XmlElementWrapper(name = "vehicles")
         @XmlElements({
                 @XmlElement(name = "car",        type = JaxbVehicleXml.class),
@@ -193,7 +193,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── Mechanic ──────────────────────────────────────────────────────────────
+    // -- Mechanic --------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbMechanicXml {
 
@@ -220,7 +220,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── Insurance ─────────────────────────────────────────────────────────────
+    // -- Insurance -------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbInsuranceXml {
 
@@ -249,7 +249,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── Customer ──────────────────────────────────────────────────────────────
+    // -- Customer --------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbCustomerXml {
 
@@ -276,7 +276,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── Transmission ──────────────────────────────────────────────────────────
+    // -- Transmission ----------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbTransmissionXml {
 
@@ -292,7 +292,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── Vehicle — flat class mirroring your VehicleXml exactly ───────────────
+    // -- Vehicle — flat class mirroring your VehicleXml exactly ---------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbVehicleXml {
 
@@ -342,7 +342,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── Appointment ───────────────────────────────────────────────────────────
+    // -- Appointment -----------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbAppointmentXml {
 
@@ -372,7 +372,7 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // ── SparePart ─────────────────────────────────────────────────────────────
+    // -- SparePart -------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbSparePartXml {
 
