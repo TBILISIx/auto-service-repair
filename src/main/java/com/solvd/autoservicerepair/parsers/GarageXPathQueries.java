@@ -1,5 +1,7 @@
 package com.solvd.autoservicerepair.parsers;
 
+import com.solvd.autoservicerepair.interfaces.Parser;
+import com.solvd.autoservicerepair.parsers.xmltojavaobject.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -9,9 +11,17 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * XPath queries over garage.xml.
+ *
+ * Also implements Parser&lt;GarageXml&gt; — the parse() method uses DOM + XPath
+ * to reconstruct a fully populated GarageXml object from the XML file.
  *
  * WHAT IS XPath:
  *   XPath (XML Path Language) is a query language for XML, similar to SQL for databases.
@@ -27,8 +37,8 @@ import java.io.File;
  *
  * XPath SYNTAX CHEAT SHEET (used in this file):
  *   /garage/mechanics/mechanic     — path from root
- *   //mechanic                     — any <mechanic> anywhere in the document
- *   mechanic[level='SENIOR']       — predicate: mechanic whose <level> is SENIOR
+ *   //mechanic                     — any mechanic anywhere in the document
+ *   mechanic[level='SENIOR']       — predicate: mechanic whose level is SENIOR
  *   mechanic[1]                    — first mechanic (XPath indexes start at 1)
  *   text()                         — the text content of an element
  *   count(//mechanic)              — number of mechanic elements
@@ -39,8 +49,15 @@ import java.io.File;
  *   STRING   — String    — for queries that return a single text value
  *   NUMBER   — Double    — for count(), sum() etc.
  *   BOOLEAN  — Boolean   — for exists checks
+ *
+ * FIVE EXAMPLE XPaths USED IN parse():
+ *   1. /garage/mechanics/mechanic          — all mechanic nodes
+ *   2. /garage/customers/customer          — all customer nodes
+ *   3. /garage/vehicles/*                  — all vehicle nodes (car, motorcycle, truck)
+ *   4. /garage/appointments/appointment    — all appointment nodes
+ *   5. /garage/spareParts/sparePart        — all spare part nodes
  */
-public class GarageXPathQueries {
+public class GarageXPathQueries implements Parser<GarageXml> {
 
     private final Document document;
     private final XPath    xpath;
@@ -49,7 +66,6 @@ public class GarageXPathQueries {
      * Constructor loads the XML file into a DOM Document.
      * @param xmlFilePath path to garage.xml
      */
-
     public GarageXPathQueries(String xmlFilePath) throws Exception {
 
         // DocumentBuilderFactory + DocumentBuilder = the standard Java DOM parser.
@@ -63,6 +79,225 @@ public class GarageXPathQueries {
         // XPathFactory creates the XPath engine.
         // XPath is the object you use to compile and evaluate expressions.
         xpath = XPathFactory.newInstance().newXPath();
+    }
+
+    // =========================================================================
+    // Parser<GarageXml> implementation
+    //
+    // parse() uses DOM + XPath to walk every section of the XML and build
+    // a fully populated GarageXml object — the same result type that
+    // GarageStaxParser returns, but achieved through XPath node selection
+    // instead of a manual event loop.
+    // =========================================================================
+
+    /**
+     * Parses the XML file at the given path and returns a fully populated GarageXml.
+     *
+     * Internally loads the file into a DOM Document and uses XPath expressions
+     * to select each group of nodes (mechanics, customers, vehicles, appointments,
+     * spare parts), then maps each node's child text content to the matching field.
+     *
+     * @param filePath path to garage.xml
+     * @return fully populated GarageXml root object
+     */
+    @Override
+    public GarageXml parse(String filePath) throws Exception {
+
+        // Load a fresh Document for the given filePath so parse() is self-contained
+        // and not tied to the instance built in the constructor.
+        Document doc = DocumentBuilderFactory
+                .newInstance()
+                .newDocumentBuilder()
+                .parse(new File(filePath));
+
+        XPath xp = XPathFactory.newInstance().newXPath();
+
+        GarageXml garage = new GarageXml();
+
+        // ---- garage root fields ----
+        garage.setName(text(xp, doc, "/garage/name"));
+        garage.setAddress(text(xp, doc, "/garage/address"));
+        garage.setTotalBays(Integer.parseInt(text(xp, doc, "/garage/totalBays")));
+        garage.setOccupiedBays(Integer.parseInt(text(xp, doc, "/garage/occupiedBays")));
+
+        // ---- XPath 1: /garage/mechanics/mechanic — all mechanic nodes ----
+        NodeList mechanicNodes = nodes(xp, doc, "/garage/mechanics/mechanic");
+        List<MechanicXml> mechanics = new ArrayList<>();
+        for (int i = 0; i < mechanicNodes.getLength(); i++) {
+            Node n = mechanicNodes.item(i);
+            MechanicXml m = new MechanicXml();
+            m.setName(child(n, "name"));
+            m.setIdNumber(child(n, "idNumber"));
+            m.setPhone(child(n, "phone"));
+            m.setSpecialization(child(n, "specialization"));
+            m.setYearsOfExperience(Integer.parseInt(child(n, "yearsOfExperience")));
+            m.setLevel(child(n, "level"));
+            m.setHourlyRate(new BigDecimal(child(n, "hourlyRate")));
+            mechanics.add(m);
+        }
+        garage.setMechanics(mechanics);
+
+        // ---- XPath 2: /garage/customers/customer — all customer nodes ----
+        NodeList customerNodes = nodes(xp, doc, "/garage/customers/customer");
+        List<CustomerXml> customers = new ArrayList<>();
+        for (int i = 0; i < customerNodes.getLength(); i++) {
+            Node n = customerNodes.item(i);
+            CustomerXml c = new CustomerXml();
+            c.setName(child(n, "name"));
+            c.setIdNumber(child(n, "idNumber"));
+            c.setPhone(child(n, "phone"));
+            c.setAge(Integer.parseInt(child(n, "age")));
+            c.setLoyaltyPoints(Integer.parseInt(child(n, "loyaltyPoints")));
+            c.setEmail(child(n, "email"));
+
+            // nested insurance node
+            Node insNode = childNode(n, "insurance");
+            if (insNode != null) {
+                InsuranceXml ins = new InsuranceXml();
+                ins.setProvider(child(insNode, "provider"));
+                ins.setPolicyNumber(child(insNode, "policyNumber"));
+                ins.setExpiryDate(LocalDate.parse(child(insNode, "expiryDate")));
+                ins.setMonthlyPremium(new BigDecimal(child(insNode, "monthlyPremium")));
+                ins.setTier(child(insNode, "tier"));
+                c.setInsurance(ins);
+            }
+            customers.add(c);
+        }
+        garage.setCustomers(customers);
+
+        // ---- XPath 3: /garage/vehicles/* — all vehicle nodes (car, motorcycle, truck) ----
+        NodeList vehicleNodes = nodes(xp, doc, "/garage/vehicles/*");
+        List<VehicleXml> vehicles = new ArrayList<>();
+        for (int i = 0; i < vehicleNodes.getLength(); i++) {
+            Node n = vehicleNodes.item(i);
+            VehicleXml v = new VehicleXml();
+
+            // getNodeName() returns the element name: "car", "motorcycle", or "truck"
+            // This is how we know the type — the DOM gives us the element name directly.
+            v.setType(n.getNodeName());
+
+            v.setBrand(child(n, "brand"));
+            v.setModel(child(n, "model"));
+            v.setYear(Integer.parseInt(child(n, "year")));
+            v.setVin(child(n, "vin"));
+            v.setLicensePlate(child(n, "licensePlate"));
+
+            // transmission nested node — present in all three vehicle types
+            Node transNode = childNode(n, "transmission");
+            if (transNode != null) {
+                TransmissionXml t = new TransmissionXml();
+                t.setType(child(transNode, "type"));
+                t.setGears(Integer.parseInt(child(transNode, "gears")));
+                v.setTransmission(t);
+            }
+
+            // type-specific fields — missing child() calls return "" which parseInt
+            // would blow up on, so we guard with isEmpty() before parsing numbers
+            String doors = child(n, "doors");
+            if (!doors.isEmpty()) v.setDoors(Integer.parseInt(doors));
+
+            String engineType = child(n, "engineType");
+            if (!engineType.isEmpty()) v.setEngineType(engineType);
+
+            String engineSize = child(n, "engineSize");
+            if (!engineSize.isEmpty()) v.setEngineSize(Double.parseDouble(engineSize));
+
+            String engineCapacity = child(n, "engineCapacity");
+            if (!engineCapacity.isEmpty()) v.setEngineCapacity(Integer.parseInt(engineCapacity));
+
+            String bikeType = child(n, "bikeType");
+            if (!bikeType.isEmpty()) v.setBikeType(bikeType);
+
+            String tires = child(n, "tires");
+            if (!tires.isEmpty()) v.setTires(Integer.parseInt(tires));
+
+            String payload = child(n, "payloadCapacityTons");
+            if (!payload.isEmpty()) v.setPayloadCapacityTons(Double.parseDouble(payload));
+
+            String cabin = child(n, "hasSleepingCabin");
+            if (!cabin.isEmpty()) v.setHasSleepingCabin(Boolean.parseBoolean(cabin));
+
+            vehicles.add(v);
+        }
+        garage.setVehicles(vehicles);
+
+        // ---- XPath 4: /garage/appointments/appointment — all appointment nodes ----
+        NodeList appointmentNodes = nodes(xp, doc, "/garage/appointments/appointment");
+        List<AppointmentXml> appointments = new ArrayList<>();
+        for (int i = 0; i < appointmentNodes.getLength(); i++) {
+            Node n = appointmentNodes.item(i);
+            AppointmentXml a = new AppointmentXml();
+            a.setId(Integer.parseInt(child(n, "id")));
+            a.setScheduledTime(LocalDateTime.parse(child(n, "scheduledTime")));
+            a.setStatus(child(n, "status"));
+            a.setCustomerRef(child(n, "customerRef"));
+            a.setMechanicRef(child(n, "mechanicRef"));
+            a.setVehicleRef(child(n, "vehicleRef"));
+            appointments.add(a);
+        }
+        garage.setAppointments(appointments);
+
+        // ---- XPath 5: /garage/spareParts/sparePart — all spare part nodes ----
+        NodeList sparePartNodes = nodes(xp, doc, "/garage/spareParts/sparePart");
+        List<SparePartXml> spareParts = new ArrayList<>();
+        for (int i = 0; i < sparePartNodes.getLength(); i++) {
+            Node n = sparePartNodes.item(i);
+            SparePartXml s = new SparePartXml();
+            s.setProductName(child(n, "productName"));
+            s.setProductNumber(child(n, "productNumber"));
+            s.setUnitPrice(new BigDecimal(child(n, "unitPrice")));
+            s.setQuantity(Integer.parseInt(child(n, "quantity")));
+            spareParts.add(s);
+        }
+        garage.setSpareParts(spareParts);
+
+        return garage;
+    }
+
+    // =========================================================================
+    // Private helpers used by parse()
+    // =========================================================================
+
+    /** Evaluates an XPath expression and returns a NodeList. */
+    private NodeList nodes(XPath xp, Document doc, String expression) throws Exception {
+        return (NodeList) xp.evaluate(expression, doc, XPathConstants.NODESET);
+    }
+
+    /** Evaluates an XPath STRING expression and returns the trimmed text result. */
+    private String text(XPath xp, Document doc, String expression) throws Exception {
+        return ((String) xp.evaluate(expression, doc, XPathConstants.STRING)).trim();
+    }
+
+    /**
+     * Returns the trimmed text content of a direct child element by name.
+     * Returns an empty String (never null) when the child does not exist,
+     * so callers can use isEmpty() instead of null checks.
+     */
+    private String child(Node parent, String elementName) {
+        NodeList children = parent.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE && elementName.equals(n.getLocalName())) {
+                String text = n.getTextContent();
+                return text != null ? text.trim() : "";
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Returns the first direct child Element node with the given name, or null
+     * when it does not exist. Used for nested objects (insurance, transmission).
+     */
+    private Node childNode(Node parent, String elementName) {
+        NodeList children = parent.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() == Node.ELEMENT_NODE && elementName.equals(n.getLocalName())) {
+                return n;
+            }
+        }
+        return null;
     }
 
     // =========================================================================
@@ -91,7 +326,7 @@ public class GarageXPathQueries {
      * Q2 — Get all mechanic names.
      *
      * XPath: /garage/mechanics/mechanic/name
-     *   Walks the full path from root to the <name> inside each mechanic.
+     *   Walks the full path from root to the name inside each mechanic.
      *   Returns a NodeList — one node per mechanic.
      */
     public NodeList getAllMechanicNames() throws Exception {
@@ -105,11 +340,10 @@ public class GarageXPathQueries {
      * Q3 — Get all SENIOR or MASTER mechanics.
      *
      * XPath: //mechanic[level='SENIOR' or level='MASTER']
-     *   //mechanic — finds any <mechanic> element anywhere in the document
+     *   //mechanic — finds any mechanic element anywhere in the document
      *   [level='SENIOR' or level='MASTER'] — predicate filter:
-     *   keep only those where the child <level> equals one of these values
+     *   keep only those where the child level equals one of these values
      */
-
     public NodeList getSeniorOrMasterMechanics() throws Exception {
         return (NodeList) xpath.evaluate(
                 "//mechanic[level='SENIOR' or level='MASTER']",
@@ -124,7 +358,6 @@ public class GarageXPathQueries {
      *   count() is an XPath function that returns how many nodes match.
      *   Returns a Double (XPath numbers are always doubles).
      */
-
     public int getMechanicCount() throws Exception {
         Double count = (Double) xpath.evaluate(
                 "count(//mechanic)",
@@ -139,7 +372,6 @@ public class GarageXPathQueries {
      * XPath: //customer[idNumber='19207150012']
      *   Predicate with a specific value — works like WHERE in SQL.
      */
-
     public Node getCustomerById(String idNumber) throws Exception {
         return (Node) xpath.evaluate(
                 "//customer[idNumber='" + idNumber + "']",
@@ -151,10 +383,9 @@ public class GarageXPathQueries {
      * Q6 — Get all customers with PREMIUM insurance.
      *
      * XPath: //customer[insurance/tier='PREMIUM']
-     *   insurance/tier — navigate INTO the nested <insurance> child
-     *   to read its <tier> child. Predicates can navigate into children.
+     *   insurance/tier — navigate INTO the nested insurance child
+     *   to read its tier child. Predicates can navigate into children.
      */
-
     public NodeList getCustomersWithPremiumInsurance() throws Exception {
         return (NodeList) xpath.evaluate(
                 "//customer[insurance/tier='PREMIUM']",
@@ -167,7 +398,7 @@ public class GarageXPathQueries {
      *
      * XPath: /garage/vehicles/*
      *   * (wildcard) matches any child element regardless of name.
-     *   So this matches <car>, <motorcycle>, and <truck> all at once.
+     *   So this matches car, motorcycle, and truck all at once.
      */
     public NodeList getAllVehicles() throws Exception {
         return (NodeList) xpath.evaluate(
@@ -182,7 +413,6 @@ public class GarageXPathQueries {
      * XPath: /garage/vehicles/truck
      *   Direct path to the truck element.
      */
-
     public Node getTruck() throws Exception {
         return (Node) xpath.evaluate(
                 "/garage/vehicles/truck",
@@ -197,7 +427,6 @@ public class GarageXPathQueries {
      *   Returns "true" or "false" as a String.
      *   This is the boolean field from the assignment.
      */
-
     public boolean truckHasSleepingCabin() throws Exception {
         String value = (String) xpath.evaluate(
                 "/garage/vehicles/truck/hasSleepingCabin",
@@ -211,7 +440,6 @@ public class GarageXPathQueries {
      *
      * XPath: //appointment[status='IN_PROGRESS']
      */
-
     public NodeList getInProgressAppointments() throws Exception {
         return (NodeList) xpath.evaluate(
                 "//appointment[status='IN_PROGRESS']",
@@ -226,7 +454,6 @@ public class GarageXPathQueries {
      *   After the predicate filter, /scheduledTime navigates into the child.
      *   This is the LocalDateTime field from the assignment (returned as String here).
      */
-
     public String getAppointmentScheduledTime(int appointmentId) throws Exception {
         return (String) xpath.evaluate(
                 "//appointment[id='" + appointmentId + "']/scheduledTime",
@@ -239,7 +466,6 @@ public class GarageXPathQueries {
      *
      * XPath: //sparePart[quantity > 0]
      */
-
     public NodeList getInStockSpareParts() throws Exception {
         return (NodeList) xpath.evaluate(
                 "//sparePart[quantity > 0]",
@@ -251,9 +477,8 @@ public class GarageXPathQueries {
      * Q13 — Get the VIN of the vehicle referenced by appointment id=1.
      *
      * XPath: //appointment[id='1']/vehicleRef
-     *   This returns the raw VIN string stored in <vehicleRef>.
+     *   This returns the raw VIN string stored in vehicleRef.
      */
-
     public String getVehicleRefForAppointment(int appointmentId) throws Exception {
         return (String) xpath.evaluate(
                 "//appointment[id='" + appointmentId + "']/vehicleRef",
@@ -300,7 +525,6 @@ public class GarageXPathQueries {
      * @param label    description printed before the list
      * @param nodeList the result of an XPath NODESET query
      */
-
     public static void printNodeList(String label, NodeList nodeList) {
         System.out.println("\n--- " + label + " ---");
         if (nodeList.getLength() == 0) {
@@ -324,6 +548,10 @@ public class GarageXPathQueries {
         // Adjust the path to wherever your garage.xml lives.
         GarageXPathQueries q = new GarageXPathQueries(
                 "src/main/resources/garage.xml");
+
+        // parse() demo — fully populated GarageXml via XPath
+        GarageXml parsed = q.parse("src/main/resources/garage.xml");
+        System.out.println("Parsed via XPath: " + parsed);
 
         // Q1
         System.out.println("Garage name: " + q.getGarageName());

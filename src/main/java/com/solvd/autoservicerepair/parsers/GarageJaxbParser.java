@@ -41,6 +41,15 @@ import java.util.List;
  *   Rather than modifying them (mixing StAX and JAXB concerns), its better to keep a
  *   self-contained set of JAXB-annotated classes right here inside this parser.
  *
+ * WHY THREE VEHICLE SUBCLASSES (JaxbCarXml, JaxbMotorcycleXml, JaxbTruckXml):
+ *   JAXB maps XML element *content* to Java fields — it has no mechanism to inject
+ *   the element *name itself* (<car>, <motorcycle>, <truck>) into a field on a single
+ *   flat class. In GarageStaxParser this was done manually: on START_ELEMENT "car" we
+ *   called currentVehicle.setType("car"). JAXB cannot do that automatically.
+ *   The fix: give each element name its own class. The class identity IS the type.
+ *   @XmlElements maps each element name to its dedicated subclass, so after unmarshal
+ *   you call instanceof (or getType() on the base) to know which vehicle it is.
+ *
  * JAXB ANNOTATIONS EXPLAINED:
  *
  *   @XmlRootElement(name = "garage")
@@ -65,7 +74,8 @@ import java.util.List;
  *   @XmlElements({...})
  *     Used when one list can hold multiple different element names.
  *     Our <vehicles> wrapper contains <car>, <motorcycle>, <truck>.
- *     @XmlElements lists all three and maps them to the same Java class.
+ *     Each @XmlElement maps one element name to its own dedicated Java class,
+ *     so JAXB knows exactly which class to instantiate for each element name.
  *
  *   @XmlJavaTypeAdapter(LocalDateAdapter.class)
  *     JAXB predates Java 8 and does not know LocalDate or LocalDateTime.
@@ -119,7 +129,8 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
     }
 
     // =========================================================================
-    // JAXB DATA CLASSES — one per XML structure, mirrors xmltojavaobject classes exactly, but with JAXB annotations added.
+    // JAXB DATA CLASSES — one per XML structure, mirrors xmltojavaobject classes
+    // exactly, but with JAXB annotations added.
     // =========================================================================
 
     // -- Root ------------------------------------------------------------------
@@ -148,20 +159,22 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         private List<JaxbCustomerXml> customers;
 
         /*
-         * @XmlElements - handles the case where one list wrapper
-         * contains elements with different names: <car>, <motorcycle>, <truck>.
-         * Each @XmlElement inside maps one element name to a Java class.
-         * VehicleXml is a class covering all three vehicle types;
-         * We map all three element names to JaxbVehicleXml.
+         * @XmlElements — each element name maps to its own dedicated class.
+         * JAXB instantiates JaxbCarXml for <car>, JaxbMotorcycleXml for <motorcycle>,
+         * and JaxbTruckXml for <truck>. The class identity replaces the "type" String
+         * field that GarageStaxParser set manually. Use instanceof after unmarshal
+         * to determine which subtype each element is.
+         *
+         * The field type is List<JaxbBaseVehicleXml> — the common base — so all three
+         * subtypes fit in one list without casting at the collection level.
          */
-
         @XmlElementWrapper(name = "vehicles")
         @XmlElements({
-                @XmlElement(name = "car",        type = JaxbVehicleXml.class),
-                @XmlElement(name = "motorcycle", type = JaxbVehicleXml.class),
-                @XmlElement(name = "truck",      type = JaxbVehicleXml.class)
+                @XmlElement(name = "car",        type = JaxbCarXml.class),
+                @XmlElement(name = "motorcycle", type = JaxbMotorcycleXml.class),
+                @XmlElement(name = "truck",      type = JaxbTruckXml.class)
         })
-        private List<JaxbVehicleXml> vehicles;
+        private List<JaxbBaseVehicleXml> vehicles;
 
         @XmlElementWrapper(name = "appointments")
         @XmlElement(name = "appointment")
@@ -171,15 +184,15 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         @XmlElement(name = "sparePart")
         private List<JaxbSparePartXml> spareParts;
 
-        public String getName()                           { return name; }
-        public String getAddress()                        { return address; }
-        public int getTotalBays()                         { return totalBays; }
-        public int getOccupiedBays()                      { return occupiedBays; }
-        public List<JaxbMechanicXml> getMechanics()      { return mechanics; }
-        public List<JaxbCustomerXml> getCustomers()      { return customers; }
-        public List<JaxbVehicleXml> getVehicles()        { return vehicles; }
-        public List<JaxbAppointmentXml> getAppointments(){ return appointments; }
-        public List<JaxbSparePartXml> getSpareParts()    { return spareParts; }
+        public String getName()                               { return name; }
+        public String getAddress()                            { return address; }
+        public int getTotalBays()                             { return totalBays; }
+        public int getOccupiedBays()                          { return occupiedBays; }
+        public List<JaxbMechanicXml> getMechanics()           { return mechanics; }
+        public List<JaxbCustomerXml> getCustomers()           { return customers; }
+        public List<JaxbBaseVehicleXml> getVehicles()         { return vehicles; }
+        public List<JaxbAppointmentXml> getAppointments()     { return appointments; }
+        public List<JaxbSparePartXml> getSpareParts()         { return spareParts; }
 
         @Override
         public String toString() {
@@ -253,21 +266,21 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class JaxbCustomerXml {
 
-        @XmlElement(name = "name")          private String          name;
-        @XmlElement(name = "idNumber")      private String          idNumber;
-        @XmlElement(name = "phone")         private String          phone;
-        @XmlElement(name = "age")           private int             age;
-        @XmlElement(name = "loyaltyPoints") private int             loyaltyPoints;
-        @XmlElement(name = "email")         private String          email;
+        @XmlElement(name = "name")          private String           name;
+        @XmlElement(name = "idNumber")      private String           idNumber;
+        @XmlElement(name = "phone")         private String           phone;
+        @XmlElement(name = "age")           private int              age;
+        @XmlElement(name = "loyaltyPoints") private int              loyaltyPoints;
+        @XmlElement(name = "email")         private String           email;
         @XmlElement(name = "insurance")     private JaxbInsuranceXml insurance;
 
-        public String getName()               { return name; }
-        public String getIdNumber()           { return idNumber; }
-        public String getPhone()              { return phone; }
-        public int getAge()                   { return age; }
-        public int getLoyaltyPoints()         { return loyaltyPoints; }
-        public String getEmail()              { return email; }
-        public JaxbInsuranceXml getInsurance(){ return insurance; }
+        public String getName()                { return name; }
+        public String getIdNumber()            { return idNumber; }
+        public String getPhone()               { return phone; }
+        public int getAge()                    { return age; }
+        public int getLoyaltyPoints()          { return loyaltyPoints; }
+        public String getEmail()               { return email; }
+        public JaxbInsuranceXml getInsurance() { return insurance; }
 
         @Override
         public String toString() {
@@ -292,53 +305,107 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         }
     }
 
-    // -- Vehicle — flat class mirroring your VehicleXml exactly ---------------
+    // =========================================================================
+    // VEHICLE CLASSES
+    //
+    // Instead of one flat JaxbVehicleXml with a "type" String field (which JAXB
+    // cannot populate from the element name), we have:
+    //
+    //   JaxbBaseVehicleXml   — shared fields: brand, model, year, vin, licensePlate, transmission
+    //   JaxbCarXml           — extends base, adds doors / engineType / engineSize
+    //   JaxbMotorcycleXml    — extends base, adds engineCapacity / engineType / bikeType
+    //   JaxbTruckXml         — extends base, adds doors / tires / engineType / engineSize /
+    //                          payloadCapacityTons / hasSleepingCabin
+    //
+    // The element name IS the type discriminator. After unmarshal:
+    //   if (vehicle instanceof JaxbCarXml car)        { ... }
+    //   if (vehicle instanceof JaxbMotorcycleXml moto) { ... }
+    //   if (vehicle instanceof JaxbTruckXml truck)    { ... }
+    // =========================================================================
+
+    // -- Base vehicle (shared fields) -----------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbVehicleXml {
+    public static class JaxbBaseVehicleXml {
 
-        // shared
-        @XmlElement(name = "brand")               private String              brand;
-        @XmlElement(name = "model")               private String              model;
-        @XmlElement(name = "year")                private int                 year;
-        @XmlElement(name = "vin")                 private String              vin;
-        @XmlElement(name = "licensePlate")        private String              licensePlate;
-        @XmlElement(name = "transmission")        private JaxbTransmissionXml transmission;
+        @XmlElement(name = "brand")        private String              brand;
+        @XmlElement(name = "model")        private String              model;
+        @XmlElement(name = "year")         private int                 year;
+        @XmlElement(name = "vin")          private String              vin;
+        @XmlElement(name = "licensePlate") private String              licensePlate;
+        @XmlElement(name = "transmission") private JaxbTransmissionXml transmission;
 
-        // car + truck
-        @XmlElement(name = "doors")               private int                 doors;
-        @XmlElement(name = "engineType")          private String              engineType;
-        @XmlElement(name = "engineSize")          private double              engineSize;
+        public String getBrand()                        { return brand; }
+        public String getModel()                        { return model; }
+        public int getYear()                            { return year; }
+        public String getVin()                          { return vin; }
+        public String getLicensePlate()                 { return licensePlate; }
+        public JaxbTransmissionXml getTransmission()    { return transmission; }
+    }
 
-        // motorcycle only
-        @XmlElement(name = "engineCapacity")      private int                 engineCapacity;
-        @XmlElement(name = "bikeType")            private String              bikeType;
+    // -- Car -------------------------------------------------------------------
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class JaxbCarXml extends JaxbBaseVehicleXml {
 
-        // truck only
-        @XmlElement(name = "tires")               private int                 tires;
-        @XmlElement(name = "payloadCapacityTons") private double              payloadCapacityTons;
+        @XmlElement(name = "doors")      private int    doors;
+        @XmlElement(name = "engineType") private String engineType;
+        @XmlElement(name = "engineSize") private double engineSize;
+
+        public int getDoors()         { return doors; }
+        public String getEngineType() { return engineType; }
+        public double getEngineSize() { return engineSize; }
+
+        @Override
+        public String toString() {
+            return "Car{brand='" + getBrand() + "', model='" + getModel() +
+                    "', vin='" + getVin() + "', doors=" + doors +
+                    ", engineType='" + engineType + "'}";
+        }
+    }
+
+    // -- Motorcycle ------------------------------------------------------------
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class JaxbMotorcycleXml extends JaxbBaseVehicleXml {
+
+        @XmlElement(name = "engineCapacity") private int    engineCapacity;
+        @XmlElement(name = "engineType")     private String engineType;
+        @XmlElement(name = "bikeType")       private String bikeType;
+
+        public int getEngineCapacity()  { return engineCapacity; }
+        public String getEngineType()   { return engineType; }
+        public String getBikeType()     { return bikeType; }
+
+        @Override
+        public String toString() {
+            return "Motorcycle{brand='" + getBrand() + "', model='" + getModel() +
+                    "', vin='" + getVin() + "', engineCapacity=" + engineCapacity +
+                    ", bikeType='" + bikeType + "'}";
+        }
+    }
+
+    // -- Truck -----------------------------------------------------------------
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class JaxbTruckXml extends JaxbBaseVehicleXml {
+
+        @XmlElement(name = "doors")               private int     doors;
+        @XmlElement(name = "tires")               private int     tires;
+        @XmlElement(name = "engineType")          private String  engineType;
+        @XmlElement(name = "engineSize")          private double  engineSize;
+        @XmlElement(name = "payloadCapacityTons") private double  payloadCapacityTons;
 
         // boolean — the hasSleepingCabin field required by the assignment
-        @XmlElement(name = "hasSleepingCabin")    private boolean             hasSleepingCabin;
+        @XmlElement(name = "hasSleepingCabin")    private boolean hasSleepingCabin;
 
-        public String getBrand()               { return brand; }
-        public String getModel()               { return model; }
-        public int getYear()                   { return year; }
-        public String getVin()                 { return vin; }
-        public String getLicensePlate()        { return licensePlate; }
-        public JaxbTransmissionXml getTransmission() { return transmission; }
         public int getDoors()                  { return doors; }
+        public int getTires()                  { return tires; }
         public String getEngineType()          { return engineType; }
         public double getEngineSize()          { return engineSize; }
-        public int getEngineCapacity()         { return engineCapacity; }
-        public String getBikeType()            { return bikeType; }
-        public int getTires()                  { return tires; }
         public double getPayloadCapacityTons() { return payloadCapacityTons; }
         public boolean isHasSleepingCabin()    { return hasSleepingCabin; }
 
         @Override
         public String toString() {
-            return "Vehicle{brand='" + brand + "', model='" + model +
-                    "', vin='" + vin + "', hasSleepingCabin=" + hasSleepingCabin + "}";
+            return "Truck{brand='" + getBrand() + "', model='" + getModel() +
+                    "', vin='" + getVin() + "', hasSleepingCabin=" + hasSleepingCabin + "}";
         }
     }
 
@@ -358,12 +425,12 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         @XmlElement(name = "mechanicRef") private String mechanicRef;
         @XmlElement(name = "vehicleRef")  private String vehicleRef;
 
-        public int getId()                     { return id; }
-        public LocalDateTime getScheduledTime(){ return scheduledTime; }
-        public String getStatus()              { return status; }
-        public String getCustomerRef()         { return customerRef; }
-        public String getMechanicRef()         { return mechanicRef; }
-        public String getVehicleRef()          { return vehicleRef; }
+        public int getId()                      { return id; }
+        public LocalDateTime getScheduledTime() { return scheduledTime; }
+        public String getStatus()               { return status; }
+        public String getCustomerRef()          { return customerRef; }
+        public String getMechanicRef()          { return mechanicRef; }
+        public String getVehicleRef()           { return vehicleRef; }
 
         @Override
         public String toString() {
