@@ -1,5 +1,7 @@
 package com.solvd.autoservicerepair.parsers.xmltojavaobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,9 +14,13 @@ import lombok.ToString;
 @Setter
 @ToString
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class TransmissionXml {
 
-    private String type;   // maps to TransmissionType enum
+    @JsonProperty("type")
+    private String type;
+
+    @JsonProperty("gears")
     private int gears;
 
 }

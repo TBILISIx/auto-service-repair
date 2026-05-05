@@ -1,5 +1,9 @@
 package com.solvd.autoservicerepair.parsers.xmltojavaobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,13 +18,25 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppointmentXml {
 
+    @JsonProperty("id")
     private int id;
-    private LocalDateTime scheduledTime;   // THE LocalDateTime from the assignment
-    private String status;          // maps to ServiceStatus enum
-    private String customerRef;     // idNumber of the customer
-    private String mechanicRef;     // idNumber of the mechanic
-    private String vehicleRef;      // vin of the vehicle
 
+    @JsonProperty("scheduledTime")
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    private LocalDateTime scheduledTime;
+
+    @JsonProperty("status")
+    private String status;
+
+    @JsonProperty("customerRef")
+    private String customerRef;
+
+    @JsonProperty("mechanicRef")
+    private String mechanicRef;
+
+    @JsonProperty("vehicleRef")
+    private String vehicleRef;
 }
