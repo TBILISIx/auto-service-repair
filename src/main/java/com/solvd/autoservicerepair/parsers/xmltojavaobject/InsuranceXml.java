@@ -29,7 +29,6 @@ public class InsuranceXml {
     private String policyNumber;
 
     @JsonProperty("expiryDate")
-    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate expiryDate;
 
     @JsonProperty("monthlyPremium")
