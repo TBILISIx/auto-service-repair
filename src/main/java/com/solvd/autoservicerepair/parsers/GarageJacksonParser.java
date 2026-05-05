@@ -1,19 +1,22 @@
 package com.solvd.autoservicerepair.parsers;
 
-import com.solvd.autoservicerepair.interfaces.Parser;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.solvd.autoservicerepair.interfaces.Parser;
+import com.solvd.autoservicerepair.parsers.xmltojavaobject.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -72,25 +75,136 @@ import java.util.List;
  *     but we also write explicit deserializers to make the logic visible.
  */
 
-public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJson> {
+public class GarageJacksonParser implements Parser {
 
     @Override
-    public GarageJson parse(String filePath) throws Exception {
-
-        /*
-         * ObjectMapper is the core Jackson class (com.fasterxml.jackson, version 2.x).
-         * registerModule(new JavaTimeModule()) adds Java 8 date/time support.
-         * disable(WRITE_DATES_AS_TIMESTAMPS) makes Jackson use ISO strings for dates
-         * instead of numeric timestamps — required to match our JSON file format.
-         * 
-         */
+    public GarageXml parse(String filePath) throws Exception {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-        // One line — read the file, map to GarageJson, return it.
-        return mapper.readValue(new File(filePath), GarageJson.class);
+        // One line — read the file, map to GarageJson, then convert to GarageXml.
+        GarageJson json = mapper.readValue(new File(filePath), GarageJson.class);
+        return toGarageXml(json);
+    }
+
+    // =========================================================================
+    // Mapping — converts Jackson inner objects into the shared xmltojavaobject types.
+    // This keeps the Jackson annotations isolated inside this class while still
+    // returning the same GarageXml that StAX and JAXB return.
+    // =========================================================================
+
+    private GarageXml toGarageXml(GarageJson j) {
+        GarageXml g = new GarageXml();
+        g.setName(j.name);
+        g.setAddress(j.address);
+        g.setTotalBays(j.totalBays);
+        g.setOccupiedBays(j.occupiedBays);
+
+        // mechanics
+        List<MechanicXml> mechanics = new ArrayList<>();
+        if (j.mechanics != null) {
+            for (MechanicJson m : j.mechanics) {
+                MechanicXml mx = new MechanicXml();
+                mx.setName(m.name);
+                mx.setIdNumber(m.idNumber);
+                mx.setPhone(m.phone);
+                mx.setSpecialization(m.specialization);
+                mx.setYearsOfExperience(m.yearsOfExperience);
+                mx.setLevel(m.level);
+                mx.setHourlyRate(m.hourlyRate);
+                mechanics.add(mx);
+            }
+        }
+        g.setMechanics(mechanics);
+
+        // customers
+        List<CustomerXml> customers = new ArrayList<>();
+        if (j.customers != null) {
+            for (CustomerJson c : j.customers) {
+                CustomerXml cx = new CustomerXml();
+                cx.setName(c.name);
+                cx.setIdNumber(c.idNumber);
+                cx.setPhone(c.phone);
+                cx.setAge(c.age);
+                cx.setLoyaltyPoints(c.loyaltyPoints);
+                cx.setEmail(c.email);
+                if (c.insurance != null) {
+                    InsuranceXml ix = new InsuranceXml();
+                    ix.setProvider(c.insurance.provider);
+                    ix.setPolicyNumber(c.insurance.policyNumber);
+                    ix.setExpiryDate(c.insurance.expiryDate);
+                    ix.setMonthlyPremium(c.insurance.monthlyPremium);
+                    ix.setTier(c.insurance.tier);
+                    cx.setInsurance(ix);
+                }
+                customers.add(cx);
+            }
+        }
+        g.setCustomers(customers);
+
+        // vehicles — "type" field comes directly from the JSON string
+        List<VehicleXml> vehicles = new ArrayList<>();
+        if (j.vehicles != null) {
+            for (VehicleJson v : j.vehicles) {
+                VehicleXml vx = new VehicleXml();
+                vx.setType(v.type);
+                vx.setBrand(v.brand);
+                vx.setModel(v.model);
+                vx.setYear(v.year);
+                vx.setVin(v.vin);
+                vx.setLicensePlate(v.licensePlate);
+                vx.setDoors(v.doors);
+                vx.setEngineType(v.engineType);
+                vx.setEngineSize(v.engineSize);
+                vx.setEngineCapacity(v.engineCapacity);
+                vx.setBikeType(v.bikeType);
+                vx.setTires(v.tires);
+                vx.setPayloadCapacityTons(v.payloadCapacityTons);
+                vx.setHasSleepingCabin(v.hasSleepingCabin);
+                if (v.transmission != null) {
+                    TransmissionXml tx = new TransmissionXml();
+                    tx.setType(v.transmission.type);
+                    tx.setGears(v.transmission.gears);
+                    vx.setTransmission(tx);
+                }
+                vehicles.add(vx);
+            }
+        }
+        g.setVehicles(vehicles);
+
+        // appointments
+        List<AppointmentXml> appointments = new ArrayList<>();
+        if (j.appointments != null) {
+            for (AppointmentJson a : j.appointments) {
+                AppointmentXml ax = new AppointmentXml();
+                ax.setId(a.id);
+                ax.setScheduledTime(a.scheduledTime);
+                ax.setStatus(a.status);
+                ax.setCustomerRef(a.customerRef);
+                ax.setMechanicRef(a.mechanicRef);
+                ax.setVehicleRef(a.vehicleRef);
+                appointments.add(ax);
+            }
+        }
+        g.setAppointments(appointments);
+
+        // spare parts
+        List<SparePartXml> spareParts = new ArrayList<>();
+        if (j.spareParts != null) {
+            for (SparePartJson s : j.spareParts) {
+                SparePartXml sx = new SparePartXml();
+                sx.setProductName(s.productName);
+                sx.setProductNumber(s.productNumber);
+                sx.setUnitPrice(s.unitPrice);
+                sx.setQuantity(s.quantity);
+                spareParts.add(sx);
+            }
+        }
+        g.setSpareParts(spareParts);
+
+        return g;
     }
 
     // =========================================================================
@@ -99,7 +213,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
     // to make it crystal clear what is happening.
     // =========================================================================
 
-    public static class LocalDateDeserializer extends StdDeserializer<LocalDate> {
+    private static class LocalDateDeserializer extends StdDeserializer<LocalDate> {
         public LocalDateDeserializer() { super(LocalDate.class); }
 
         @Override
@@ -109,7 +223,7 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
         }
     }
 
-    public static class LocalDateTimeDeserializer extends StdDeserializer<LocalDateTime> {
+    private static class LocalDateTimeDeserializer extends StdDeserializer<LocalDateTime> {
         public LocalDateTimeDeserializer() { super(LocalDateTime.class); }
 
         @Override
@@ -125,249 +239,95 @@ public class GarageJacksonParser implements Parser<GarageJacksonParser.GarageJso
     // Fields match the JSON keys. Annotations tell Jackson the mapping.
     // =========================================================================
 
-    // -- Root ------------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class GarageJson {
-
-        @JsonProperty("name")          private String              name;
-        @JsonProperty("address")       private String              address;
-        @JsonProperty("totalBays")     private int                 totalBays;
-        @JsonProperty("occupiedBays")  private int                 occupiedBays;
-        @JsonProperty("mechanics")     private List<MechanicJson>  mechanics;
-        @JsonProperty("customers")     private List<CustomerJson>  customers;
-        @JsonProperty("vehicles")      private List<VehicleJson>   vehicles;
-        @JsonProperty("appointments")  private List<AppointmentJson> appointments;
-        @JsonProperty("spareParts")    private List<SparePartJson> spareParts;
-
-        public String getName()                            { return name; }
-        public String getAddress()                         { return address; }
-        public int getTotalBays()                          { return totalBays; }
-        public int getOccupiedBays()                       { return occupiedBays; }
-        public List<MechanicJson> getMechanics()           { return mechanics; }
-        public List<CustomerJson> getCustomers()           { return customers; }
-        public List<VehicleJson> getVehicles()             { return vehicles; }
-        public List<AppointmentJson> getAppointments()     { return appointments; }
-        public List<SparePartJson> getSpareParts()         { return spareParts; }
-
-        @Override
-        public String toString() {
-            return "GarageJson{name='" + name + "', address='" + address +
-                    "', totalBays=" + totalBays + ", occupiedBays=" + occupiedBays +
-                    ", mechanics=" + (mechanics != null ? mechanics.size() : 0) +
-                    ", customers=" + (customers != null ? customers.size() : 0) +
-                    ", vehicles=" + (vehicles != null ? vehicles.size() : 0) +
-                    ", appointments=" + (appointments != null ? appointments.size() : 0) +
-                    ", spareParts=" + (spareParts != null ? spareParts.size() : 0) + "}";
-        }
+    private static class GarageJson {
+        @JsonProperty("name")          String              name;
+        @JsonProperty("address")       String              address;
+        @JsonProperty("totalBays")     int                 totalBays;
+        @JsonProperty("occupiedBays")  int                 occupiedBays;
+        @JsonProperty("mechanics")     List<MechanicJson>  mechanics;
+        @JsonProperty("customers")     List<CustomerJson>  customers;
+        @JsonProperty("vehicles")      List<VehicleJson>   vehicles;
+        @JsonProperty("appointments")  List<AppointmentJson> appointments;
+        @JsonProperty("spareParts")    List<SparePartJson> spareParts;
     }
 
-    // -- Mechanic --------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class MechanicJson {
-
-        @JsonProperty("name")               private String     name;
-        @JsonProperty("idNumber")           private String     idNumber;
-        @JsonProperty("phone")              private String     phone;
-        @JsonProperty("specialization")     private String     specialization;
-        @JsonProperty("yearsOfExperience")  private int        yearsOfExperience;
-        @JsonProperty("level")              private String     level;
-        @JsonProperty("hourlyRate")         private BigDecimal hourlyRate;
-
-        public String getName()              { return name; }
-        public String getIdNumber()          { return idNumber; }
-        public String getPhone()             { return phone; }
-        public String getSpecialization()    { return specialization; }
-        public int getYearsOfExperience()    { return yearsOfExperience; }
-        public String getLevel()             { return level; }
-        public BigDecimal getHourlyRate()    { return hourlyRate; }
-
-        @Override
-        public String toString() {
-            return "Mechanic{name='" + name + "', level='" + level +
-                    "', hourlyRate=" + hourlyRate + "}";
-        }
+    private static class MechanicJson {
+        @JsonProperty("name")               String     name;
+        @JsonProperty("idNumber")           String     idNumber;
+        @JsonProperty("phone")              String     phone;
+        @JsonProperty("specialization")     String     specialization;
+        @JsonProperty("yearsOfExperience")  int        yearsOfExperience;
+        @JsonProperty("level")              String     level;
+        @JsonProperty("hourlyRate")         BigDecimal hourlyRate;
     }
 
-    // -- Insurance -------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class InsuranceJson {
-
-        @JsonProperty("provider")       private String     provider;
-        @JsonProperty("policyNumber")   private String     policyNumber;
-
-        /*
-         * @JsonDeserialize tells Jackson to use our custom deserializer
-         * for this specific field instead of the default behavior.
-         * JavaTimeModule handles this automatically once registered,
-         * but the annotation makes the intent explicit.
-         */
+    private static class InsuranceJson {
+        @JsonProperty("provider")       String     provider;
+        @JsonProperty("policyNumber")   String     policyNumber;
         @JsonProperty("expiryDate")
         @JsonDeserialize(using = LocalDateDeserializer.class)
-        private LocalDate expiryDate;
-
-        @JsonProperty("monthlyPremium") private BigDecimal monthlyPremium;
-        @JsonProperty("tier")           private String     tier;
-
-        public String getProvider()           { return provider; }
-        public String getPolicyNumber()       { return policyNumber; }
-        public LocalDate getExpiryDate()      { return expiryDate; }
-        public BigDecimal getMonthlyPremium() { return monthlyPremium; }
-        public String getTier()               { return tier; }
-        public boolean isExpired()            { return LocalDate.now().isAfter(expiryDate); }
-
-        @Override
-        public String toString() {
-            return "Insurance{provider='" + provider + "', tier='" + tier +
-                    "', expired=" + isExpired() + "}";
-        }
+        LocalDate  expiryDate;
+        @JsonProperty("monthlyPremium") BigDecimal monthlyPremium;
+        @JsonProperty("tier")           String     tier;
     }
 
-    // -- Customer --------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class CustomerJson {
-
-        @JsonProperty("name")           private String       name;
-        @JsonProperty("idNumber")       private String       idNumber;
-        @JsonProperty("phone")          private String       phone;
-        @JsonProperty("age")            private int          age;
-        @JsonProperty("loyaltyPoints")  private int          loyaltyPoints;
-        @JsonProperty("email")          private String       email;
-        @JsonProperty("insurance")      private InsuranceJson insurance;
-
-        public String getName()               { return name; }
-        public String getIdNumber()           { return idNumber; }
-        public String getPhone()              { return phone; }
-        public int getAge()                   { return age; }
-        public int getLoyaltyPoints()         { return loyaltyPoints; }
-        public String getEmail()              { return email; }
-        public InsuranceJson getInsurance()   { return insurance; }
-
-        @Override
-        public String toString() {
-            return "Customer{name='" + name + "', email='" + email +
-                    "', loyaltyPoints=" + loyaltyPoints + "}";
-        }
+    private static class CustomerJson {
+        @JsonProperty("name")           String       name;
+        @JsonProperty("idNumber")       String       idNumber;
+        @JsonProperty("phone")          String       phone;
+        @JsonProperty("age")            int          age;
+        @JsonProperty("loyaltyPoints")  int          loyaltyPoints;
+        @JsonProperty("email")          String       email;
+        @JsonProperty("insurance")      InsuranceJson insurance;
     }
 
-    // -- Transmission ----------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class TransmissionJson {
-
-        @JsonProperty("type")   private String type;
-        @JsonProperty("gears")  private int    gears;
-
-        public String getType()  { return type; }
-        public int getGears()    { return gears; }
-
-        @Override
-        public String toString() {
-            return "Transmission{type='" + type + "', gears=" + gears + "}";
-        }
+    private static class TransmissionJson {
+        @JsonProperty("type")  String type;
+        @JsonProperty("gears") int    gears;
     }
 
-    // -- Vehicle — flat class matching your VehicleXml exactly -----------------
-    /*
-     * JSON has "type": "car" / "motorcycle" / "truck" as a plain field.
-     * Jackson reads it into the 'type' String field directly.
-     */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class VehicleJson {
-
-        // shared
-        @JsonProperty("type")               private String          type;
-        @JsonProperty("brand")              private String          brand;
-        @JsonProperty("model")              private String          model;
-        @JsonProperty("year")               private int             year;
-        @JsonProperty("vin")                private String          vin;
-        @JsonProperty("licensePlate")       private String          licensePlate;
-        @JsonProperty("transmission")       private TransmissionJson transmission;
-
-        // car + truck
-        @JsonProperty("doors")              private int             doors;
-        @JsonProperty("engineType")         private String          engineType;
-        @JsonProperty("engineSize")         private double          engineSize;
-
-        // motorcycle only
-        @JsonProperty("engineCapacity")     private int             engineCapacity;
-        @JsonProperty("bikeType")           private String          bikeType;
-
-        // truck only
-        @JsonProperty("tires")              private int             tires;
-        @JsonProperty("payloadCapacityTons") private double         payloadCapacityTons;
-        @JsonProperty("hasSleepingCabin")   private boolean         hasSleepingCabin;
-
-        public String getType()                { return type; }
-        public String getBrand()               { return brand; }
-        public String getModel()               { return model; }
-        public int getYear()                   { return year; }
-        public String getVin()                 { return vin; }
-        public String getLicensePlate()        { return licensePlate; }
-        public TransmissionJson getTransmission() { return transmission; }
-        public int getDoors()                  { return doors; }
-        public String getEngineType()          { return engineType; }
-        public double getEngineSize()          { return engineSize; }
-        public int getEngineCapacity()         { return engineCapacity; }
-        public String getBikeType()            { return bikeType; }
-        public int getTires()                  { return tires; }
-        public double getPayloadCapacityTons() { return payloadCapacityTons; }
-        public boolean isHasSleepingCabin()    { return hasSleepingCabin; }
-
-        @Override
-        public String toString() {
-            return "Vehicle{type='" + type + "', brand='" + brand +
-                    "', model='" + model + "', vin='" + vin +
-                    "', hasSleepingCabin=" + hasSleepingCabin + "}";
-        }
+    private static class VehicleJson {
+        @JsonProperty("type")               String          type;
+        @JsonProperty("brand")              String          brand;
+        @JsonProperty("model")              String          model;
+        @JsonProperty("year")               int             year;
+        @JsonProperty("vin")                String          vin;
+        @JsonProperty("licensePlate")       String          licensePlate;
+        @JsonProperty("transmission")       TransmissionJson transmission;
+        @JsonProperty("doors")              int             doors;
+        @JsonProperty("engineType")         String          engineType;
+        @JsonProperty("engineSize")         double          engineSize;
+        @JsonProperty("engineCapacity")     int             engineCapacity;
+        @JsonProperty("bikeType")           String          bikeType;
+        @JsonProperty("tires")              int             tires;
+        @JsonProperty("payloadCapacityTons") double         payloadCapacityTons;
+        @JsonProperty("hasSleepingCabin")   boolean         hasSleepingCabin;
     }
 
-    // -- Appointment -----------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class AppointmentJson {
-
-        @JsonProperty("id")           private int id;
-
+    private static class AppointmentJson {
+        @JsonProperty("id")           int           id;
         @JsonProperty("scheduledTime")
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-        private LocalDateTime scheduledTime;
-
-        @JsonProperty("status")       private String status;
-        @JsonProperty("customerRef")  private String customerRef;
-        @JsonProperty("mechanicRef")  private String mechanicRef;
-        @JsonProperty("vehicleRef")   private String vehicleRef;
-
-        public int getId()                     { return id; }
-        public LocalDateTime getScheduledTime(){ return scheduledTime; }
-        public String getStatus()              { return status; }
-        public String getCustomerRef()         { return customerRef; }
-        public String getMechanicRef()         { return mechanicRef; }
-        public String getVehicleRef()          { return vehicleRef; }
-
-        @Override
-        public String toString() {
-            return "Appointment{id=" + id + ", status='" + status +
-                    "', scheduledTime=" + scheduledTime + "}";
-        }
+        LocalDateTime scheduledTime;
+        @JsonProperty("status")       String        status;
+        @JsonProperty("customerRef")  String        customerRef;
+        @JsonProperty("mechanicRef")  String        mechanicRef;
+        @JsonProperty("vehicleRef")   String        vehicleRef;
     }
 
-    // -- SparePart -------------------------------------------------------------
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class SparePartJson {
-
-        @JsonProperty("productName")   private String     productName;
-        @JsonProperty("productNumber") private String     productNumber;
-        @JsonProperty("unitPrice")     private BigDecimal unitPrice;
-        @JsonProperty("quantity")      private int        quantity;
-
-        public String getProductName()    { return productName; }
-        public String getProductNumber()  { return productNumber; }
-        public BigDecimal getUnitPrice()  { return unitPrice; }
-        public int getQuantity()          { return quantity; }
-        public boolean isInStock()        { return quantity > 0; }
-
-        @Override
-        public String toString() {
-            return "SparePart{name='" + productName + "', qty=" + quantity +
-                    ", inStock=" + isInStock() + "}";
-        }
+    private static class SparePartJson {
+        @JsonProperty("productName")   String     productName;
+        @JsonProperty("productNumber") String     productNumber;
+        @JsonProperty("unitPrice")     BigDecimal unitPrice;
+        @JsonProperty("quantity")      int        quantity;
     }
+
 }

@@ -4,6 +4,7 @@ import com.solvd.autoservicerepair.interfaces.Parser;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.*;
+import com.solvd.autoservicerepair.parsers.xmltojavaobject.*;
 import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -11,6 +12,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -41,6 +43,15 @@ import java.util.List;
  *   Rather than modifying them (mixing StAX and JAXB concerns), its better to keep a
  *   self-contained set of JAXB-annotated classes right here inside this parser.
  *
+ * WHY THREE VEHICLE SUBCLASSES (JaxbCarXml, JaxbMotorcycleXml, JaxbTruckXml):
+ *   JAXB maps XML element *content* to Java fields — it has no mechanism to inject
+ *   the element *name itself* (<car>, <motorcycle>, <truck>) into a field on a single
+ *   flat class. In GarageStaxParser this was done manually: on START_ELEMENT "car" we
+ *   called currentVehicle.setType("car"). JAXB cannot do that automatically.
+ *   The fix: give each element name its own class. The class identity IS the type.
+ *   @XmlElements maps each element name to its dedicated subclass, so after unmarshal
+ *   you call instanceof (or getType() on the base) to know which vehicle it is.
+ *
  * JAXB ANNOTATIONS EXPLAINED:
  *
  *   @XmlRootElement(name = "garage")
@@ -65,7 +76,8 @@ import java.util.List;
  *   @XmlElements({...})
  *     Used when one list can hold multiple different element names.
  *     Our <vehicles> wrapper contains <car>, <motorcycle>, <truck>.
- *     @XmlElements lists all three and maps them to the same Java class.
+ *     Each @XmlElement maps one element name to its own dedicated Java class,
+ *     so JAXB knows exactly which class to instantiate for each element name.
  *
  *   @XmlJavaTypeAdapter(LocalDateAdapter.class)
  *     JAXB predates Java 8 and does not know LocalDate or LocalDateTime.
@@ -73,10 +85,10 @@ import java.util.List;
  *     "take the String from the XML, call unmarshal(), get a LocalDate back."
  */
 
-public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> {
+public class GarageJaxbParser implements Parser {
 
     @Override
-    public JaxbGarageXml parse(String filePath) throws Exception {
+    public GarageXml parse(String filePath) throws Exception {
 
         // Step 1 — create context with the root class
         JAXBContext context = JAXBContext.newInstance(JaxbGarageXml.class);
@@ -84,8 +96,141 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
         // Step 2 — create the unmarshaller
         Unmarshaller unmarshaller = context.createUnmarshaller();
 
-        // Step 3 — parse and return
-        return (JaxbGarageXml) unmarshaller.unmarshal(new File(filePath));
+        // Step 3 — let JAXB unmarshal into the private inner class
+        JaxbGarageXml jaxb = (JaxbGarageXml) unmarshaller.unmarshal(new File(filePath));
+
+        // Step 4 — map the JAXB inner class into the shared GarageXml
+        // so the return type matches the Parser interface (same as StAX and Jackson).
+        return toGarageXml(jaxb);
+    }
+
+    // =========================================================================
+    // Mapping — converts JAXB inner objects into the shared xmltojavaobject types.
+    // This keeps the JAXB annotations isolated inside this class while still
+    // returning the same GarageXml that StAX and Jackson return.
+    // =========================================================================
+
+    private GarageXml toGarageXml(JaxbGarageXml j) {
+        GarageXml g = new GarageXml();
+        g.setName(j.name);
+        g.setAddress(j.address);
+        g.setTotalBays(j.totalBays);
+        g.setOccupiedBays(j.occupiedBays);
+
+        // mechanics
+        List<MechanicXml> mechanics = new ArrayList<>();
+        if (j.mechanics != null) {
+            for (JaxbMechanicXml m : j.mechanics) {
+                MechanicXml mx = new MechanicXml();
+                mx.setName(m.name);
+                mx.setIdNumber(m.idNumber);
+                mx.setPhone(m.phone);
+                mx.setSpecialization(m.specialization);
+                mx.setYearsOfExperience(m.yearsOfExperience);
+                mx.setLevel(m.level);
+                mx.setHourlyRate(m.hourlyRate);
+                mechanics.add(mx);
+            }
+        }
+        g.setMechanics(mechanics);
+
+        // customers
+        List<CustomerXml> customers = new ArrayList<>();
+        if (j.customers != null) {
+            for (JaxbCustomerXml c : j.customers) {
+                CustomerXml cx = new CustomerXml();
+                cx.setName(c.name);
+                cx.setIdNumber(c.idNumber);
+                cx.setPhone(c.phone);
+                cx.setAge(c.age);
+                cx.setLoyaltyPoints(c.loyaltyPoints);
+                cx.setEmail(c.email);
+                if (c.insurance != null) {
+                    InsuranceXml ix = new InsuranceXml();
+                    ix.setProvider(c.insurance.provider);
+                    ix.setPolicyNumber(c.insurance.policyNumber);
+                    ix.setExpiryDate(c.insurance.expiryDate);
+                    ix.setMonthlyPremium(c.insurance.monthlyPremium);
+                    ix.setTier(c.insurance.tier);
+                    cx.setInsurance(ix);
+                }
+                customers.add(cx);
+            }
+        }
+        g.setCustomers(customers);
+
+        // vehicles — use instanceof to recover the type string since JAXB
+        // cannot inject the element name into a field automatically.
+        List<VehicleXml> vehicles = new ArrayList<>();
+        if (j.vehicles != null) {
+            for (JaxbBaseVehicleXml v : j.vehicles) {
+                VehicleXml vx = new VehicleXml();
+                vx.setBrand(v.brand);
+                vx.setModel(v.model);
+                vx.setYear(v.year);
+                vx.setVin(v.vin);
+                vx.setLicensePlate(v.licensePlate);
+                if (v.transmission != null) {
+                    TransmissionXml tx = new TransmissionXml();
+                    tx.setType(v.transmission.type);
+                    tx.setGears(v.transmission.gears);
+                    vx.setTransmission(tx);
+                }
+                if (v instanceof JaxbCarXml car) {
+                    vx.setType("car");
+                    vx.setDoors(car.doors);
+                    vx.setEngineType(car.engineType);
+                    vx.setEngineSize(car.engineSize);
+                } else if (v instanceof JaxbMotorcycleXml moto) {
+                    vx.setType("motorcycle");
+                    vx.setEngineCapacity(moto.engineCapacity);
+                    vx.setEngineType(moto.engineType);
+                    vx.setBikeType(moto.bikeType);
+                } else if (v instanceof JaxbTruckXml truck) {
+                    vx.setType("truck");
+                    vx.setDoors(truck.doors);
+                    vx.setTires(truck.tires);
+                    vx.setEngineType(truck.engineType);
+                    vx.setEngineSize(truck.engineSize);
+                    vx.setPayloadCapacityTons(truck.payloadCapacityTons);
+                    vx.setHasSleepingCabin(truck.hasSleepingCabin);
+                }
+                vehicles.add(vx);
+            }
+        }
+        g.setVehicles(vehicles);
+
+        // appointments
+        List<AppointmentXml> appointments = new ArrayList<>();
+        if (j.appointments != null) {
+            for (JaxbAppointmentXml a : j.appointments) {
+                AppointmentXml ax = new AppointmentXml();
+                ax.setId(a.id);
+                ax.setScheduledTime(a.scheduledTime);
+                ax.setStatus(a.status);
+                ax.setCustomerRef(a.customerRef);
+                ax.setMechanicRef(a.mechanicRef);
+                ax.setVehicleRef(a.vehicleRef);
+                appointments.add(ax);
+            }
+        }
+        g.setAppointments(appointments);
+
+        // spare parts
+        List<SparePartXml> spareParts = new ArrayList<>();
+        if (j.spareParts != null) {
+            for (JaxbSparePartXml s : j.spareParts) {
+                SparePartXml sx = new SparePartXml();
+                sx.setProductName(s.productName);
+                sx.setProductNumber(s.productNumber);
+                sx.setUnitPrice(s.unitPrice);
+                sx.setQuantity(s.quantity);
+                spareParts.add(sx);
+            }
+        }
+        g.setSpareParts(spareParts);
+
+        return g;
     }
 
     // =========================================================================
@@ -119,278 +264,145 @@ public class GarageJaxbParser implements Parser<GarageJaxbParser.JaxbGarageXml> 
     }
 
     // =========================================================================
-    // JAXB DATA CLASSES — one per XML structure, mirrors xmltojavaobject classes exactly, but with JAXB annotations added.
+    // JAXB INNER CLASSES
+    // Private to this parser — the outside world only sees GarageXml.
     // =========================================================================
 
-    // -- Root ------------------------------------------------------------------
     @XmlRootElement(name = "garage")
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbGarageXml {
-
-        @XmlElement(name = "name")
-        private String name;
-
-        @XmlElement(name = "address")
-        private String address;
-
-        @XmlElement(name = "totalBays")
-        private int totalBays;
-
-        @XmlElement(name = "occupiedBays")
-        private int occupiedBays;
+    private static class JaxbGarageXml {
+        @XmlElement(name = "name")         String name;
+        @XmlElement(name = "address")      String address;
+        @XmlElement(name = "totalBays")    int    totalBays;
+        @XmlElement(name = "occupiedBays") int    occupiedBays;
 
         @XmlElementWrapper(name = "mechanics")
         @XmlElement(name = "mechanic")
-        private List<JaxbMechanicXml> mechanics;
+        List<JaxbMechanicXml> mechanics;
 
         @XmlElementWrapper(name = "customers")
         @XmlElement(name = "customer")
-        private List<JaxbCustomerXml> customers;
+        List<JaxbCustomerXml> customers;
 
         /*
-         * @XmlElements - handles the case where one list wrapper
-         * contains elements with different names: <car>, <motorcycle>, <truck>.
-         * Each @XmlElement inside maps one element name to a Java class.
-         * VehicleXml is a class covering all three vehicle types;
-         * We map all three element names to JaxbVehicleXml.
+         * @XmlElements — each element name maps to its own dedicated class.
+         * JAXB instantiates JaxbCarXml for <car>, JaxbMotorcycleXml for <motorcycle>,
+         * and JaxbTruckXml for <truck>. The class identity replaces the "type" String
+         * field that GarageStaxParser set manually. We recover the type string in
+         * toGarageXml() using instanceof.
          */
-
         @XmlElementWrapper(name = "vehicles")
         @XmlElements({
-                @XmlElement(name = "car",        type = JaxbVehicleXml.class),
-                @XmlElement(name = "motorcycle", type = JaxbVehicleXml.class),
-                @XmlElement(name = "truck",      type = JaxbVehicleXml.class)
+                @XmlElement(name = "car",        type = JaxbCarXml.class),
+                @XmlElement(name = "motorcycle", type = JaxbMotorcycleXml.class),
+                @XmlElement(name = "truck",      type = JaxbTruckXml.class)
         })
-        private List<JaxbVehicleXml> vehicles;
+        List<JaxbBaseVehicleXml> vehicles;
 
         @XmlElementWrapper(name = "appointments")
         @XmlElement(name = "appointment")
-        private List<JaxbAppointmentXml> appointments;
+        List<JaxbAppointmentXml> appointments;
 
         @XmlElementWrapper(name = "spareParts")
         @XmlElement(name = "sparePart")
-        private List<JaxbSparePartXml> spareParts;
-
-        public String getName()                           { return name; }
-        public String getAddress()                        { return address; }
-        public int getTotalBays()                         { return totalBays; }
-        public int getOccupiedBays()                      { return occupiedBays; }
-        public List<JaxbMechanicXml> getMechanics()      { return mechanics; }
-        public List<JaxbCustomerXml> getCustomers()      { return customers; }
-        public List<JaxbVehicleXml> getVehicles()        { return vehicles; }
-        public List<JaxbAppointmentXml> getAppointments(){ return appointments; }
-        public List<JaxbSparePartXml> getSpareParts()    { return spareParts; }
-
-        @Override
-        public String toString() {
-            return "JaxbGarage{name='" + name + "', address='" + address +
-                    "', totalBays=" + totalBays + ", occupiedBays=" + occupiedBays +
-                    ", mechanics=" + (mechanics != null ? mechanics.size() : 0) +
-                    ", customers=" + (customers != null ? customers.size() : 0) +
-                    ", vehicles=" + (vehicles != null ? vehicles.size() : 0) +
-                    ", appointments=" + (appointments != null ? appointments.size() : 0) +
-                    ", spareParts=" + (spareParts != null ? spareParts.size() : 0) + "}";
-        }
+        List<JaxbSparePartXml> spareParts;
     }
 
-    // -- Mechanic --------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbMechanicXml {
-
-        @XmlElement(name = "name")              private String     name;
-        @XmlElement(name = "idNumber")          private String     idNumber;
-        @XmlElement(name = "phone")             private String     phone;
-        @XmlElement(name = "specialization")    private String     specialization;
-        @XmlElement(name = "yearsOfExperience") private int        yearsOfExperience;
-        @XmlElement(name = "level")             private String     level;
-        @XmlElement(name = "hourlyRate")        private BigDecimal hourlyRate;
-
-        public String getName()              { return name; }
-        public String getIdNumber()          { return idNumber; }
-        public String getPhone()             { return phone; }
-        public String getSpecialization()    { return specialization; }
-        public int getYearsOfExperience()    { return yearsOfExperience; }
-        public String getLevel()             { return level; }
-        public BigDecimal getHourlyRate()    { return hourlyRate; }
-
-        @Override
-        public String toString() {
-            return "Mechanic{name='" + name + "', level='" + level +
-                    "', hourlyRate=" + hourlyRate + "}";
-        }
+    private static class JaxbMechanicXml {
+        @XmlElement(name = "name")              String     name;
+        @XmlElement(name = "idNumber")          String     idNumber;
+        @XmlElement(name = "phone")             String     phone;
+        @XmlElement(name = "specialization")    String     specialization;
+        @XmlElement(name = "yearsOfExperience") int        yearsOfExperience;
+        @XmlElement(name = "level")             String     level;
+        @XmlElement(name = "hourlyRate")        BigDecimal hourlyRate;
     }
 
-    // -- Insurance -------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbInsuranceXml {
-
-        @XmlElement(name = "provider")       private String     provider;
-        @XmlElement(name = "policyNumber")   private String     policyNumber;
-
-        // LocalDate needs an adapter — JAXB does not support it natively
+    private static class JaxbInsuranceXml {
+        @XmlElement(name = "provider")       String     provider;
+        @XmlElement(name = "policyNumber")   String     policyNumber;
         @XmlElement(name = "expiryDate")
         @XmlJavaTypeAdapter(LocalDateAdapter.class)
-        private LocalDate expiryDate;
-
-        @XmlElement(name = "monthlyPremium") private BigDecimal monthlyPremium;
-        @XmlElement(name = "tier")           private String     tier;
-
-        public String getProvider()           { return provider; }
-        public String getPolicyNumber()       { return policyNumber; }
-        public LocalDate getExpiryDate()      { return expiryDate; }
-        public BigDecimal getMonthlyPremium() { return monthlyPremium; }
-        public String getTier()               { return tier; }
-        public boolean isExpired()            { return LocalDate.now().isAfter(expiryDate); }
-
-        @Override
-        public String toString() {
-            return "Insurance{provider='" + provider + "', tier='" + tier +
-                    "', expired=" + isExpired() + "}";
-        }
+        LocalDate  expiryDate;
+        @XmlElement(name = "monthlyPremium") BigDecimal monthlyPremium;
+        @XmlElement(name = "tier")           String     tier;
     }
 
-    // -- Customer --------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbCustomerXml {
-
-        @XmlElement(name = "name")          private String          name;
-        @XmlElement(name = "idNumber")      private String          idNumber;
-        @XmlElement(name = "phone")         private String          phone;
-        @XmlElement(name = "age")           private int             age;
-        @XmlElement(name = "loyaltyPoints") private int             loyaltyPoints;
-        @XmlElement(name = "email")         private String          email;
-        @XmlElement(name = "insurance")     private JaxbInsuranceXml insurance;
-
-        public String getName()               { return name; }
-        public String getIdNumber()           { return idNumber; }
-        public String getPhone()              { return phone; }
-        public int getAge()                   { return age; }
-        public int getLoyaltyPoints()         { return loyaltyPoints; }
-        public String getEmail()              { return email; }
-        public JaxbInsuranceXml getInsurance(){ return insurance; }
-
-        @Override
-        public String toString() {
-            return "Customer{name='" + name + "', email='" + email +
-                    "', loyaltyPoints=" + loyaltyPoints + "}";
-        }
+    private static class JaxbCustomerXml {
+        @XmlElement(name = "name")          String          name;
+        @XmlElement(name = "idNumber")      String          idNumber;
+        @XmlElement(name = "phone")         String          phone;
+        @XmlElement(name = "age")           int             age;
+        @XmlElement(name = "loyaltyPoints") int             loyaltyPoints;
+        @XmlElement(name = "email")         String          email;
+        @XmlElement(name = "insurance")     JaxbInsuranceXml insurance;
     }
 
-    // -- Transmission ----------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbTransmissionXml {
-
-        @XmlElement(name = "type")  private String type;
-        @XmlElement(name = "gears") private int    gears;
-
-        public String getType()  { return type; }
-        public int getGears()    { return gears; }
-
-        @Override
-        public String toString() {
-            return "Transmission{type='" + type + "', gears=" + gears + "}";
-        }
+    private static class JaxbTransmissionXml {
+        @XmlElement(name = "type")  String type;
+        @XmlElement(name = "gears") int    gears;
     }
 
-    // -- Vehicle — flat class mirroring your VehicleXml exactly ---------------
+    // Base vehicle — shared fields only
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbVehicleXml {
-
-        // shared
-        @XmlElement(name = "brand")               private String              brand;
-        @XmlElement(name = "model")               private String              model;
-        @XmlElement(name = "year")                private int                 year;
-        @XmlElement(name = "vin")                 private String              vin;
-        @XmlElement(name = "licensePlate")        private String              licensePlate;
-        @XmlElement(name = "transmission")        private JaxbTransmissionXml transmission;
-
-        // car + truck
-        @XmlElement(name = "doors")               private int                 doors;
-        @XmlElement(name = "engineType")          private String              engineType;
-        @XmlElement(name = "engineSize")          private double              engineSize;
-
-        // motorcycle only
-        @XmlElement(name = "engineCapacity")      private int                 engineCapacity;
-        @XmlElement(name = "bikeType")            private String              bikeType;
-
-        // truck only
-        @XmlElement(name = "tires")               private int                 tires;
-        @XmlElement(name = "payloadCapacityTons") private double              payloadCapacityTons;
-
-        // boolean — the hasSleepingCabin field required by the assignment
-        @XmlElement(name = "hasSleepingCabin")    private boolean             hasSleepingCabin;
-
-        public String getBrand()               { return brand; }
-        public String getModel()               { return model; }
-        public int getYear()                   { return year; }
-        public String getVin()                 { return vin; }
-        public String getLicensePlate()        { return licensePlate; }
-        public JaxbTransmissionXml getTransmission() { return transmission; }
-        public int getDoors()                  { return doors; }
-        public String getEngineType()          { return engineType; }
-        public double getEngineSize()          { return engineSize; }
-        public int getEngineCapacity()         { return engineCapacity; }
-        public String getBikeType()            { return bikeType; }
-        public int getTires()                  { return tires; }
-        public double getPayloadCapacityTons() { return payloadCapacityTons; }
-        public boolean isHasSleepingCabin()    { return hasSleepingCabin; }
-
-        @Override
-        public String toString() {
-            return "Vehicle{brand='" + brand + "', model='" + model +
-                    "', vin='" + vin + "', hasSleepingCabin=" + hasSleepingCabin + "}";
-        }
+    private static class JaxbBaseVehicleXml {
+        @XmlElement(name = "brand")        String              brand;
+        @XmlElement(name = "model")        String              model;
+        @XmlElement(name = "year")         int                 year;
+        @XmlElement(name = "vin")          String              vin;
+        @XmlElement(name = "licensePlate") String              licensePlate;
+        @XmlElement(name = "transmission") JaxbTransmissionXml transmission;
     }
 
-    // -- Appointment -----------------------------------------------------------
+    // Car extends base with car-specific fields
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbAppointmentXml {
+    private static class JaxbCarXml extends JaxbBaseVehicleXml {
+        @XmlElement(name = "doors")      int    doors;
+        @XmlElement(name = "engineType") String engineType;
+        @XmlElement(name = "engineSize") double engineSize;
+    }
 
-        @XmlElement(name = "id")          private int id;
+    // Motorcycle extends base with motorcycle-specific fields
+    @XmlAccessorType(XmlAccessType.FIELD)
+    private static class JaxbMotorcycleXml extends JaxbBaseVehicleXml {
+        @XmlElement(name = "engineCapacity") int    engineCapacity;
+        @XmlElement(name = "engineType")     String engineType;
+        @XmlElement(name = "bikeType")       String bikeType;
+    }
 
-        // LocalDateTime needs an adapter — same reason as LocalDate
+    // Truck extends base with truck-specific fields
+    @XmlAccessorType(XmlAccessType.FIELD)
+    private static class JaxbTruckXml extends JaxbBaseVehicleXml {
+        @XmlElement(name = "doors")               int     doors;
+        @XmlElement(name = "tires")               int     tires;
+        @XmlElement(name = "engineType")          String  engineType;
+        @XmlElement(name = "engineSize")          double  engineSize;
+        @XmlElement(name = "payloadCapacityTons") double  payloadCapacityTons;
+        @XmlElement(name = "hasSleepingCabin")    boolean hasSleepingCabin;
+    }
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    private static class JaxbAppointmentXml {
+        @XmlElement(name = "id")           int           id;
         @XmlElement(name = "scheduledTime")
         @XmlJavaTypeAdapter(LocalDateTimeAdapter.class)
-        private LocalDateTime scheduledTime;
-
-        @XmlElement(name = "status")      private String status;
-        @XmlElement(name = "customerRef") private String customerRef;
-        @XmlElement(name = "mechanicRef") private String mechanicRef;
-        @XmlElement(name = "vehicleRef")  private String vehicleRef;
-
-        public int getId()                     { return id; }
-        public LocalDateTime getScheduledTime(){ return scheduledTime; }
-        public String getStatus()              { return status; }
-        public String getCustomerRef()         { return customerRef; }
-        public String getMechanicRef()         { return mechanicRef; }
-        public String getVehicleRef()          { return vehicleRef; }
-
-        @Override
-        public String toString() {
-            return "Appointment{id=" + id + ", status='" + status +
-                    "', scheduledTime=" + scheduledTime + "}";
-        }
+        LocalDateTime scheduledTime;
+        @XmlElement(name = "status")       String        status;
+        @XmlElement(name = "customerRef")  String        customerRef;
+        @XmlElement(name = "mechanicRef")  String        mechanicRef;
+        @XmlElement(name = "vehicleRef")   String        vehicleRef;
     }
 
-    // -- SparePart -------------------------------------------------------------
     @XmlAccessorType(XmlAccessType.FIELD)
-    public static class JaxbSparePartXml {
-
-        @XmlElement(name = "productName")   private String     productName;
-        @XmlElement(name = "productNumber") private String     productNumber;
-        @XmlElement(name = "unitPrice")     private BigDecimal unitPrice;
-        @XmlElement(name = "quantity")      private int        quantity;
-
-        public String getProductName()    { return productName; }
-        public String getProductNumber()  { return productNumber; }
-        public BigDecimal getUnitPrice()  { return unitPrice; }
-        public int getQuantity()          { return quantity; }
-        public boolean isInStock()        { return quantity > 0; }
-
-        @Override
-        public String toString() {
-            return "SparePart{name='" + productName + "', qty=" + quantity +
-                    ", inStock=" + isInStock() + "}";
-        }
+    private static class JaxbSparePartXml {
+        @XmlElement(name = "productName")   String     productName;
+        @XmlElement(name = "productNumber") String     productNumber;
+        @XmlElement(name = "unitPrice")     BigDecimal unitPrice;
+        @XmlElement(name = "quantity")      int        quantity;
     }
+
 }
