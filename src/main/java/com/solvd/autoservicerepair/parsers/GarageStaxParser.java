@@ -60,7 +60,7 @@ import java.util.List;
  * and know with certainty this belongs to the current mechanic.
  */
 
-public class GarageStaxParser implements Parser<GarageXml> {
+public class GarageStaxParser implements Parser {
 
 /*  -------------------------------------------------------------------------
     These temporary(TMP) constants represent element names from the XML file.

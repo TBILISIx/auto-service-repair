@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * XPath queries over garage.xml.
  *
- * Also implements Parser&lt;GarageXml&gt; — the parse() method uses DOM + XPath
+ * Also implements Parser; — the parse() method uses DOM + XPath
  * to reconstruct a fully populated GarageXml object from the XML file.
  *
  * WHAT IS XPath:
@@ -57,7 +57,8 @@ import java.util.List;
  *   4. /garage/appointments/appointment    — all appointment nodes
  *   5. /garage/spareParts/sparePart        — all spare part nodes
  */
-public class GarageXPathQueries implements Parser<GarageXml> {
+
+public class GarageXPathQueries implements Parser {
 
     private final Document document;
     private final XPath    xpath;
@@ -82,7 +83,7 @@ public class GarageXPathQueries implements Parser<GarageXml> {
     }
 
     // =========================================================================
-    // Parser<GarageXml> implementation
+    // Parser implementation
     //
     // parse() uses DOM + XPath to walk every section of the XML and build
     // a fully populated GarageXml object — the same result type that
@@ -272,31 +273,49 @@ public class GarageXPathQueries implements Parser<GarageXml> {
      * Returns the trimmed text content of a direct child element by name.
      * Returns an empty String (never null) when the child does not exist,
      * so callers can use isEmpty() instead of null checks.
+     *
+     * getNodeName() is used instead of getLocalName().
+     * getLocalName() only works correctly when XML namespaces are enabled.
+     * this XML does not use namespaces, so getLocalName() returns null.
      */
+
     private String child(Node parent, String elementName) {
         NodeList children = parent.getChildNodes();
+
         for (int i = 0; i < children.getLength(); i++) {
             Node n = children.item(i);
-            if (n.getNodeType() == Node.ELEMENT_NODE && elementName.equals(n.getLocalName())) {
+
+            if (n.getNodeType() == Node.ELEMENT_NODE
+                    && elementName.equals(n.getNodeName())) {
+
                 String text = n.getTextContent();
                 return text != null ? text.trim() : "";
             }
         }
+
         return "";
     }
 
     /**
      * Returns the first direct child Element node with the given name, or null
      * when it does not exist. Used for nested objects (insurance, transmission).
+     *
+     * Uses getNodeName() because the XML is not namespace-aware.
      */
+
     private Node childNode(Node parent, String elementName) {
         NodeList children = parent.getChildNodes();
+
         for (int i = 0; i < children.getLength(); i++) {
             Node n = children.item(i);
-            if (n.getNodeType() == Node.ELEMENT_NODE && elementName.equals(n.getLocalName())) {
+
+            if (n.getNodeType() == Node.ELEMENT_NODE
+                    && elementName.equals(n.getNodeName())) {
+
                 return n;
             }
         }
+
         return null;
     }
 
