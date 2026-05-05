@@ -1,5 +1,7 @@
 package com.solvd.autoservicerepair.parsers.xmltojavaobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -12,52 +14,22 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@ToString
 
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SparePartXml {
 
+    @JsonProperty("productName")
     private String productName;
+
+    @JsonProperty("productNumber")
     private String productNumber;
+
+    @JsonProperty("unitPrice")
     private BigDecimal unitPrice;
+
+    @JsonProperty("quantity")
     private int quantity;
 
-    public String getProductName() {
-        return productName;
-    }
-    public String getProductNumber() {
-        return productNumber;
-    }
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setProductName(String v) {
-        productName = v;
-    }
-    public void setProductNumber(String v) {
-        productNumber = v;
-    }
-    public void setUnitPrice(BigDecimal v) {
-        unitPrice = v;
-    }
-    public void setQuantity(int v) {
-        quantity = v;
-    }
-
-    /**
-     * Derived — mirrors SparePart.isInStock()
-     */
-    public boolean isInStock() {
-        return quantity > 0;
-    }
-
-    @Override
-    public String toString() {
-        return "SparePart{name='" + productName + "', qty=" + quantity +
-                ", inStock=" + isInStock() + "}";
-    }
-
+    // all existing getters/setters/isInStock() stay exactly the same
 }

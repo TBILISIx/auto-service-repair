@@ -1,5 +1,9 @@
 package com.solvd.autoservicerepair.parsers.xmltojavaobject;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,28 +17,26 @@ import java.time.LocalDate;
 
 @Setter
 @Getter
+@ToString
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class InsuranceXml {
 
+    @JsonProperty("provider")
     private String provider;
+
+    @JsonProperty("policyNumber")
     private String policyNumber;
+
+    @JsonProperty("expiryDate")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDate expiryDate;
+
+    @JsonProperty("monthlyPremium")
     private BigDecimal monthlyPremium;
-    private String tier;           // maps to InsuranceTier enum
 
-    /**
-     * Derived — mirrors Insurance.isExpired() in your domain model.
-     */
-    public boolean isExpired() {
-        return LocalDate.now().isAfter(expiryDate);
-    }
-
-    @Override
-    public String toString() {
-        return "Insurance{provider='" + provider + "', tier='" + tier +
-                "', expired=" + isExpired() + "}";
-    }
-
+    @JsonProperty("tier")
+    private String tier;
 }
 
 
