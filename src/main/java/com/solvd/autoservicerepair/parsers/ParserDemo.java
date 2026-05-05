@@ -18,7 +18,8 @@ public class ParserDemo {
         // ---- StAX ----
         parser = new GarageStaxParser();
         garage = parser.parse(XML_PATH);
-        log.info("StAX    -> {}", garage);
+
+        log.info("StAX    -> {}", garage); // This logging happens because of @ToString from lombok or manually overriding ToString method
 
         // ---- JAXB ----
         parser = new GarageJaxbParser();
@@ -31,10 +32,9 @@ public class ParserDemo {
         log.info("Jackson -> {}", garage);
 
         // ---- GarageXpathQueries ----
-        GarageXPathQueries q = new GarageXPathQueries(XML_PATH);
-        GarageXml parsed = q.parse(XML_PATH);
-        log.info("GarageXPathQueries -> {}", parsed);
-
+        parser = new GarageXPathQueries(XML_PATH);
+        garage = parser.parse(XML_PATH);
+        log.info("GarageXPathQueries -> {}", garage);
 
     }
 }
