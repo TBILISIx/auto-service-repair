@@ -25,7 +25,6 @@ public class AppointmentXml {
     private int id;
 
     @JsonProperty("scheduledTime")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime scheduledTime;
 
     @JsonProperty("status")
