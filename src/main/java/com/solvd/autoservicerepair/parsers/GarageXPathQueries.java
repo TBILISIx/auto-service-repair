@@ -558,70 +558,70 @@ public class GarageXPathQueries implements Parser {
         }
     }
 
-    // =========================================================================
-    // Demo application: runs all XPath queries on garage.xml
-    // =========================================================================
-
-    public static void main(String[] args) throws Exception {
-
-        // Adjust the path to wherever your garage.xml lives.
-        GarageXPathQueries q = new GarageXPathQueries(
-                "src/main/resources/garage.xml");
-
-        // parse() demo — fully populated GarageXml via XPath
-        GarageXml parsed = q.parse("src/main/resources/garage.xml");
-        System.out.println("Parsed via XPath: " + parsed);
-
-        // Q1
-        System.out.println("Garage name: " + q.getGarageName());
-
-        // Q2
-        printNodeList("All mechanic names", q.getAllMechanicNames());
-
-        // Q3
-        printNodeList("SENIOR or MASTER mechanics", q.getSeniorOrMasterMechanics());
-
-        // Q4
-        System.out.println("\nTotal mechanics: " + q.getMechanicCount());
-
-        // Q5
-        Node customer = q.getCustomerById("19207150012");
-        System.out.println("\nCustomer 19207150012: " +
-                (customer != null ? customer.getTextContent().trim().replaceAll("\\s+", " ") : "not found"));
-
-        // Q6
-        printNodeList("PREMIUM insurance customers", q.getCustomersWithPremiumInsurance());
-
-        // Q7
-        printNodeList("All vehicles", q.getAllVehicles());
-
-        // Q8
-        Node truck = q.getTruck();
-        System.out.println("\nTruck: " +
-                (truck != null ? truck.getTextContent().trim().replaceAll("\\s+", " ") : "not found"));
-
-        // Q9
-        System.out.println("\nTruck has sleeping cabin: " + q.truckHasSleepingCabin());
-
-        // Q10
-        printNodeList("IN_PROGRESS appointments", q.getInProgressAppointments());
-
-        // Q11
-        System.out.println("\nAppointment 1 scheduled time: " +
-                q.getAppointmentScheduledTime(1));
-
-        // Q12
-        printNodeList("In-stock spare parts (qty > 0)", q.getInStockSpareParts());
-
-        // Q13
-        System.out.println("\nVehicle ref for appointment 1: " +
-                q.getVehicleRefForAppointment(1));
-
-        // Q14
-        System.out.println("\nHas master mechanic: " + q.hasMasterMechanic());
-
-        // Q15 — today's date
-        printNodeList("Customers with expired insurance",
-                q.getCustomersWithExpiredInsurance("2026-04-25"));
-    }
+//    // =========================================================================
+//    // Demo: runs all XPath queries on garage.xml
+//    // =========================================================================
+//
+//    public static void main(String[] args) throws Exception {
+//
+//        // Adjust the path to wherever your garage.xml lives.
+//        GarageXPathQueries q = new GarageXPathQueries(
+//                "src/main/resources/garage.xml");
+//
+//        // parse() demo — fully populated GarageXml via XPath
+//        GarageXml parsed = q.parse("src/main/resources/garage.xml");
+//        System.out.println("Parsed via XPath: " + parsed);
+//
+//        // Q1
+//        System.out.println("Garage name: " + q.getGarageName());
+//
+//        // Q2
+//        printNodeList("All mechanic names", q.getAllMechanicNames());
+//
+//        // Q3
+//        printNodeList("SENIOR or MASTER mechanics", q.getSeniorOrMasterMechanics());
+//
+//        // Q4
+//        System.out.println("\nTotal mechanics: " + q.getMechanicCount());
+//
+//        // Q5
+//        Node customer = q.getCustomerById("19207150012");
+//        System.out.println("\nCustomer 19207150012: " +
+//                (customer != null ? customer.getTextContent().trim().replaceAll("\\s+", " ") : "not found"));
+//
+//        // Q6
+//        printNodeList("PREMIUM insurance customers", q.getCustomersWithPremiumInsurance());
+//
+//        // Q7
+//        printNodeList("All vehicles", q.getAllVehicles());
+//
+//        // Q8
+//        Node truck = q.getTruck();
+//        System.out.println("\nTruck: " +
+//                (truck != null ? truck.getTextContent().trim().replaceAll("\\s+", " ") : "not found"));
+//
+//        // Q9
+//        System.out.println("\nTruck has sleeping cabin: " + q.truckHasSleepingCabin());
+//
+//        // Q10
+//        printNodeList("IN_PROGRESS appointments", q.getInProgressAppointments());
+//
+//        // Q11
+//        System.out.println("\nAppointment 1 scheduled time: " +
+//                q.getAppointmentScheduledTime(1));
+//
+//        // Q12
+//        printNodeList("In-stock spare parts (qty > 0)", q.getInStockSpareParts());
+//
+//        // Q13
+//        System.out.println("\nVehicle ref for appointment 1: " +
+//                q.getVehicleRefForAppointment(1));
+//
+//        // Q14
+//        System.out.println("\nHas master mechanic: " + q.hasMasterMechanic());
+//
+//        // Q15 — today's date
+//        printNodeList("Customers with expired insurance",
+//                q.getCustomersWithExpiredInsurance("2026-04-25"));
+//    }
 }
